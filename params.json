@@ -1,0 +1,35 @@
+[
+    {
+        "script_name": "morphea",
+        "host": "localhost",
+        "port": 1230,
+        "verbose": false,
+        "CUDA_VISIBLE_DEVICES": 0,
+        "results_dir": "results",
+        "work_dir": "work",
+        "template_dir": "templates",
+        "char_card_path": "char.json",
+        "char_log_path": "char_persistent.json",
+        "model_path": "ggmlv3_model_q5_1.bin",
+        "retry_delay": 10,
+        "ping_interval": 15,
+        "ping_timeout": 60,
+        "answer_attempts_max": 2
+    },
+    {
+        "n_ctx": 4096,
+        "top_n_sigma": 1,
+        "top_p": 0,
+        "top_k": 100,
+        "temperature": 1,
+        "min_p": 0
+    },
+    {
+        "n_ctx": 4096,
+        "top_n_sigma": 1,
+        "top_p": 0,
+        "top_k": 100,
+        "temperature": 1,
+        "min_p": 0
+    }
+]
