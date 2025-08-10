@@ -4,26 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Morphea.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main_old.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/llamacpp_api.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/llamacpp_api_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/logutils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/neural_region.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/neural_region_scratch.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/sigutils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/stringutils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/tools_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/params.json" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Testing the LLM API">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/llamacpp_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/llamacpp_api.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -240,19 +223,32 @@
       <workItem from="1754770354279" duration="2328000" />
       <workItem from="1754772700523" duration="682000" />
       <workItem from="1754773403605" duration="324000" />
-      <workItem from="1754773737695" duration="12961000" />
+      <workItem from="1754773737695" duration="21535000" />
     </task>
+    <task id="LOCAL-00001" summary="Testing the LLM API">
+      <option name="closed" value="true" />
+      <created>1754786957031</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1754786957031</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Testing the LLM API" />
+    <option name="LAST_COMMIT_MESSAGE" value="Testing the LLM API" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$Doctests_in_llamacpp_api.coverage" NAME="Doctests in llamacpp_api Coverage Results" MODIFIED="1754780144193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$config.coverage" NAME="config Coverage Results" MODIFIED="1754783507497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$neural_region.coverage" NAME="neural_region Coverage Results" MODIFIED="1753823951121" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$tools_test.coverage" NAME="tools_test Coverage Results" MODIFIED="1753822899523" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Morphea$llamacpp_api.coverage" NAME="llamacpp_api Coverage Results" MODIFIED="1754786463940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
+    <SUITE FILE_PATH="coverage/Morphea$llamacpp_api.coverage" NAME="llamacpp_api Coverage Results" MODIFIED="1754788091495" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$ooba_api.coverage" NAME="ooba_api Coverage Results" MODIFIED="1754771453647" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$llamacpp_api_test.coverage" NAME="llamacpp_api_test Coverage Results" MODIFIED="1754777977732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
   </component>
