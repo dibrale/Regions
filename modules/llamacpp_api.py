@@ -1,8 +1,8 @@
 import json
-
-import requests
+import aiohttp
 
 from modules.stringutils import assure_string, parse_host_port
+
 
 class LLMLink:
     """A client for interacting with an LLM running on an OpenAI-compatible API. Has additional methods
@@ -20,6 +20,7 @@ class LLMLink:
            headers (dict): HTTP headers for API requests
            ssl (bool): Whether SSL verification is enabled (for https)
     """
+
     def __init__(self, host: str = '192.168.1.232:5000', params: dict = None, headers: dict = None, ssl: bool = False):
         """Initialize the LLMLink client with optional configuration.
 
@@ -74,7 +75,7 @@ class LLMLink:
         if not headers:
             self.headers = {"Content-Type": "application/json"}
 
-    def chat(self, prompt) -> str:
+    async def chat(self, prompt) -> str:
         """Send a prompt to the LLM and return the response text.
 
         This method handles prompt formatting, API request, and response parsing.
@@ -90,19 +91,19 @@ class LLMLink:
             str: Generated text response from the LLM (first choice)
 
         Raises:
-            requests.exceptions.RequestException: On network/API errors
+            aiohttp.ClientResponseError: On network/API errors
             ValueError: If prompt dictionary is missing required keys
             KeyError: If response structure doesn't match expected format
 
         Example:
             >>> llm = LLMLink()
-            >>> llm.chat("What is an AI?")  # String input
+            >>> await llm.chat("What is an AI?")  # String input
             'Artificial Intelligence (AI) refers to...'
-            >>> llm.chat({"role": "user", "content": "What is an AI?"})  # Dictionary input
+            >>> await llm.chat({"role": "user", "content": "What is an AI?"})  # Dictionary input
             'Artificial Intelligence (AI) refers to...'
-            >>> llm.chat([{"role": "user", "content": "What is an AI?"},
-            ...           {"role": "assistant", "content": "A miserable pile of weights"},
-            ...           {"role": "user", "content": "No, really?"}])  # List input
+            >>> await llm.chat([{"role": "user", "content": "What is an AI?"},
+            ...                {"role": "assistant", "content": "A miserable pile of weights"},
+            ...                {"role": "user", "content": "No, really?"}])  # List input
             'Actually, AI is...'
         """
         # Handle string vs dictionary prompts
@@ -122,18 +123,18 @@ class LLMLink:
         # Build request payload by merging parameters
         data = {"messages": message, **self.params}
 
-        # Send request (disable SSL verification for local development)
-        response = requests.post(
-            self.chat_url,
-            headers=self.headers,
-            json=data,
-            verify=self.ssl
-        )
-        response.raise_for_status()  # Raise exception for HTTP errors
+        # Send request using aiohttp
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                    self.chat_url,
+                    headers=self.headers,
+                    json=data,
+                    ssl=self.ssl
+            ) as response:
+                response.raise_for_status()
+                return (await response.json())['choices'][0]['message']['content']
 
-        return response.json()['choices'][0]['message']['content']
-
-    def text(self, prompt: str, max_tokens: int = 2048) -> str:
+    async def text(self, prompt: str, max_tokens: int = 2048) -> str:
         """Generate text completion for a given prompt.
 
         Sends a prompt to the text completion endpoint (OpenAI-compatible) and returns
@@ -147,26 +148,27 @@ class LLMLink:
             str: Generated text response from the LLM (first choice)
 
         Raises:
-            requests.exceptions.RequestException: On network/API errors
+            aiohttp.ClientResponseError: On network/API errors
             KeyError: If response structure doesn't match expected format
 
         Example:
             >>> llm = LLMLink()
-            >>> llm.text("Once upon a time", max_tokens=100)
+            >>> await llm.text("Once upon a time", max_tokens=100)
             'in a galaxy far, far away...'
         """
         data = {"prompt": prompt, "max_tokens": max_tokens, **self.params}
 
-        response = requests.post(
-            self.text_url,
-            headers=self.headers,
-            json=data,
-            verify=self.ssl
-        )
-        response.raise_for_status()
-        return response.json()['choices'][0]['text']
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                    self.text_url,
+                    headers=self.headers,
+                    json=data,
+                    ssl=self.ssl
+            ) as response:
+                response.raise_for_status()
+                return (await response.json())['choices'][0]['text']
 
-    def health(self) -> tuple[int, str]:
+    async def health(self) -> tuple[int, str]:
         """Check the health status of the LLM server.
 
         Returns a tuple containing the HTTP status code and a descriptive string
@@ -179,27 +181,29 @@ class LLMLink:
                 - 'error' for other status codes
 
         Raises:
-            requests.exceptions.RequestException: On network/API errors
+            aiohttp.ClientResponseError: On network/API errors
 
         Example:
             >>> llm = LLMLink()
-            >>> llm.health()
+            >>> await llm.health()
             (200, 'ok')
         """
-        response = requests.get(
-            self.health_url,
-            headers=self.headers,
-            verify=self.ssl
-        )
-        if response.status_code == 200:
-            desc = 'ok'
-        elif response.status_code == 503:
-            desc = 'loading'
-        else:
-            desc = 'error'
-        return response.status_code, desc
+        async with aiohttp.ClientSession() as session:
+            async with await session.get(
+                    self.health_url,
+                    headers=self.headers,
+                    ssl=self.ssl
+            ) as response:
+                if response.status == 200:
+                    desc = 'ok'
+                elif response.status == 503:
+                    desc = 'loading'
+                else:
+                    desc = 'error'
 
-    def model(self) -> str:
+                return response.status, desc
+
+    async def model(self) -> str:
         """Retrieve the name of the currently loaded LLM model.
 
         Queries the models endpoint and returns the name of the first model
@@ -209,22 +213,25 @@ class LLMLink:
             str: Name of the LLM model
 
         Raises:
-            requests.exceptions.RequestException: On network/API errors
+            aiohttp.ClientResponseError: On network/API errors
             KeyError: If response structure lacks 'models' key or is empty
 
         Example:
             >>> llm = LLMLink()
-            >>> llm.model()
+            >>> await llm.model()
             'ggml-model-q4_k'
         """
-        response = requests.get(
-            self.models_url,
-            headers=self.headers,
-            verify=self.ssl
-        )
-        return json.loads(response.text[:])['models'][0]['name']
+        async with aiohttp.ClientSession() as session:
+            async with await session.get(
+                    self.models_url,
+                    headers=self.headers,
+                    ssl=self.ssl
+            ) as response:
+                response.raise_for_status()
+                data = await response.json()
+                return data['models'][0]['name']
 
-    def n_tokens(self, content: str) -> int:
+    async def n_tokens(self, content: str) -> int:
         """Count the number of tokens in a given content string.
 
         Uses the llama.cpp-specific tokenize endpoint to determine token count.
@@ -236,18 +243,21 @@ class LLMLink:
             int: Number of tokens in the content
 
         Raises:
-            requests.exceptions.RequestException: On network/API errors
+            aiohttp.ClientResponseError: On network/API errors
             KeyError: If response structure lacks 'tokens' key
 
         Example:
             >>> llm = LLMLink()
-            >>> llm.n_tokens("Hello, world!")
+            >>> await llm.n_tokens("Hello, world!")
             3
         """
-        response = requests.post(
-            self.tokenize_url,
-            headers=self.headers,
-            json={"content": content},
-            verify=self.ssl
-        )
-        return len(json.loads(response.text[:])['tokens'])
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                    self.tokenize_url,
+                    headers=self.headers,
+                    json={"content": content},
+                    ssl=self.ssl
+            ) as response:
+                response.raise_for_status()
+                data = await response.json()
+                return len(data['tokens'])
