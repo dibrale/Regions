@@ -30,7 +30,7 @@ class NeuralRegion:
         self.replies = asyncio.Queue()  # Queue for outgoing replies
         self.queries = asyncio.Queue() # Queue for outgoing queries
 
-    def ask(self, destination: str, query_text: str):
+    def ask(self, destination: str, query_text: str) -> None:
         """
         Package a request for information from another region and add it to the outgoing request queue.
 
@@ -56,7 +56,7 @@ class NeuralRegion:
         self.queries.put_nowait(message)
         return
 
-    def reply(self, request: dict):
+    async def reply(self, request: dict) -> Exception | None:
         """
         Process a request from another region.
 
@@ -85,14 +85,15 @@ class NeuralRegion:
         response = {
             "source": self.name,
             "destination": source,
-            "content": self._process(query)
+            "content": await self._process(query)
         }
 
         # Add the reply to the reply queue of the responding region
         self.replies.put_nowait(response)
+        await asyncio.sleep(0)
         return None
 
-    def _process(self, query: str):
+    async def _process(self, query: str) -> str:
         """
         Internal method to process a query based on the region's function. LLM is called here to process
         region-specific prompt. This should be overridden by specific region implementations.
@@ -106,4 +107,5 @@ class NeuralRegion:
         :param query: A string containing the query to be processed.
         """
         # Default implementation - should be overridden
+        await asyncio.sleep(0)
         return ''
