@@ -6,7 +6,7 @@ class NeuralRegion:
     Each region has a specific function and can process requests from other regions.
     """
 
-    def __init__(self, name: str, description: str = None, connections: dict[str, str] = None):
+    def __init__(self, name: str, description: str = None, connections: dict[str, str] = None, prompt: str = None):
         """
         Initialize a neural region.
 
@@ -16,6 +16,7 @@ class NeuralRegion:
         :param name: A string with the name of the region
         :param description: A string describing region function
         :param connections: A dict in the form of {"name": str, "function": str} with query templates keyed by region name
+        :param prompt: A string with the prompt for region functionality
         """
         if description is None:
             description = ''
