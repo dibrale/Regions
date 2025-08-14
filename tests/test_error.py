@@ -5,6 +5,7 @@ Test script for comprehensive error handling
 import asyncio
 import os
 import sqlite3
+import modules.testutils
 from modules.dynamic_rag import (
     DynamicRAGSystem,
     ErrorCodes,
@@ -18,7 +19,6 @@ from modules.dynamic_rag import (
     DatabaseManager,
     RateLimiter
 )
-from modules.testutils import remove_db
 
 
 async def entry(rag_system: DynamicRAGSystem):
@@ -174,32 +174,29 @@ async def main():
         embedding_server_url=f"http://{server_ip}:{server_port}",
         embedding_model=model_name,
     )
+    
+    """Run all error tests"""
 
-    tests = [
-        entry(rag),
-        access(),
-        unavailable(),
-        mismatch(),
-        transport(),
-    ]
-    
-    results = await asyncio.gather(*tests, return_exceptions=True)
-    
-    passed = sum(1 for r in results if r is True)
-    total = len(results)
-    
-    print(f"\n=== Test Results ===")
-    print(f"Passed: {passed}/{total}")
-    
-    if passed == total:
-        print("✓ All error handling tests passed!")
-    else:
-        print("✗ Some tests failed")
-        for i, result in enumerate(results):
-            if result is not True:
-                print(f"  Test {i+1}: {result}")
+    suite = modules.testutils.TestSet('=== Error System Tests ===',
+                                      [
+                                          entry(rag),
+                                          access(),
+                                          unavailable(),
+                                          mismatch(),
+                                          transport(),
+                                      ],
+                                      [
+                                          "NoMatchingEntryError Test",
+                                          "DatabaseNotAccessibleError Test",
+                                          "ServiceUnavailableError Test",
+                                          "SchemaMismatchError Test",
+                                          "HTTPError Test",
+                                      ]
+                                      )
 
-    remove_db()
+    await suite.run_sequential()
+    suite.result()
+    modules.testutils.remove_db()
 
 if __name__ == "__main__":
     asyncio.run(main())

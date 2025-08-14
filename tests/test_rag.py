@@ -1,19 +1,10 @@
 """
-Example Usage of Dynamic RAG System
-
-This script demonstrates how to use the Dynamic RAG System
-with a real llama.cpp embedding server.
-
-Prerequisites:
-1. Install llama.cpp and start embedding server on port 8080
-2. Install required Python packages: aiohttp
-
-Usage:
-python example_usage.py
+Test script for RAG functionality
 """
 
 import asyncio
 import os
+import statistics
 import unittest
 
 import modules.testutils
@@ -36,6 +27,87 @@ from tests.test_database import (
     operations,
     concurrent
 )
+
+
+class TestDataGenerator:
+    """Generate test data for precision/recall testing"""
+
+    @staticmethod
+    def get_test_documents() -> list[dict[str, str | list[str]]]:
+        """Get test documents with known semantic relationships"""
+        return [
+            {
+                "content": "Machine learning algorithms can learn patterns from data automatically.",
+                "category": "machine_learning",
+                "actors": ["researcher", "data_scientist"]
+            },
+            {
+                "content": "Deep neural networks are a powerful machine learning technique.",
+                "category": "machine_learning",
+                "actors": ["ai_engineer", "researcher"]
+            },
+            {
+                "content": "Artificial intelligence systems can perform complex reasoning tasks.",
+                "category": "artificial_intelligence",
+                "actors": ["ai_researcher", "engineer"]
+            },
+            {
+                "content": "AI models require large amounts of training data to perform well.",
+                "category": "artificial_intelligence",
+                "actors": ["data_scientist", "ml_engineer"]
+            },
+            {
+                "content": "SQL databases provide structured storage for relational data.",
+                "category": "database",
+                "actors": ["database_admin", "developer"]
+            },
+            {
+                "content": "Database indexing improves query performance significantly.",
+                "category": "database",
+                "actors": ["dba", "backend_developer"]
+            },
+            {
+                "content": "The weather is sunny today with clear blue skies.",
+                "category": "weather",
+                "actors": ["meteorologist", "observer"]
+            },
+            {
+                "content": "Cooking pasta requires boiling water and adding salt.",
+                "category": "cooking",
+                "actors": ["chef", "home_cook"]
+            }
+        ]
+
+    @staticmethod
+    def get_test_queries() -> list[dict[str, str | list[str] | int]]:
+        """Get test queries with expected relevant categories"""
+        return [
+            {
+                "query": "machine learning techniques",
+                "expected_categories": ["machine_learning"],
+                "min_results": 2
+            },
+            {
+                "query": "artificial intelligence reasoning",
+                "expected_categories": ["artificial_intelligence"],
+                "min_results": 2
+            },
+            {
+                "query": "database storage and indexing",
+                "expected_categories": ["database"],
+                "min_results": 2
+            },
+            {
+                "query": "AI and ML systems",
+                "expected_categories": ["machine_learning", "artificial_intelligence"],
+                "min_results": 3
+            },
+            {
+                "query": "cooking recipes",
+                "expected_categories": ["cooking"],
+                "min_results": 1
+            }
+        ]
 
 async def store(rag_system: DynamicRAGSystem, data: list[dict]):
     """Test document storage with chunking"""
@@ -203,6 +275,104 @@ async def dummy_test():
         print(f"\n✗ Dummy test failed : {e}\n")
         return False
 
+async def precision_recall(rag_system: DynamicRAGSystem):
+    """Test retrieval precision and recall metrics"""
+
+    test_queries = TestDataGenerator.get_test_queries()
+    test_docs = TestDataGenerator.get_test_documents()
+    precision_scores = []
+    recall_scores = []
+
+    print("\nStoring test chunks...")
+
+    i = 0
+    for doc in test_docs:
+        i+=1
+        await asyncio.sleep(0.5)  # Rate limiting delay
+        chunk_hashes = await rag_system.store_document(
+            content=doc["content"],
+            actors=doc["actors"],
+            document_id=f"{doc['category']}{i}",
+            chunk_size=50,
+            overlap=10
+        )
+        print(f" ✓ Stored '{doc['category']}{i}' with {len(chunk_hashes)} chunks")
+
+    print("\nTesting retrieval precision/recall...")
+
+    try:
+
+        for query_data in test_queries:
+            query = query_data["query"]
+            expected_categories = query_data["expected_categories"]
+            min_results = query_data["min_results"]
+
+            try:
+                await asyncio.sleep(0.5)
+                results = await rag_system.retrieve_similar(
+                    query=query,
+                    similarity_threshold=0.55,
+                    max_results=5
+                )
+
+                if len(results) == 0:
+                    print(f"  ✗ Query '{query}': no results")
+                    continue
+
+                # Calculate precision: relevant results / total results
+                relevant_results = 0
+                for result in results:
+                    content = result.chunk.content.lower()
+                    for category in expected_categories:
+                        if category == "machine_learning" and any(
+                                word in content for word in ['machine', 'learning', 'neural']):
+                            relevant_results += 1
+                            break
+                        elif category == "artificial_intelligence" and any(
+                                word in content for word in ['artificial', 'intelligence', 'ai']):
+                            relevant_results += 1
+                            break
+                        elif category == "database" and any(word in content for word in ['database', 'sql', 'storage']):
+                            relevant_results += 1
+                            break
+                        elif category == "cooking" and any(word in content for word in ['cooking', 'pasta']):
+                            relevant_results += 1
+                            break
+
+                precision = relevant_results / len(results) if results else 0
+                recall = min(relevant_results / min_results, 1.0)  # Simplified recall calculation
+
+                precision_scores.append(precision)
+                recall_scores.append(recall)
+
+                print(f"  Query '{query}': results={len(results)}, precision={precision:.2f}, recall={recall:.2f}")
+
+                # await asyncio.sleep(0.5)
+
+            except NoMatchingEntryError:
+                print(f"  ✗ Query '{query}': no matching entries")
+
+        if precision_scores and recall_scores:
+            avg_precision = statistics.mean(precision_scores)
+            avg_recall = statistics.mean(recall_scores)
+
+            print(f"✓ Average precision: {avg_precision:.3f}")
+            print(f"✓ Average recall: {avg_recall:.3f}")
+
+            # Consider test passed if precision > 0.5 and recall > 0.5
+            if avg_precision > 0.5 and avg_recall > 0.5:
+                return True
+            else:
+                print("✗ Precision/recall below acceptable thresholds")
+                return False
+        else:
+            print("✗ No precision/recall data collected")
+            return False
+
+    except Exception as e:
+        print(f"✗ Precision/recall test failed: {e}")
+        return False
+
 async def main():
     server_port = 10000
     server_ip = "localhost"
@@ -253,61 +423,22 @@ async def main():
                                       [
                                           #store(rag, documents),
                                           #retrieve(rag, questions),
-                                          stats(rag),
+                                          #stats(rag),
                                           #update(rag, new_document),
-                                          dummy_test()
+                                          precision_recall(rag)
                                       ],
                                       [
                                           #"Document Storage",
                                           #"Similarity Retrieval",
-                                          "System Stats",
+                                          #"System Stats",
                                           #"Chunk Update",
-                                          "Dummy Test"
+                                          "Precision and Recall",
                                       ]
                                       )
 
     await suite.run_sequential()
     suite.result()
     remove_db()
-
-'''
-    print(f"=== RAG System Tests ===\n")
-    passed = []
-    tests = [
-        store(rag, documents),
-        retrieve(rag, questions),
-        stats(rag),
-        update(rag, new_document),
-    ]
-
-    test_names = [
-        "Document Storage",
-        "Similarity Retrieval",
-        "System Stats",
-        "Chunk Update",
-    ]
-'''
-'''
-    for test in tests:
-        passed.append(await test)
-
-    total = len(tests)
-
-    print(f"\n=== Results ===")
-    print(f"Passed: {sum(passed)}/{total}")
-
-    for i, (name, result) in enumerate(zip(test_names, passed)):
-        status = "✓ PASS" if result is True else "✗ FAIL"
-        print(f"  {status}: {name}")
-        if result is not True and result is not False:
-            print(f"    Error: {result}")
-
-    if sum(passed) == total:
-        print("\nAll tests passed!")
-    else:
-        print(f"\n⚠️  {total - sum(passed)} tests failed.")
-'''
-
 
 if __name__ == "__main__":
     asyncio.run(main())

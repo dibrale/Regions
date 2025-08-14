@@ -123,7 +123,7 @@ async def concurrent():
     """Test that concurrent requests are properly denied"""
     print("\nTesting concurrent request denial...")
     
-    db_manager = DatabaseManager("test_rag.db")
+    db_manager = DatabaseManager("example_rag.db")
     
     # Create test chunk
     metadata = ChunkMetadata(
@@ -165,31 +165,23 @@ async def concurrent():
         return False
 
 async def main():
-    """Run all database tests"""
-    print("=== Database Layer Tests ===")
-    
-    tests = [
-        rate(),
-        operations(),
-        concurrent()
-    ]
-    
-    results = await asyncio.gather(*tests, return_exceptions=True)
-    
-    passed = sum(1 for r in results if r is True)
-    total = len(results)
-    
-    print(f"\n=== Test Results ===")
-    print(f"Passed: {passed}/{total}")
-    
-    if passed == total:
-        print("✓ All database layer tests passed!")
-    else:
-        print("✗ Some tests failed")
-        for i, result in enumerate(results):
-            if result is not True:
-                print(f"  Test {i+1}: {result}")
+    """Run all DB layer tests"""
 
+    suite = modules.testutils.TestSet('=== Database Layer Tests ===',
+                                      [
+                                          rate(),
+                                          operations(),
+                                          concurrent()
+                                      ],
+                                      [
+                                          "Rate Limit Test",
+                                          "Basic Database Operations Test",
+                                          "Concurrent Requests Test"
+                                      ]
+                                      )
+
+    await suite.run_sequential()
+    suite.result()
     remove_db()
 
 if __name__ == "__main__":

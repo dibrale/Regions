@@ -361,7 +361,7 @@ class DynamicRAGSystem:
                 
                 # Add delay between chunks to respect rate limiting
                 if i < len(chunks) - 1:  # Don't wait after the last chunk
-                    await asyncio.sleep(0.6)
+                    await asyncio.sleep(0.5)
         
         return chunk_hashes
     
@@ -384,6 +384,7 @@ class DynamicRAGSystem:
             if chunk.embedding:
                 similarity = cosine_similarity(query_embedding, chunk.embedding)
                 if similarity >= similarity_threshold:
+                    # print(f"Similarity: {similarity:.2f}")
                     results.append(RetrievalResult(chunk=chunk, similarity_score=similarity))
         
         # Sort by similarity and limit results
@@ -404,7 +405,7 @@ class DynamicRAGSystem:
             return False
 
         # Rate limiting delay
-        await asyncio.sleep(0.6)
+        await asyncio.sleep(0.5)
 
         # Generate new embedding
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:

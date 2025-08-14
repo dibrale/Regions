@@ -4,15 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Switched to aiohttp and async for llama.cpp.&#10;- Added unit test for API&#10;- Refactored directory structure">
-      <change afterPath="$PROJECT_DIR$/docs/Dynamic RAG Storage, Indexing and Retrieval System.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/testutils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/test_database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/test_error.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/test_rag.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Added Dynamic RAG&#10;- Added unit tests for RAG&#10;- Added common utility module for unit tests">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/neural_region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/neural_region.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/testutils.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/testutils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_database.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_error.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_error.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_rag.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/tools_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/scratch/tools_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,8 +93,8 @@
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\adibrov\PycharmProjects\Morphea\tests" />
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\scratch" />
+      <recent name="C:\Users\adibrov\PycharmProjects\Morphea\tests" />
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea" />
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\modules" />
     </key>
@@ -219,8 +218,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.test_rag (1)" />
-        <item itemvalue="Python.test_database" />
         <item itemvalue="Python.test_error (1)" />
+        <item itemvalue="Python.test_database" />
         <item itemvalue="Python.test_rag" />
       </list>
     </recent_temporary>
@@ -260,7 +259,7 @@
       <workItem from="1754773737695" duration="63299000" />
       <workItem from="1755037513142" duration="12000" />
       <workItem from="1755037537425" duration="116000" />
-      <workItem from="1755037673137" duration="9633000" />
+      <workItem from="1755037673137" duration="26786000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -294,7 +293,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754887030843</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="- Added Dynamic RAG&#10;- Added unit tests for RAG&#10;- Added common utility module for unit tests">
+      <option name="closed" value="true" />
+      <created>1755066013624</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1755066013624</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -305,21 +312,22 @@
     <MESSAGE value="First working version of the LLMLink class." />
     <MESSAGE value="Working synchronous wrapper for llama.cpp" />
     <MESSAGE value="- Switched to aiohttp and async for llama.cpp.&#10;- Added unit test for API&#10;- Refactored directory structure" />
-    <option name="LAST_COMMIT_MESSAGE" value="- Switched to aiohttp and async for llama.cpp.&#10;- Added unit test for API&#10;- Refactored directory structure" />
+    <MESSAGE value="- Added Dynamic RAG&#10;- Added unit tests for RAG&#10;- Added common utility module for unit tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Added Dynamic RAG&#10;- Added unit tests for RAG&#10;- Added common utility module for unit tests" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755042333212" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755071445426" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$config.coverage" NAME="config Coverage Results" MODIFIED="1754783507497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation__1_.coverage" NAME="system_validation (1) Coverage Results" MODIFIED="1754953956081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_rag_system.coverage" NAME="test_rag_system Coverage Results" MODIFIED="1754960037443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_error_handling.coverage" NAME="test_error_handling Coverage Results" MODIFIED="1755024022292" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$example_usage.coverage" NAME="example_usage Coverage Results" MODIFIED="1754960592061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/Morphea$test_database.coverage" NAME="test_database Coverage Results" MODIFIED="1755028329576" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Morphea$test_database.coverage" NAME="test_database Coverage Results" MODIFIED="1755067054258" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$comprehensive_unit_tests.coverage" NAME="comprehensive_unit_tests Coverage Results" MODIFIED="1754957816626" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_embedding_client.coverage" NAME="test_embedding_client Coverage Results" MODIFIED="1754960121608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation.coverage" NAME="system_validation Coverage Results" MODIFIED="1754952625432" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scratch" />
     <SUITE FILE_PATH="coverage/Morphea$ooba_api.coverage" NAME="ooba_api Coverage Results" MODIFIED="1754771453647" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
-    <SUITE FILE_PATH="coverage/Morphea$test_error__1_.coverage" NAME="test_error (1) Coverage Results" MODIFIED="1755028309976" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Morphea$test_error__1_.coverage" NAME="test_error (1) Coverage Results" MODIFIED="1755067513413" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$Doctests_in_llamacpp_api.coverage" NAME="Doctests in llamacpp_api Coverage Results" MODIFIED="1754780144193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$neural_region.coverage" NAME="neural_region Coverage Results" MODIFIED="1753823951121" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$tools_test.coverage" NAME="tools_test Coverage Results" MODIFIED="1753822899523" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
