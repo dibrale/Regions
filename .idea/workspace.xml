@@ -4,14 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Added Dynamic RAG&#10;- Added unit tests for RAG&#10;- Added common utility module for unit tests">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="feat: add RAG system tests and validation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/testutils.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/testutils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_database.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_error.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_error.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/Dynamic RAG Storage, Indexing and Retrieval System.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Dynamic RAG Storage, Indexing and Retrieval System.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/neural_region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/async_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/async_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_rag.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/tools_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/scratch/tools_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,51 +38,52 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python tests.Doctests in llamacpp_api.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in async_test.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python.comprehensive_unit_tests.executor&quot;: &quot;Run&quot;,
-    &quot;Python.config.executor&quot;: &quot;Run&quot;,
-    &quot;Python.dynamic_rag.executor&quot;: &quot;Run&quot;,
-    &quot;Python.example_usage.executor&quot;: &quot;Run&quot;,
-    &quot;Python.llamacpp_api.executor&quot;: &quot;Run&quot;,
-    &quot;Python.llamacpp_api_test.executor&quot;: &quot;Run&quot;,
-    &quot;Python.neural_region.executor&quot;: &quot;Run&quot;,
-    &quot;Python.ooba_api.executor&quot;: &quot;Run&quot;,
-    &quot;Python.rag_test.executor&quot;: &quot;Run&quot;,
-    &quot;Python.system_validation (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.system_validation.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_database.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_embedding_client.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_error (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_error_handling.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_rag (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_rag_system.executor&quot;: &quot;Run&quot;,
-    &quot;Python.tools_test.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/adibrov/PycharmProjects/Morphea/tests&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python tests.Doctests in llamacpp_api.executor": "Run",
+    "Python tests.Python tests for tests.async_test.TestLLMLink.executor": "Run",
+    "Python tests.Python tests in async_test.py.executor": "Run",
+    "Python.comprehensive_unit_tests.executor": "Run",
+    "Python.config.executor": "Run",
+    "Python.dynamic_rag.executor": "Run",
+    "Python.example_usage.executor": "Run",
+    "Python.llamacpp_api.executor": "Run",
+    "Python.llamacpp_api_test.executor": "Run",
+    "Python.neural_region.executor": "Run",
+    "Python.ooba_api.executor": "Run",
+    "Python.rag_test.executor": "Run",
+    "Python.system_validation (1).executor": "Run",
+    "Python.system_validation.executor": "Run",
+    "Python.test_database.executor": "Run",
+    "Python.test_embedding_client.executor": "Run",
+    "Python.test_error (1).executor": "Run",
+    "Python.test_error_handling.executor": "Run",
+    "Python.test_rag (1).executor": "Run",
+    "Python.test_rag_system.executor": "Run",
+    "Python.tools_test.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "C:/Users/adibrov/PycharmProjects/Morphea/tests",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;sqlite&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "sqlite"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\tests" />
@@ -146,29 +146,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_error" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Morphea" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="C:\Users\adibrov\PycharmProjects\Morphea\tests\test_error.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="test_rag (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Morphea" />
       <option name="ENV_FILES" value="" />
@@ -192,35 +169,45 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_rag" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for tests.async_test.TestLLMLink" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Morphea" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="C:\Users\adibrov\PycharmProjects\Morphea\tests\test_rag.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.async_test.TestLLMLink&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests in async_test.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Morphea" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/async_test.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Python.test_rag (1)" />
+        <item itemvalue="Python tests.Python tests in async_test.py" />
+        <item itemvalue="Python tests.Python tests for tests.async_test.TestLLMLink" />
         <item itemvalue="Python.test_error (1)" />
         <item itemvalue="Python.test_database" />
-        <item itemvalue="Python.test_rag" />
       </list>
     </recent_temporary>
   </component>
@@ -259,7 +246,7 @@
       <workItem from="1754773737695" duration="63299000" />
       <workItem from="1755037513142" duration="12000" />
       <workItem from="1755037537425" duration="116000" />
-      <workItem from="1755037673137" duration="26786000" />
+      <workItem from="1755037673137" duration="48892000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -301,7 +288,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755066013624</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="feat: add RAG system tests and validation">
+      <option name="closed" value="true" />
+      <created>1755157400372</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1755157400372</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -313,10 +308,12 @@
     <MESSAGE value="Working synchronous wrapper for llama.cpp" />
     <MESSAGE value="- Switched to aiohttp and async for llama.cpp.&#10;- Added unit test for API&#10;- Refactored directory structure" />
     <MESSAGE value="- Added Dynamic RAG&#10;- Added unit tests for RAG&#10;- Added common utility module for unit tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="- Added Dynamic RAG&#10;- Added unit tests for RAG&#10;- Added common utility module for unit tests" />
+    <MESSAGE value="Cleaned up" />
+    <MESSAGE value="feat: add RAG system tests and validation" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add RAG system tests and validation" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755071445426" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$config.coverage" NAME="config Coverage Results" MODIFIED="1754783507497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation__1_.coverage" NAME="system_validation (1) Coverage Results" MODIFIED="1754953956081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_rag_system.coverage" NAME="test_rag_system Coverage Results" MODIFIED="1754960037443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -331,7 +328,7 @@
     <SUITE FILE_PATH="coverage/Morphea$Doctests_in_llamacpp_api.coverage" NAME="Doctests in llamacpp_api Coverage Results" MODIFIED="1754780144193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$neural_region.coverage" NAME="neural_region Coverage Results" MODIFIED="1753823951121" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$tools_test.coverage" NAME="tools_test Coverage Results" MODIFIED="1753822899523" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Morphea$.coverage" NAME=" Coverage Results" MODIFIED="1754886625542" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Morphea$.coverage" NAME=" Coverage Results" MODIFIED="1755206169459" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$llamacpp_api.coverage" NAME="llamacpp_api Coverage Results" MODIFIED="1754788091495" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$dynamic_rag.coverage" NAME="dynamic_rag Coverage Results" MODIFIED="1754956564130" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$llamacpp_api_test.coverage" NAME="llamacpp_api_test Coverage Results" MODIFIED="1754777977732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />

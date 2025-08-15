@@ -10,7 +10,7 @@ A comprehensive RAG (Retrieval-Augmented Generation) system implemented in Pytho
 - **Database**: SQLite database with strict rate limiting (one query per 500ms) and concurrent request denial
 - **Dynamic Indexing**: Incremental dynamic index maintenance with chunk metadata (timestamp, actors)
 - **Error Handling**: Comprehensive error handling with specific error codes and descriptions
-- **Unit Tests**: Complete test suite covering store/retrieve functionality, precision/recall, latency, and hallucination rate
+- **Unit Tests**: Complete test suite covering store/retrieve functionality, precision/recall, and hallucination rate
 
 ### Technical Specifications
 - **Rate Limiting**: 500ms minimum interval between database queries
@@ -29,8 +29,6 @@ pip install aiohttp sqlite3
 ### Files
 - `dynamic_rag.py` - Main implementation
 - `test_*.py` - Unit test files
-- `comprehensive_unit_tests.py` - Complete test suite
-- `system_validation.py` - System validation script
 
 ## Usage
 
@@ -38,7 +36,7 @@ pip install aiohttp sqlite3
 
 ```python
 import asyncio
-from dynamic_rag import DynamicRAGSystem
+from modules.dynamic_rag import DynamicRAGSystem
 
 async def main():
     # Initialize the RAG system
@@ -77,26 +75,29 @@ asyncio.run(main())
 ### Error Handling
 
 ```python
-from dynamic_rag import (
+from modules.dynamic_rag import (
     NoMatchingEntryError,
     DatabaseNotAccessibleError,
     ServiceUnavailableError,
     SchemaMismatchError,
     HTTPError,
-    ErrorCodes
+    ErrorCodes, DynamicRAGSystem
 )
 
-try:
-    results = await rag_system.retrieve_similar("query", 0.9, 5)
-except NoMatchingEntryError as e:
-    print(f"No results found: {e.description} (Code: {e.code})")
-except ServiceUnavailableError as e:
-    print(f"Rate limited: {e.description} (Code: {e.code})")
-except HTTPError as e:
-    print(f"Connection error: {e.description} (Code: {e.code})")
+rag_system = DynamicRAGSystem()
+
+async def main():
+    try:
+        results = await rag_system.retrieve_similar("query", 0.9, 5)
+    except NoMatchingEntryError as e:
+        print(f"No results found: {e.description} (Code: {e.code})")
+    except ServiceUnavailableError as e:
+        print(f"Rate limited: {e.description} (Code: {e.code})")
+    except HTTPError as e:
+        print(f"Connection error: {e.description} (Code: {e.code})")
 ```
 
-### Advanced Usage
+### Additional Usage
 
 ```python
 # Update existing chunk

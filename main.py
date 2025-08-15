@@ -2,7 +2,7 @@ import os
 import asyncio
 
 from modules.config import params
-from modules.neural_region import NeuralRegion
+from modules.region import NeuralRegion
 
 
 # Main function that runs the script

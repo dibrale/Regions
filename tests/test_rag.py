@@ -111,7 +111,7 @@ class TestDataGenerator:
 
 async def store(rag_system: DynamicRAGSystem, data: list[dict]):
     """Test document storage with chunking"""
-    print("=== Document storage test ===")
+    print("=== Document Storage ===")
 
     try:
         # Test document storage with smaller chunks to reduce embedding calls
@@ -140,7 +140,7 @@ async def store(rag_system: DynamicRAGSystem, data: list[dict]):
 
 async def retrieve(rag_system: DynamicRAGSystem, queries: list[str]):
 
-    print("=== Document retrieval test ===")
+    print("=== Document Retrieval ===")
 
     success = []
 
@@ -186,10 +186,10 @@ async def retrieve(rag_system: DynamicRAGSystem, queries: list[str]):
         print(f"  Matching entries: {sum(success)}/{len(queries)}\n")
 
 async def stats(rag_system: DynamicRAGSystem):
+    print("=== System statistics test ===")
 
     try:
         await asyncio.sleep(0.5)
-        print("=== System statistics test ===")
         stats = await rag_system.get_stats()
         print(f"   Total chunks: {stats['total_chunks']}")
         print(f"   Unique documents: {stats['unique_documents']}")
@@ -204,7 +204,7 @@ async def stats(rag_system: DynamicRAGSystem):
 
 async def update(rag_system: DynamicRAGSystem, entry: dict):
 
-    print("=== Document update test ===")
+    print("=== Document Update ===")
     await asyncio.sleep(0.5)
     info = await rag_system.get_stats()
     print(f"   Total chunks: {info['total_chunks']}")
@@ -267,6 +267,7 @@ async def update(rag_system: DynamicRAGSystem, entry: dict):
         return False
 
 async def dummy_test():
+    print("=== Dummy Test ===")
     await asyncio.sleep(0)
     raise AssertionError("Error raised by Dummy Test")
     try:
@@ -275,7 +276,7 @@ async def dummy_test():
         print(f"\n✗ Dummy test failed : {e}\n")
         return False
 
-async def precision_recall(rag_system: DynamicRAGSystem):
+async def precision_recall(rag_system: DynamicRAGSystem, similarity: float = 0.55):
     """Test retrieval precision and recall metrics"""
 
     test_queries = TestDataGenerator.get_test_queries()
@@ -283,6 +284,7 @@ async def precision_recall(rag_system: DynamicRAGSystem):
     precision_scores = []
     recall_scores = []
 
+    print("=== Precision/Recall ===")
     print("\nStoring test chunks...")
 
     i = 0
@@ -311,7 +313,7 @@ async def precision_recall(rag_system: DynamicRAGSystem):
                 await asyncio.sleep(0.5)
                 results = await rag_system.retrieve_similar(
                     query=query,
-                    similarity_threshold=0.55,
+                    similarity_threshold=similarity,
                     max_results=5
                 )
 
@@ -373,6 +375,68 @@ async def precision_recall(rag_system: DynamicRAGSystem):
         print(f"✗ Precision/recall test failed: {e}")
         return False
 
+async def hallucinations(rag_system: DynamicRAGSystem, query: list[str] | str, similarity: float=0.55):
+    """Test hallucination rate (returning irrelevant results)"""
+    print("=== Hallucinations ===")
+    print("\nTesting hallucination rate...")
+
+    try:
+
+        if isinstance(query, str):
+            irrelevant_queries = [query]
+        elif isinstance(query, list):
+            irrelevant_queries = query
+        else:
+            raise AssertionError(f"Query type '{query}' not supported")
+
+        # Test queries that should have very few or no relevant results
+
+        hallucination_count = 0
+        total_queries = 0
+
+        for query in irrelevant_queries:
+            try:
+                await asyncio.sleep(0.5)
+                results = await rag_system.retrieve_similar(
+                    query=query,
+                    similarity_threshold=similarity,
+                    max_results=3
+                )
+
+                # Any results for these irrelevant queries could be considered hallucinations
+                if len(results) > 0:
+                    hallucination_count += len(results)
+                    print(f"  Query '{query}': {len(results)} potentially irrelevant results")
+                else:
+                    print(f"  Query '{query}': correctly returned no results")
+
+                total_queries += 1
+
+            except NoMatchingEntryError:
+                print(f"  Query '{query}': correctly returned no results")
+                total_queries += 1
+
+            finally:
+                await asyncio.sleep(0.5)
+
+        # Calculate hallucination rate
+        total_possible_hallucinations = total_queries * 3  # Max results per query
+        hallucination_rate = hallucination_count / total_possible_hallucinations
+        print(
+            f"✓ Hallucination rate: {hallucination_rate:.1f} ({hallucination_count}/{total_possible_hallucinations})")
+
+        # Consider acceptable if hallucination rate < 0.1 (10%)
+        if hallucination_rate < 0.1:
+            print("✓ Hallucination rate within acceptable limits")
+            return True
+        else:
+            print("✗ Hallucination rate too high")
+            return False
+
+    except Exception as e:
+        print(f"✗ Hallucination test failed: {e}")
+        return False
+
 async def main():
     server_port = 10000
     server_ip = "localhost"
@@ -410,6 +474,15 @@ async def main():
         "AI and machine learning applications"
     ]
 
+    # Irrelevant Queries
+    irrelevant_queries = [
+        "quantum physics equations",
+        "ancient roman history",
+        "space exploration missions",
+        "underwater basket weaving",
+        "medieval castle architecture"
+    ]
+
     # Initialize the system
     rag = DynamicRAGSystem(
         db_path="example_rag.db",
@@ -421,18 +494,20 @@ async def main():
 
     suite = modules.testutils.TestSet('=== RAG System Tests ===',
                                       [
-                                          #store(rag, documents),
-                                          #retrieve(rag, questions),
-                                          #stats(rag),
-                                          #update(rag, new_document),
-                                          precision_recall(rag)
+                                          store(rag, documents),
+                                          retrieve(rag, questions),
+                                          stats(rag),
+                                          update(rag, new_document),
+                                          precision_recall(rag),
+                                          hallucinations(rag, irrelevant_queries)
                                       ],
                                       [
-                                          #"Document Storage",
-                                          #"Similarity Retrieval",
-                                          #"System Stats",
-                                          #"Chunk Update",
+                                          "Document Storage",
+                                          "Similarity Retrieval",
+                                          "System Stats",
+                                          "Chunk Update",
                                           "Precision and Recall",
+                                          "Hallucinations"
                                       ]
                                       )
 
