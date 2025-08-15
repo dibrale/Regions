@@ -395,7 +395,53 @@ class DynamicRAGSystem:
             raise NoMatchingEntryError(similarity_threshold)
         
         return results
-    
+
+    async def retrieve_by_actor(self,
+                                actors: list[str],
+                                similarity_threshold:
+                                float = 0.5,
+                                max_results: int = 5) -> List[RetrievalResult]:
+
+        # Generate query embedding
+
+        # Get all chunks from database
+        all_chunks = await self.db_manager.get_all_chunks()
+
+        # Calculate similarities
+        results = []
+        for chunk in all_chunks:
+
+            # similarity function: matched / (query_length + |query_length - actors_in_chunk|)
+            # imposes penalty proportional to list length discrepancy
+            actors_matched = len(set(actors).intersection(chunk.metadata.actors))
+            similarity = actors_matched/(len(actors) + abs(len(actors) - len(chunk.metadata.actors)))
+
+            if actors_matched >= similarity_threshold:
+                results.append(RetrievalResult(chunk=chunk, similarity_score=similarity))
+
+        # Sort by similarity and limit results
+        results.sort(key=lambda x: x.similarity_score, reverse=True)
+        results = results[:max_results]
+
+        if not results:
+            raise NoMatchingEntryError(similarity_threshold)
+
+        return results
+
+    async def delete_chunk(self, chunk: DocumentChunk | str) -> bool:
+        if type(chunk) == DocumentChunk:
+            deleted = await self.db_manager.delete_chunk(chunk.chunk_hash)
+        elif type(chunk) == str:
+            deleted = await self.db_manager.delete_chunk(chunk)
+        else:
+            raise TypeError(f"Chunk type {type(chunk)} is not supported")
+        if not deleted:
+            print(f"Chunk {chunk} could not be deleted")
+            return False
+        else:
+            print(f"Deleted chunk {chunk.chunk_hash}")
+            return True
+
     async def update_chunk(self, chunk_hash: str, new_content: str, actors: List[str]) -> bool:
         """Update an existing chunk with new content"""
         

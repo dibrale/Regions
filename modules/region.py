@@ -1,7 +1,10 @@
 import asyncio
 import json
+from typing import override
 
 from modules.llamacpp_api import LLMLink
+from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
+from scratch.neural_region_scratch import NeuralRegion
 
 
 class Region:
@@ -16,7 +19,7 @@ class Region:
         name (str): Unique identifier for the region
         task (str): Functional description of the region's purpose (e.g., "provide weather information")
         llm (LLMLink): Interface to the LLM service for text generation
-        connections (dict[str, str]): Mapping of region names to their task descriptions
+        connections (dict[str, str]): Mapping of downstream region names to their task descriptions
         inbox (asyncio.Queue): Queue for incoming messages (requests and replies)
         outbox (asyncio.Queue): Queue for outgoing messages (requests and replies)
         _context (dict): Stores knowledge received from other regions (keyed by source region name)
@@ -217,3 +220,181 @@ class Region:
                 print(f"\n{self.name}: Error processing LLM reply. {e}")
                 faultless = False
         return faultless
+
+class RAGRegion:
+
+    def __init__(self,
+                 name: str,
+                 task: str,
+                 rag: DynamicRAGSystem,
+                 connections: dict[str,str] | None,
+                 reply_with_actors: bool = False
+                 ):
+        self.name = name
+        self.task = task
+        self.rag = rag
+        self.reply_with_actors = reply_with_actors
+        if connections is None:
+            self.connections = {}
+        else:
+            self.connections = connections
+        self.inbox = asyncio.Queue()  # Queue for incoming requests and replies
+        self.outbox = asyncio.Queue()  # Queue for outgoing requests and replies
+        self._queries = {}
+        self._requests = {}
+
+    def _post(self, destination: str, content: str, role: str) -> None:
+        """
+        Internal method to send a formatted message to another region.
+
+        Args:
+            destination (str): Target region name
+            content (str): Message payload
+            role (str): Message type ('request' or 'reply')
+
+        Note:
+            - Constructs a standardized message dictionary with source/destination metadata
+            - Places message directly into outbox queue (non-blocking)
+            - Should only be called by _ask() or _reply() methods
+        """
+        message = {
+            "source": self.name,
+            "destination": destination,
+            "content": content,
+            "role": role
+        }
+        self.outbox.put_nowait(message)
+
+    def _ask(self, destination: str, query_text: str) -> None:
+        """
+        Send a request query to another region.
+
+        Args:
+            destination (str): Target region name
+            query_text (str): Question to ask the destination region
+
+        Note:
+            - Uses _post() with role='request'
+            - Non-blocking operation (immediately returns)
+        """
+        self._post(destination, query_text, 'request')
+
+    def _reply(self, destination: str, reply_text: str) -> None:
+        """
+        Send a reply to a region that previously requested information.
+
+        Args:
+            destination (str): Target region name
+            reply_text (str): Response content to send
+
+        Note:
+            - Uses _post() with role='reply'
+            - Non-blocking operation (immediately returns)
+        """
+        self._post(destination, reply_text, 'reply')
+
+    def _run_inbox(self):
+        """
+        Process all pending messages in the inbox queue.
+
+        Note:
+            - Processes messages until inbox is empty
+            - Accepts only messages with the 'request' role
+            - Raises AttributeError for messages with 'reply' role
+            - Raises AssertionError for unknown message types
+            - Should be called before processing messages
+        """
+        while not self.inbox.empty():
+            message = self.inbox.get_nowait()
+            if message['role'] == 'reply':
+                self._requests[message['source']] = message['content']
+            elif message['role'] == 'request':
+                self._queries[message['source']] = message['content']
+            else:
+                raise AssertionError(f"{self.name}: Unknown message role: {message['role']}")
+
+    async def make_replies(self) -> bool:
+        """
+        Generate replies to all pending requests in _queries.
+
+        Returns:
+            bool: True if all replies were successfully generated, False otherwise
+
+        Note:
+            - Processes each pending request from _queries
+            - Generates replies using RAG search
+            - Sends replies via _reply() method
+            - Returns False if any processing fails
+            - Clears _queries after processing
+        """
+        faultless = True
+        self._run_inbox()
+
+        for source, question in self._queries.items():
+            matches = None
+            reply = ''
+            try:
+                matches = await self.rag.retrieve_similar(question)
+            except Exception as e:
+                print(f"\n{self.name}: Processing failed. {e}")
+                faultless = False
+            for match in matches:
+                reply+='{"memory_fragment": '+f"{match.chunk.content}"
+                if self.reply_with_actors:
+                    reply += ', "actors": '+f"{match.chunk.metadata.actors}\n"
+                reply+="},\n"
+            if reply:
+                self._reply(source, reply)
+
+        self._queries.clear()  # Clear processed queries
+        return faultless
+
+    async def make_updates(self, consolidate_threshold: float = 0.1):
+        faultless = True
+        self._run_inbox()
+        results: list[RetrievalResult] = []
+
+        for source, update in self._requests.items():
+            updated = False
+            hashes_to_delete = []
+
+            try:
+                results = await self.rag.retrieve_similar(update)
+            except Exception as e:
+                print(f"\n{self.name}: Processing failed. {e}")
+                faultless = False
+
+            if results:
+                max_score = max(result.similarity_score for result in results)
+
+
+                for result in results:
+                    if result.similarity_score == max_score and not updated:
+                        updated = self.rag.update_chunk(
+                            result.chunk.chunk_hash,
+                            update,
+                            result.chunk.metadata.actors
+                        )
+                    if result.similarity_score > max_score-consolidate_threshold:
+                        hashes_to_delete.append(result.chunk.chunk_hash)
+                if hashes_to_delete:
+                    for chunk_hash in hashes_to_delete:
+                        success = await self.rag.delete_chunk(chunk_hash)
+                        faultless = faultless and success
+            else:
+                print(f"\n{self.name}: Processing failed - no results found.")
+                faultless = False
+            if updated:
+                print(f"\n{self.name}: Database update from {source} succeeded.")
+            if hashes_to_delete:
+                print(f"\n{self.name}: Consolidated {len(hashes_to_delete)+1} chunks.")
+
+
+        self._requests.clear()
+        return faultless
+
+    async def request_summaries(self) -> None:
+        if not self.connections:
+            raise ValueError(f"{self.name}: No valid connections for summarization.")
+        for connection in self.connections:
+            self._ask(connection[0], "Summarize the knowledge you have.")
