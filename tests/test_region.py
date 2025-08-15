@@ -32,8 +32,8 @@ class TestRegion(unittest.TestCase):
         self.assertEqual(self.region.connections, {"other_region": "other task"})
         self.assertIsInstance(self.region.inbox, asyncio.Queue)
         self.assertIsInstance(self.region.outbox, asyncio.Queue)
-        self.assertEqual(self.region._context, {})
-        self.assertEqual(self.region._queries, {})
+        self.assertEqual(self.region._incoming_replies, {})
+        self.assertEqual(self.region._incoming_requests, {})
 
     async def test_post(self):
         """Test _post correctly formats and queues messages"""
@@ -75,8 +75,8 @@ class TestRegion(unittest.TestCase):
 
         self.region._run_inbox()
 
-        self.assertEqual(self.region._context, {"other_region": "knowledge"})
-        self.assertEqual(self.region._queries, {"other_region": "question"})
+        self.assertEqual(self.region._incoming_replies, {"other_region": "knowledge"})
+        self.assertEqual(self.region._incoming_requests, {"other_region": "question"})
 
     async def test_make_prompt(self):
         """Test prompt construction with default delimiters"""
@@ -106,7 +106,7 @@ class TestRegion(unittest.TestCase):
         result = await self.region.make_replies()
 
         self.assertTrue(result)
-        self.assertEqual(len(self.region._queries), 0)
+        self.assertEqual(len(self.region._incoming_requests), 0)
 
         # Verify reply was sent
         message = await self.region.outbox.get()
@@ -130,7 +130,7 @@ class TestRegion(unittest.TestCase):
         result = await self.region.make_replies()
 
         self.assertFalse(result)
-        self.assertEqual(len(self.region._queries), 0)  # Queries still cleared
+        self.assertEqual(len(self.region._incoming_requests), 0)  # Queries still cleared
 
     async def test_make_questions_success(self):
         """Test successful question generation for connected regions"""

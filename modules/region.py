@@ -1,13 +1,111 @@
 import asyncio
 import json
-from typing import override
+# from typing import override
 
 from modules.llamacpp_api import LLMLink
 from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
-from scratch.neural_region_scratch import NeuralRegion
 
 
-class Region:
+class BaseRegion:
+    """
+    Base class for region-based communication units in distributed systems.
+
+    Provides standardized message routing and inbox processing while allowing
+    child classes to implement domain-specific knowledge handling.
+
+    Attributes:
+        name (str): Unique identifier for the region
+        task (str): Functional description of the region's purpose
+        connections (dict[str, str]): Mapping of region names to task descriptions
+        inbox (asyncio.Queue): Incoming message queue
+        outbox (asyncio.Queue): Outgoing message queue
+        _incoming_requests (dict): Stores pending requests (keyed by source)
+        _incoming_replies (dict): Stores received replies (keyed by source)
+    """
+
+    def __init__(self, name: str, task: str, connections: dict[str, str] | None = None, **kwargs):
+        """
+        Initialize common communication infrastructure.
+
+        Args:
+            name (str): Unique identifier for the region
+            task (str): Functional description of the region's purpose
+            connections (dict[str, str] | None): Region-to-task mapping
+            **kwargs: Additional parameters for child classes
+
+        Note:
+            - Initializes inbox/outbox queues for message handling
+            - Standardizes storage for incoming requests/replies
+            - Connections default to empty dict if None
+        """
+        self.name = name
+        self.task = task
+        self.connections = connections if connections is not None else {}
+        self.inbox = asyncio.Queue()
+        self.outbox = asyncio.Queue()
+        self._incoming_requests = {}  # Stores requests (keyed by source)
+        self._incoming_replies = {}  # Stores replies (keyed by source)
+
+    def _post(self, destination: str, content: str, role: str) -> None:
+        """
+        Internal method to send formatted messages to other regions.
+
+        Args:
+            destination (str): Target region name
+            content (str): Message payload
+            role (str): Message type ('request' or 'reply')
+
+        Note:
+            - Constructs standardized message dictionary
+            - Non-blocking queue insertion
+        """
+        message = {
+            "source": self.name,
+            "destination": destination,
+            "content": content,
+            "role": role
+        }
+        self.outbox.put_nowait(message)
+
+    def _ask(self, destination: str, query_text: str) -> None:
+        """
+        Send request query to another region.
+
+        Args:
+            destination (str): Target region name
+            query_text (str): Question to ask
+        """
+        self._post(destination, query_text, 'request')
+
+    def _reply(self, destination: str, reply_text: str) -> None:
+        """
+        Send reply to a requesting region.
+
+        Args:
+            destination (str): Target region name
+            reply_text (str): Response content
+        """
+        self._post(destination, reply_text, 'reply')
+
+    def _run_inbox(self) -> None:
+        """
+        Process all pending messages in inbox queue.
+
+        Note:
+            - Categorizes messages into requests/replies
+            - Stores messages in standardized dictionaries
+            - Handles unknown roles via AssertionError
+        """
+        while not self.inbox.empty():
+            message = self.inbox.get_nowait()
+            if message['role'] == 'request':
+                self._incoming_requests[message['source']] = message['content']
+            elif message['role'] == 'reply':
+                self._incoming_replies[message['source']] = message['content']
+            else:
+                raise AssertionError(f"{self.name}: Unknown message role: {message['role']}")
+
+class Region(BaseRegion):
     """
     A functional unit within a distributed system that communicates with other regions using LLM-powered interactions.
 
@@ -22,8 +120,8 @@ class Region:
         connections (dict[str, str]): Mapping of downstream region names to their task descriptions
         inbox (asyncio.Queue): Queue for incoming messages (requests and replies)
         outbox (asyncio.Queue): Queue for outgoing messages (requests and replies)
-        _context (dict): Stores knowledge received from other regions (keyed by source region name)
-        _queries (dict): Stores pending requests received from other regions (keyed by source region name)
+        _incoming_replies (dict): Stores knowledge received from other regions (keyed by source region name)
+        _incoming_requests (dict): Stores pending requests received from other regions (keyed by source region name)
     """
 
     def __init__(self, name: str, task: str, llm: LLMLink, connections: dict[str, str] | None):
@@ -42,88 +140,8 @@ class Region:
             - Connections dictionary should contain {region_name: task_description} pairs
             - _context and _queries dictionaries are initialized empty for knowledge management
         """
-        self.name = name
-        self.task = task
+        super().__init__(name, task, connections)
         self.llm = llm
-        if connections is None:
-            self.connections = {}
-        else:
-            self.connections = connections
-        self.inbox = asyncio.Queue()  # Queue for incoming requests and replies
-        self.outbox = asyncio.Queue()  # Queue for outgoing requests and replies
-        self._context = {}
-        self._queries = {}
-
-    def _post(self, destination: str, content: str, role: str) -> None:
-        """
-        Internal method to send a formatted message to another region.
-
-        Args:
-            destination (str): Target region name
-            content (str): Message payload
-            role (str): Message type ('request' or 'reply')
-
-        Note:
-            - Constructs a standardized message dictionary with source/destination metadata
-            - Places message directly into outbox queue (non-blocking)
-            - Should only be called by _ask() or _reply() methods
-        """
-        message = {
-            "source": self.name,
-            "destination": destination,
-            "content": content,
-            "role": role
-        }
-        self.outbox.put_nowait(message)
-
-    def _ask(self, destination: str, query_text: str) -> None:
-        """
-        Send a request query to another region.
-
-        Args:
-            destination (str): Target region name
-            query_text (str): Question to ask the destination region
-
-        Note:
-            - Uses _post() with role='request'
-            - Non-blocking operation (immediately returns)
-        """
-        self._post(destination, query_text, 'request')
-
-    def _reply(self, destination: str, reply_text: str) -> None:
-        """
-        Send a reply to a region that previously requested information.
-
-        Args:
-            destination (str): Target region name
-            reply_text (str): Response content to send
-
-        Note:
-            - Uses _post() with role='reply'
-            - Non-blocking operation (immediately returns)
-        """
-        self._post(destination, reply_text, 'reply')
-
-    def _run_inbox(self):
-        """
-        Process all pending messages in the inbox queue.
-
-        Note:
-            - Processes messages until inbox is empty
-            - Categorizes messages by 'role' (request/reply)
-            - Stores replies in _context (keyed by source region)
-            - Stores requests in _queries (keyed by source region)
-            - Raises AssertionError for unknown message types
-            - Should be called before processing messages
-        """
-        while not self.inbox.empty():
-            message = self.inbox.get_nowait()
-            if message['role'] == 'reply':
-                self._context[message['source']] = message['content']
-            elif message['role'] == 'request':
-                self._queries[message['source']] = message['content']
-            else:
-                raise AssertionError(f"{self.name}: Unknown message role: {message['role']}")
 
     def _make_prompt(self, question: str, bom: str = '<|im_start|>', eom: str = '<|im_end|>', think: str = None) -> str:
         """
@@ -143,7 +161,7 @@ class Region:
             - Uses delimiters to structure system/user/assistant sections
             - Includes thinking trace if provided
         """
-        schema = {'focus': self.task, 'knowledge': [*self._context.values()]}
+        schema = {'focus': self.task, 'knowledge': [*self._incoming_replies.values()]}
         prefix = f"{bom}system\nReply to the user, given your focus and knowledge per the given schema:"
         prompt = f"{prefix}\n{schema}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
         if think: prompt += f"{think}\n"
@@ -151,22 +169,22 @@ class Region:
 
     async def make_replies(self) -> bool:
         """
-        Generate replies to all pending requests in _queries.
+        Generate replies to all pending requests in _incoming_requests.
 
         Returns:
             bool: True if all replies were successfully generated, False otherwise
 
         Note:
-            - Processes each pending request from _queries
+            - Processes each pending request from _incoming_requests
             - Generates replies using LLM with region-specific context
             - Sends replies via _reply() method
             - Returns False if any LLM processing fails
-            - Clears _queries after processing
+            - Clears _incoming_requests after processing
         """
         faultless = True
         self._run_inbox()
 
-        for source, question in self._queries.items():
+        for source, question in self._incoming_requests.items():
             prompt = self._make_prompt(question)
             reply = None
             try:
@@ -177,7 +195,7 @@ class Region:
             if reply:
                 self._reply(source, reply)
 
-        self._queries.clear()  # Clear processed queries
+        self._incoming_requests.clear()  # Clear processed queries
         return faultless
 
     async def make_questions(self) -> bool:
@@ -221,7 +239,7 @@ class Region:
                 faultless = False
         return faultless
 
-class RAGRegion:
+class RAGRegion(BaseRegion):
     """
     A functional unit within a distributed system that communicates with other regions using Retrieval-Augmented Generation (RAG).
 
@@ -238,8 +256,8 @@ class RAGRegion:
         reply_with_actors (bool): Whether to include actor metadata in replies (default: False)
         inbox (asyncio.Queue): Queue for incoming messages (requests and replies)
         outbox (asyncio.Queue): Queue for outgoing messages (requests and replies)
-        _queries (dict): Stores pending requests received from other regions (keyed by source region name)
-        _requests (dict): Stores pending replies received from other regions (keyed for knowledge updates)
+        _incoming_requests (dict): Stores pending requests received from other regions (keyed by source region name)
+        _incoming_replies (dict): Stores pending replies received from other regions (keyed for knowledge updates)
     """
 
     def __init__(self,
@@ -249,6 +267,7 @@ class RAGRegion:
                  connections: dict[str,str] | None,
                  reply_with_actors: bool = False
                  ):
+
         """
         Initialize a RAG-powered region with communication capabilities and knowledge management.
 
@@ -263,92 +282,12 @@ class RAGRegion:
         Note:
             - The region maintains separate queues for incoming/outgoing messages
             - Connections dictionary should contain {region_name: task_description} pairs
-            - _queries stores incoming requests for reply generation
-            - _requests stores incoming replies for knowledge database updates
+            - _incoming_requests stores incoming requests for reply generation
+            - _incoming_replies stores incoming replies for knowledge database updates
         """
-        self.name = name
-        self.task = task
+        super().__init__(name, task, connections)
         self.rag = rag
         self.reply_with_actors = reply_with_actors
-        if connections is None:
-            self.connections = {}
-        else:
-            self.connections = connections
-        self.inbox = asyncio.Queue()  # Queue for incoming requests and replies
-        self.outbox = asyncio.Queue()  # Queue for outgoing requests and replies
-        self._queries = {}
-        self._requests = {}
-
-    def _post(self, destination: str, content: str, role: str) -> None:
-        """
-        Internal method to send a formatted message to another region.
-
-        Args:
-            destination (str): Target region name
-            content (str): Message payload
-            role (str): Message type ('request' or 'reply')
-
-        Note:
-            - Constructs a standardized message dictionary with source/destination metadata
-            - Places message directly into outbox queue (non-blocking)
-            - Should only be called by _ask() or _reply() methods
-        """
-        message = {
-            "source": self.name,
-            "destination": destination,
-            "content": content,
-            "role": role
-        }
-        self.outbox.put_nowait(message)
-
-    def _ask(self, destination: str, query_text: str) -> None:
-        """
-        Send a request query to another region.
-
-        Args:
-            destination (str): Target region name
-            query_text (str): Question to ask the destination region
-
-        Note:
-            - Uses _post() with role='request'
-            - Non-blocking operation (immediately returns)
-        """
-        self._post(destination, query_text, 'request')
-
-    def _reply(self, destination: str, reply_text: str) -> None:
-        """
-        Send a reply to a region that previously requested information.
-
-        Args:
-            destination (str): Target region name
-            reply_text (str): Response content to send
-
-        Note:
-            - Uses _post() with role='reply'
-            - Non-blocking operation (immediately returns)
-        """
-        self._post(destination, reply_text, 'reply')
-
-    def _run_inbox(self):
-        """
-        Process all pending messages in the inbox queue.
-
-        Note:
-            - Processes messages until inbox is empty
-            - Categorizes messages by 'role':
-                * 'reply' messages are stored in _requests (for knowledge updates)
-                * 'request' messages are stored in _queries (for reply generation)
-            - Raises AssertionError for unknown message types
-            - Should be called before processing messages
-        """
-        while not self.inbox.empty():
-            message = self.inbox.get_nowait()
-            if message['role'] == 'reply':
-                self._requests[message['source']] = message['content']
-            elif message['role'] == 'request':
-                self._queries[message['source']] = message['content']
-            else:
-                raise AssertionError(f"{self.name}: Unknown message role: {message['role']}")
 
     async def make_replies(self) -> bool:
         """
@@ -358,18 +297,18 @@ class RAGRegion:
             bool: True if all replies were successfully generated, False otherwise
 
         Note:
-            - Processes each pending request from _queries
+            - Processes each pending request from _incoming_requests
             - Retrieves relevant knowledge fragments using RAG system
             - Constructs replies as JSON-formatted memory fragments
             - Includes actor metadata if reply_with_actors=True
             - Sends replies via _reply() method
             - Returns False if retrieval fails
-            - Clears _queries after processing
+            - Clears _incoming_requests after processing
         """
         faultless = True
         self._run_inbox()
 
-        for source, question in self._queries.items():
+        for source, question in self._incoming_requests.items():
             matches = None
             reply = ''
             try:
@@ -385,7 +324,7 @@ class RAGRegion:
             if reply:
                 self._reply(source, reply)
 
-        self._queries.clear()  # Clear processed queries
+        self._incoming_requests.clear()  # Clear processed queries
         return faultless
 
     async def make_updates(self, consolidate_threshold: float = 0.1):
@@ -400,19 +339,19 @@ class RAGRegion:
             bool: True if all updates were successfully processed, False otherwise
 
         Note:
-            - Processes each incoming reply from _requests
+            - Processes each incoming reply from _incoming_replies
             - Finds highest-similarity fragment to update
             - Consolidates fragments within similarity threshold
             - Deletes consolidated fragments to reduce redundancy
             - Logs update and consolidation results
             - Returns False if retrieval or update fails
-            - Clears _requests after processing
+            - Clears _incoming_replies after processing
         """
         faultless = True
         self._run_inbox()
         results: list[RetrievalResult] = []
 
-        for source, update in self._requests.items():
+        for source, update in self._incoming_replies.items():
             updated = False
             hashes_to_delete = []
 
@@ -446,7 +385,7 @@ class RAGRegion:
             if hashes_to_delete:
                 print(f"\n{self.name}: Consolidated {len(hashes_to_delete)+1} chunks.")
 
-        self._requests.clear()
+        self._incoming_replies.clear()
         return faultless
 
     async def request_summaries(self) -> None:
