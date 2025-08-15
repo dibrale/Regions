@@ -312,17 +312,21 @@ class RAGRegion(BaseRegion):
             matches = None
             reply = ''
             try:
+                await asyncio.sleep(0.5)
                 matches = await self.rag.retrieve_similar(question)
             except Exception as e:
                 print(f"\n{self.name}: Processing failed. {e}")
                 faultless = False
-            for match in matches:
-                reply+='{"memory_fragment": '+f"{match.chunk.content}"
-                if self.reply_with_actors:
-                    reply += ', "actors": '+f"{match.chunk.metadata.actors}\n"
-                reply+="},\n"
-            if reply:
-                self._reply(source, reply)
+            if matches:
+                for match in matches:
+                    reply+='{"memory_fragment": '+f"{match.chunk.content}"
+                    if self.reply_with_actors:
+                        reply += ', "actors": '+f"{match.chunk.metadata.actors}"
+                    reply+="},\n"
+                if reply:
+                    self._reply(source, reply)
+            else:
+                print(f"{self.name}: No matches found.")
 
         self._incoming_requests.clear()  # Clear processed queries
         return faultless
@@ -404,4 +408,4 @@ class RAGRegion(BaseRegion):
         if not self.connections:
             raise ValueError(f"{self.name}: No valid connections for summarization.")
         for connection in self.connections:
-            self._ask(connection[0], "Summarize the knowledge you have.")
+            self._ask(connection, "Summarize the knowledge you have.")
