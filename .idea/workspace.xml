@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Added unit tests for 'Region' class.">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Added 'RAGRegion' class&#10;- Added search by actor to RAG">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -229,7 +228,7 @@
       <workItem from="1754773737695" duration="63299000" />
       <workItem from="1755037513142" duration="12000" />
       <workItem from="1755037537425" duration="116000" />
-      <workItem from="1755037673137" duration="68253000" />
+      <workItem from="1755037673137" duration="70069000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -295,7 +294,31 @@
       <option name="project" value="LOCAL" />
       <updated>1755230771835</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Added 'RAGRegion' class">
+      <option name="closed" value="true" />
+      <created>1755288204007</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1755288204007</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Added 'RAGRegion' class">
+      <option name="closed" value="true" />
+      <created>1755288219659</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1755288219659</updated>
+    </task>
+    <task id="LOCAL-00011" summary="- Added 'RAGRegion' class&#10;- Added search by actor to RAG">
+      <option name="closed" value="true" />
+      <created>1755288245932</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1755288245932</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -312,7 +335,9 @@
     <MESSAGE value="feat(test): add comprehensive RAG system tests" />
     <MESSAGE value="Rewrote the region system." />
     <MESSAGE value="Added unit tests for 'Region' class." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added unit tests for 'Region' class." />
+    <MESSAGE value="Added 'RAGRegion' class" />
+    <MESSAGE value="- Added 'RAGRegion' class&#10;- Added search by actor to RAG" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Added 'RAGRegion' class&#10;- Added search by actor to RAG" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

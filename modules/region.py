@@ -222,6 +222,25 @@ class Region:
         return faultless
 
 class RAGRegion:
+    """
+    A functional unit within a distributed system that communicates with other regions using Retrieval-Augmented Generation (RAG).
+
+    Instead of relying on LLM-powered interactions, this region uses a dynamic RAG system to retrieve and update
+    knowledge fragments. It processes incoming requests by retrieving relevant information from its knowledge base and
+    replies with structured data fragments. Additionally, it handles incoming updates from other regions to consolidate
+    and refine its knowledge database through similarity-based consolidation.
+
+    Attributes:
+        name (str): Unique identifier for the region
+        task (str): Functional description of the region's purpose (e.g., "provide historical facts")
+        rag (DynamicRAGSystem): Interface to the RAG system for retrieval and knowledge updates
+        connections (dict[str, str]): Mapping of downstream region names to their task descriptions
+        reply_with_actors (bool): Whether to include actor metadata in replies (default: False)
+        inbox (asyncio.Queue): Queue for incoming messages (requests and replies)
+        outbox (asyncio.Queue): Queue for outgoing messages (requests and replies)
+        _queries (dict): Stores pending requests received from other regions (keyed by source region name)
+        _requests (dict): Stores pending replies received from other regions (keyed for knowledge updates)
+    """
 
     def __init__(self,
                  name: str,
@@ -230,6 +249,23 @@ class RAGRegion:
                  connections: dict[str,str] | None,
                  reply_with_actors: bool = False
                  ):
+        """
+        Initialize a RAG-powered region with communication capabilities and knowledge management.
+
+        Args:
+            name (str): Unique identifier for the region
+            task (str): Functional description of the region's purpose
+            rag (DynamicRAGSystem): Interface to the RAG system for retrieval and updates
+            connections (dict[str, str] | None): Mapping of region names to their task descriptions.
+                If None, initializes with empty connections dictionary.
+            reply_with_actors (bool, optional): Whether to include actor metadata in replies. Defaults to False.
+
+        Note:
+            - The region maintains separate queues for incoming/outgoing messages
+            - Connections dictionary should contain {region_name: task_description} pairs
+            - _queries stores incoming requests for reply generation
+            - _requests stores incoming replies for knowledge database updates
+        """
         self.name = name
         self.task = task
         self.rag = rag
@@ -299,8 +335,9 @@ class RAGRegion:
 
         Note:
             - Processes messages until inbox is empty
-            - Accepts only messages with the 'request' role
-            - Raises AttributeError for messages with 'reply' role
+            - Categorizes messages by 'role':
+                * 'reply' messages are stored in _requests (for knowledge updates)
+                * 'request' messages are stored in _queries (for reply generation)
             - Raises AssertionError for unknown message types
             - Should be called before processing messages
         """
@@ -315,16 +352,18 @@ class RAGRegion:
 
     async def make_replies(self) -> bool:
         """
-        Generate replies to all pending requests in _queries.
+        Generate structured replies to all pending requests using RAG retrieval.
 
         Returns:
             bool: True if all replies were successfully generated, False otherwise
 
         Note:
             - Processes each pending request from _queries
-            - Generates replies using RAG search
+            - Retrieves relevant knowledge fragments using RAG system
+            - Constructs replies as JSON-formatted memory fragments
+            - Includes actor metadata if reply_with_actors=True
             - Sends replies via _reply() method
-            - Returns False if any processing fails
+            - Returns False if retrieval fails
             - Clears _queries after processing
         """
         faultless = True
@@ -350,6 +389,25 @@ class RAGRegion:
         return faultless
 
     async def make_updates(self, consolidate_threshold: float = 0.1):
+        """
+        Process incoming knowledge updates and consolidate similar fragments in the RAG database.
+
+        Args:
+            consolidate_threshold (float, optional): Maximum similarity difference for consolidation.
+                Defaults to 0.1 (10% difference).
+
+        Returns:
+            bool: True if all updates were successfully processed, False otherwise
+
+        Note:
+            - Processes each incoming reply from _requests
+            - Finds highest-similarity fragment to update
+            - Consolidates fragments within similarity threshold
+            - Deletes consolidated fragments to reduce redundancy
+            - Logs update and consolidation results
+            - Returns False if retrieval or update fails
+            - Clears _requests after processing
+        """
         faultless = True
         self._run_inbox()
         results: list[RetrievalResult] = []
@@ -366,7 +424,6 @@ class RAGRegion:
 
             if results:
                 max_score = max(result.similarity_score for result in results)
-
 
                 for result in results:
                     if result.similarity_score == max_score and not updated:
@@ -389,11 +446,22 @@ class RAGRegion:
             if hashes_to_delete:
                 print(f"\n{self.name}: Consolidated {len(hashes_to_delete)+1} chunks.")
 
-
         self._requests.clear()
         return faultless
 
     async def request_summaries(self) -> None:
+        """
+        Request knowledge summaries from all connected regions.
+
+        Raises:
+            ValueError: If no valid connections exist
+
+        Note:
+            - Sends a standardized "Summarize the knowledge you have" request
+            - Targets all regions in connections dictionary
+            - Uses _ask() method for non-blocking communication
+            - Should be called periodically to refresh knowledge
+        """
         if not self.connections:
             raise ValueError(f"{self.name}: No valid connections for summarization.")
         for connection in self.connections:
