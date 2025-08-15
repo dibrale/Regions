@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="feat: add RAG system tests and validation">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Rewrote the region system.">
+      <change afterPath="$PROJECT_DIR$/tests/test_region.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Dynamic RAG Storage, Indexing and Retrieval System.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Dynamic RAG Storage, Indexing and Retrieval System.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/neural_region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/async_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/async_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_rag.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +40,14 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python tests.Doctests in llamacpp_api.executor": "Run",
     "Python tests.Python tests for tests.async_test.TestLLMLink.executor": "Run",
+    "Python tests.Python tests for tests.test_region.TestRegion.test_make_prompt.executor": "Run",
+    "Python tests.Python tests for tests.test_region.TestRegion.test_make_prompt_structure.executor": "Run",
+    "Python tests.Python tests for tests.test_region.TestRegion.test_make_questions_success.executor": "Run",
+    "Python tests.Python tests for tests.test_region.TestRegion.test_make_questions_success_sync.executor": "Run",
+    "Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success.executor": "Run",
+    "Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success_sync.executor": "Run",
     "Python tests.Python tests in async_test.py.executor": "Run",
+    "Python tests.Python tests in test_region.py.executor": "Run",
     "Python.comprehensive_unit_tests.executor": "Run",
     "Python.config.executor": "Run",
     "Python.dynamic_rag.executor": "Run",
@@ -99,77 +103,8 @@
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\modules" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.test_rag (1)">
-    <configuration name="test_database" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Morphea" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/test_database.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="test_error (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Morphea" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/test_error.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="test_rag (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Morphea" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/test_rag.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Python tests for tests.async_test.TestLLMLink" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.Python tests in test_region.py">
+    <configuration name="Python tests for tests.test_region.TestRegion.test_make_prompt" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Morphea" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -181,11 +116,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;tests.async_test.TestLLMLink&quot;" />
+      <option name="_new_target" value="&quot;tests.test_region.TestRegion.test_make_prompt&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests in async_test.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for tests.test_region.TestRegion.test_make_questions_success_sync" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Morphea" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -197,17 +132,65 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/async_test.py&quot;" />
+      <option name="_new_target" value="&quot;tests.test_region.TestRegion.test_make_questions_success_sync&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for tests.test_region.TestRegion.test_make_replies_success" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Morphea" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.test_region.TestRegion.test_make_replies_success&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for tests.test_region.TestRegion.test_make_replies_success_sync" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Morphea" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.test_region.TestRegion.test_make_replies_success_sync&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests in test_region.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Morphea" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_region.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test_rag (1)" />
-        <item itemvalue="Python tests.Python tests in async_test.py" />
-        <item itemvalue="Python tests.Python tests for tests.async_test.TestLLMLink" />
-        <item itemvalue="Python.test_error (1)" />
-        <item itemvalue="Python.test_database" />
+        <item itemvalue="Python tests.Python tests in test_region.py" />
+        <item itemvalue="Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success_sync" />
+        <item itemvalue="Python tests.Python tests for tests.test_region.TestRegion.test_make_questions_success_sync" />
+        <item itemvalue="Python tests.Python tests for tests.test_region.TestRegion.test_make_prompt" />
+        <item itemvalue="Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success" />
       </list>
     </recent_temporary>
   </component>
@@ -246,7 +229,7 @@
       <workItem from="1754773737695" duration="63299000" />
       <workItem from="1755037513142" duration="12000" />
       <workItem from="1755037537425" duration="116000" />
-      <workItem from="1755037673137" duration="48892000" />
+      <workItem from="1755037673137" duration="52860000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -296,7 +279,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755157400372</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Rewrote the region system.">
+      <option name="closed" value="true" />
+      <created>1755225442665</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1755225442665</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -310,7 +301,9 @@
     <MESSAGE value="- Added Dynamic RAG&#10;- Added unit tests for RAG&#10;- Added common utility module for unit tests" />
     <MESSAGE value="Cleaned up" />
     <MESSAGE value="feat: add RAG system tests and validation" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add RAG system tests and validation" />
+    <MESSAGE value="feat(test): add comprehensive RAG system tests" />
+    <MESSAGE value="Rewrote the region system." />
+    <option name="LAST_COMMIT_MESSAGE" value="Rewrote the region system." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -328,7 +321,7 @@
     <SUITE FILE_PATH="coverage/Morphea$Doctests_in_llamacpp_api.coverage" NAME="Doctests in llamacpp_api Coverage Results" MODIFIED="1754780144193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$neural_region.coverage" NAME="neural_region Coverage Results" MODIFIED="1753823951121" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$tools_test.coverage" NAME="tools_test Coverage Results" MODIFIED="1753822899523" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Morphea$.coverage" NAME=" Coverage Results" MODIFIED="1755206169459" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Morphea$.coverage" NAME=" Coverage Results" MODIFIED="1755230674754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$llamacpp_api.coverage" NAME="llamacpp_api Coverage Results" MODIFIED="1754788091495" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$dynamic_rag.coverage" NAME="dynamic_rag Coverage Results" MODIFIED="1754956564130" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$llamacpp_api_test.coverage" NAME="llamacpp_api_test Coverage Results" MODIFIED="1754777977732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
