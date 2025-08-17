@@ -134,7 +134,7 @@ class LLMLink:
                 response.raise_for_status()
                 return (await response.json())['choices'][0]['message']['content']
 
-    async def text(self, prompt: str, max_tokens: int = 2048) -> str:
+    async def text(self, prompt: str, max_tokens: int = 4096) -> str:
         """Generate text completion for a given prompt.
 
         Sends a prompt to the text completion endpoint (OpenAI-compatible) and returns
@@ -142,7 +142,7 @@ class LLMLink:
 
         Args:
             prompt (str): The prompt string to send to the LLM
-            max_tokens (int, optional): Maximum number of tokens to generate. Defaults to 2048.
+            max_tokens (int, optional): Maximum number of tokens to generate. Defaults to 4096.
 
         Returns:
             str: Generated text response from the LLM (first choice)

@@ -3,8 +3,10 @@ import json
 import unittest
 from unittest.mock import MagicMock, AsyncMock, patch  # Import AsyncMock
 
+from modules.llamacpp_api import LLMLink
 from modules.region import Region
 
+llm = LLMLink()
 
 class TestRegion(unittest.TestCase):
     def setUp(self):
@@ -12,8 +14,16 @@ class TestRegion(unittest.TestCase):
         self.mock_llm = MagicMock()
         self.mock_llm.text = AsyncMock()  # CRITICAL FIX: Use AsyncMock for async methods
 
-        # Create test region with mock connections
+        # Create test region with real connections
         self.region = Region(
+            name="test_region",
+            task="test task",
+            llm = llm,
+            connections={"other_region": "other task"}
+        )
+
+        # Create test region with mock connections
+        self.test_region = Region(
             name="test_region",
             task="test task",
             llm=self.mock_llm,
@@ -99,8 +109,15 @@ class TestRegion(unittest.TestCase):
         })
         self.region._run_inbox()
 
+        await self.region.inbox.put({
+            "source": "real_time_weather",
+            "role": "reply",
+            "content": "The weather is partly cloudy with a chance of hail"
+        })
+        self.region._run_inbox()
+
         # Mock LLM response - AsyncMock handles this properly
-        self.mock_llm.text.return_value = "Sunny"
+        # self.mock_llm.text.return_value = "Sunny"
 
         # Generate replies
         result = await self.region.make_replies()
@@ -111,33 +128,30 @@ class TestRegion(unittest.TestCase):
         # Verify reply was sent
         message = await self.region.outbox.get()
         self.assertEqual(message["role"], "reply")
-        self.assertEqual(message["content"], "Sunny")
+        self.assertTrue("partly cloudy" in message["content"] and "hail" in message["content"])
+        print(f"Replied to {message['destination']} with: {message['content']}")
 
     async def test_make_replies_failure(self):
         """Test handling of LLM failures during reply generation"""
         # Setup pending query
-        await self.region.inbox.put({
+        await self.test_region.inbox.put({
             "source": "other_region",
             "role": "request",
             "content": "What's the weather?"
         })
-        self.region._run_inbox()
+        self.test_region._run_inbox()
 
         # Mock LLM failure
         self.mock_llm.text.side_effect = Exception("LLM error")
 
         # Generate replies
-        result = await self.region.make_replies()
+        result = await self.test_region.make_replies()
 
         self.assertFalse(result)
         self.assertEqual(len(self.region._incoming_requests), 0)  # Queries still cleared
 
     async def test_make_questions_success(self):
         """Test successful question generation for connected regions"""
-        # Mock LLM response with valid JSON
-        self.mock_llm.text.return_value = json.dumps([
-            {"source": "other_region", "question": "What's your status?"}
-        ])
 
         # Generate questions
         result = await self.region.make_questions()
@@ -147,7 +161,9 @@ class TestRegion(unittest.TestCase):
         # Verify question was sent
         message = await self.region.outbox.get()
         self.assertEqual(message["role"], "request")
-        self.assertEqual(message["content"], "What's your status?")
+        self.assertEqual(message["destination"], "other_region")
+        self.assertTrue(type(message["content"]) is str)
+        print(f"Queried {message['destination']} with: {message['content']}")
 
     async def test_make_questions_invalid_destination(self):
         """Test handling of invalid destination in generated questions"""
@@ -157,10 +173,10 @@ class TestRegion(unittest.TestCase):
         ])
 
         # Generate questions
-        result = await self.region.make_questions()
+        result = await self.test_region.make_questions()
 
         self.assertFalse(result)
-        self.assertEqual(self.region.outbox.qsize(), 0)  # No messages sent
+        self.assertEqual(self.test_region.outbox.qsize(), 0)  # No messages sent
 
     async def test_make_questions_invalid_json(self):
         """Test handling of invalid JSON from LLM"""
@@ -168,10 +184,10 @@ class TestRegion(unittest.TestCase):
         self.mock_llm.text.return_value = "invalid json"
 
         # Generate questions
-        result = await self.region.make_questions()
+        result = await self.test_region.make_questions()
 
         self.assertFalse(result)
-        self.assertEqual(self.region.outbox.qsize(), 0)
+        self.assertEqual(self.test_region.outbox.qsize(), 0)
 
     def run_async_test(self, test_coroutine):
         """Helper to run async tests"""

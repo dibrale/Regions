@@ -10,6 +10,8 @@ A comprehensive RAG system with:
 """
 
 import asyncio
+import uuid
+
 import aiohttp
 import sqlite3
 import json
@@ -315,25 +317,44 @@ def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
 class DynamicRAGSystem:
     """Main RAG system with dynamic indexing and retrieval"""
     
-    def __init__(self, 
+    def __init__(self,
                  db_path: str = "rag_storage.db",
                  embedding_server_url: str = "http://localhost:8080",
-                 embedding_model: str = "text-embedding-ada-002"):
+                 embedding_model: str = "text-embedding-ada-002",
+                 name = str | None,
+                 chunk_size: int = 512,
+                 overlap: int = 50,
+                 ) -> None:
         self.db_manager = DatabaseManager(db_path)
         self.embedding_server_url = embedding_server_url
         self.embedding_model = embedding_model
+        if name is None:
+            self.name = str(uuid.uuid4())
+        else:
+            self.name = name
+        self._default_chunk_size = chunk_size
+        self._default_overlap = overlap
     
-    async def store_document(self, 
-                           content: str, 
-                           actors: List[str],
-                           document_id: Optional[str] = None,
-                           chunk_size: int = 512,
-                           overlap: int = 50) -> List[str]:
+    async def store_document(self,
+                             content: str,
+                             actors: List[str],
+                             document_id: Optional[str] = None,
+                             chunk_size: int | None = None,
+                             overlap: int | None = None) -> List[str]:
         """Store a document with chunking and embedding generation"""
-        
+
+        chunk_hashes = []
+
+        # Populate size and overlap
+
+        if not chunk_size:
+            chunk_size = self._default_chunk_size
+        if not overlap:
+            overlap = self._default_overlap
+
         # Generate chunks
         chunks = self._chunk_text(content, chunk_size, overlap)
-        chunk_hashes = []
+
         
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
             for i, chunk_content in enumerate(chunks):
@@ -476,6 +497,7 @@ class DynamicRAGSystem:
     
     def _chunk_text(self, text: str, chunk_size: int, overlap: int) -> List[str]:
         """Split text into overlapping chunks"""
+
         if len(text) <= chunk_size:
             return [text]
         

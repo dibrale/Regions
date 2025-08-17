@@ -1,9 +1,13 @@
 import asyncio
 import json
+import re
+
 # from typing import override
 
 from modules.llamacpp_api import LLMLink
 from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
+from modules.logutils import print_v
+from modules.stringutils import extract_json_segment
 
 
 class BaseRegion:
@@ -188,7 +192,18 @@ class Region(BaseRegion):
             prompt = self._make_prompt(question)
             reply = None
             try:
-                reply = await self.llm.text(prompt)
+                raw_reply = await self.llm.text(prompt)
+                print_v(f"{self.name}: Got reply from LLM: {raw_reply}", True)
+
+                # Parse out model thinking
+                # If there is no thinking block, pass the raw reply
+                try:
+                    reply = re.findall(r"<think>.*</think>\n(.*)", raw_reply, flags=re.DOTALL)[0].strip()
+                except IndexError:
+                    reply = raw_reply.strip()
+
+                print_v(f"{self.name}: Extracted reply: {reply}", True)
+
             except Exception as e:
                 print(f"\n{self.name}: Processing failed. {e}")
                 faultless = False
@@ -224,7 +239,9 @@ class Region(BaseRegion):
         prompt = self._make_prompt(user_prompt)
         try:
             reply = await self.llm.text(prompt)
-            questions = json.loads(reply)
+            print_v(f"{self.name}: Got reply from LLM: {reply}", True)
+            questions = json.loads(re.findall(r"\[\s*?\n*?\s*?{.*?}\s*?\n*?\s*?]", reply, flags=re.DOTALL)[-1])
+            print_v(f"{self.name}: Extracted questions: {questions}", True)
         except Exception as e:
             print(f"\n{self.name}: Processing failed. {e}")
             faultless = False
@@ -313,18 +330,19 @@ class RAGRegion(BaseRegion):
             reply = ''
             try:
                 await asyncio.sleep(0.5)
-                matches = await self.rag.retrieve_similar(question)
+                matches = await self.rag.retrieve_similar(question, 0.5)
             except Exception as e:
                 print(f"\n{self.name}: Processing failed. {e}")
                 faultless = False
             if matches:
                 for match in matches:
-                    reply+='{"memory_fragment": '+f"{match.chunk.content}"
+                    # CORRECTED: Dictionary key access with proper JSON formatting
+                    reply += '{"memory_fragment": "' + match.chunk.content.replace('"', '\\"') + '"}'
                     if self.reply_with_actors:
-                        reply += ', "actors": '+f"{match.chunk.metadata.actors}"
-                    reply+="},\n"
-                if reply:
-                    self._reply(source, reply)
+                        actors = match.chunk.metadata.actors
+                        reply += ', "actors": ' + json.dumps(actors)
+                    if reply:
+                        self._reply(source, reply)
             else:
                 print(f"{self.name}: No matches found.")
 

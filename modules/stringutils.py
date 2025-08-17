@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 from modules.logutils import print_v
@@ -98,4 +99,27 @@ def parse_host_port(s: str) -> tuple[str | Any, int] | tuple[str | Any, None] | 
         host = match.group(1)
         return host, None
 
+    return None
+
+def extract_json_segment(s: str) -> str | None:
+    in_string = False
+    n = len(s)
+    for i in range(n):
+        if in_string:
+            if s[i] == '"' and (i == 0 or s[i - 1] != '\\'):
+                in_string = False
+            continue
+
+        last_valid = i
+        for j in range(i, n + 1):
+            try:
+                json.loads(s[i:j])
+                last_valid = j
+            except json.JSONDecodeError:
+                break
+            except Exception as e:
+                print(e)
+                break
+        if last_valid > i:
+            return s[i:last_valid]
     return None
