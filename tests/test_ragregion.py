@@ -129,8 +129,8 @@ class TestRAGRegion(unittest.TestCase):
 
         # Check reply format with actors included
         expected_reply = (
-                '{"memory_fragment": The Roman Empire fell in 476 AD, "actors": [\'historian\']},\n' +
-                '{"memory_fragment": World War II ended in 1945, "actors": [\'historian\', \'archivist\']},\n'
+                '{"memory_fragment": "The Roman Empire fell in 476 AD", "actors": [\"historian\"]},\n' +
+                '{"memory_fragment": "World War II ended in 1945", "actors": [\"historian\", \"archivist\"]},\n'
         )
         self.assertEqual(message["content"], expected_reply)
 
@@ -210,7 +210,7 @@ class TestRAGRegion(unittest.TestCase):
 
         # Verify reply was sent without actors
         message = await region_no_actors.outbox.get()
-        expected_reply = '{"memory_fragment": The Roman Empire fell in 476 AD},\n'
+        expected_reply = '{"memory_fragment": "The Roman Empire fell in 476 AD"},\n'
         self.assertEqual(message["content"], expected_reply)
 
     async def test_make_updates_success(self):

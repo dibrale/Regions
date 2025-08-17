@@ -193,7 +193,7 @@ class Region(BaseRegion):
             reply = None
             try:
                 raw_reply = await self.llm.text(prompt)
-                print_v(f"{self.name}: Got reply from LLM: {raw_reply}", True)
+                print_v(f"{self.name}: Got reply from LLM: {raw_reply}", False)
 
                 # Parse out model thinking
                 # If there is no thinking block, pass the raw reply
@@ -202,7 +202,7 @@ class Region(BaseRegion):
                 except IndexError:
                     reply = raw_reply.strip()
 
-                print_v(f"{self.name}: Extracted reply: {reply}", True)
+                print_v(f"{self.name}: Extracted reply: {reply}", False)
 
             except Exception as e:
                 print(f"\n{self.name}: Processing failed. {e}")
@@ -239,9 +239,9 @@ class Region(BaseRegion):
         prompt = self._make_prompt(user_prompt)
         try:
             reply = await self.llm.text(prompt)
-            print_v(f"{self.name}: Got reply from LLM: {reply}", True)
+            print_v(f"{self.name}: Got reply from LLM: {reply}", False)
             questions = json.loads(re.findall(r"\[\s*?\n*?\s*?{.*?}\s*?\n*?\s*?]", reply, flags=re.DOTALL)[-1])
-            print_v(f"{self.name}: Extracted questions: {questions}", True)
+            print_v(f"{self.name}: Extracted questions: {questions}", False)
         except Exception as e:
             print(f"\n{self.name}: Processing failed. {e}")
             faultless = False
@@ -337,12 +337,13 @@ class RAGRegion(BaseRegion):
             if matches:
                 for match in matches:
                     # CORRECTED: Dictionary key access with proper JSON formatting
-                    reply += '{"memory_fragment": "' + match.chunk.content.replace('"', '\\"') + '"}'
+                    reply += '{"memory_fragment": "' + match.chunk.content + '"'
                     if self.reply_with_actors:
                         actors = match.chunk.metadata.actors
                         reply += ', "actors": ' + json.dumps(actors)
-                    if reply:
-                        self._reply(source, reply)
+                    reply += '},\n'
+                if reply:
+                    self._reply(source, reply)
             else:
                 print(f"{self.name}: No matches found.")
 
