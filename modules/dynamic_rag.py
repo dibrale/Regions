@@ -324,6 +324,7 @@ class DynamicRAGSystem:
                  name = str | None,
                  chunk_size: int = 512,
                  overlap: int = 50,
+                 max_results: int = 5,
                  ) -> None:
         self.db_manager = DatabaseManager(db_path)
         self.embedding_server_url = embedding_server_url
@@ -334,6 +335,7 @@ class DynamicRAGSystem:
             self.name = name
         self._default_chunk_size = chunk_size
         self._default_overlap = overlap
+        self._default_max_results = max_results
     
     async def store_document(self,
                              content: str,
@@ -387,11 +389,14 @@ class DynamicRAGSystem:
         return chunk_hashes
     
     async def retrieve_similar(self, 
-                             query: str, 
+                             query: str,
                              similarity_threshold: float = 0.7,
-                             max_results: int = 5) -> List[RetrievalResult]:
+                             max_results: int | None = None,
+                             ) -> List[RetrievalResult]:
         """Retrieve similar chunks based on query"""
-        
+        if not max_results:
+            max_results = self._default_max_results
+
         # Generate query embedding
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
             query_embedding = await embedding_client.get_embedding(query)
