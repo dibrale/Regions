@@ -1,12 +1,16 @@
 """
-Dynamic RAG Storage, Indexing and Retrieval System
+Dynamic RAG (Retrieval-Augmented Generation) Storage, Indexing, and Retrieval System.
 
-A comprehensive RAG system with:
-- Async operations using asyncio and aiohttp
-- llama.cpp embedding server integration via OpenAI-compatible API
-- SQLite database with rate limiting
-- Dynamic incremental indexing
-- Comprehensive error handling
+This module implements a comprehensive framework for building a RAG system with:
+- Asynchronous operations using asyncio and aiohttp for efficient I/O handling
+- Integration with llama.cpp embedding server via OpenAI-compatible API
+- SQLite database backend with built-in rate limiting
+- Dynamic incremental indexing capabilities
+- Actor-based filtering and similarity search
+- Comprehensive error handling with standardized error codes
+
+The system supports document chunking, embedding generation, storage, and retrieval
+with configurable parameters for chunk size, overlap, and similarity thresholds.
 """
 
 import asyncio
@@ -315,7 +319,24 @@ def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
     return dot_product / (magnitude1 * magnitude2)
 
 class DynamicRAGSystem:
-    """Main RAG system with dynamic indexing and retrieval"""
+    """Core class managing document storage and retrieval operations.
+
+    Handles the full lifecycle of document chunks including:
+    - Text chunking with configurable size/overlap
+    - Embedding generation via external server
+    - Database storage with rate limiting
+    - Cosine similarity and actor-based retrieval
+    - System statistics collection
+
+    Attributes:
+        db_manager (DatabaseManager): Manages database interactions
+        embedding_server_url (str): URL of embedding server (default: localhost:8080)
+        embedding_model (str): Embedding model name (default: text-embedding-ada-002)
+        name (str): Unique system identifier (UUID if not provided)
+        _default_chunk_size (int): Default chunk size (512)
+        _default_overlap (int): Default chunk overlap (50)
+        _default_max_results (int): Default max retrieval results (5)
+    """
     
     def __init__(self,
                  db_path: str = "rag_storage.db",
@@ -343,7 +364,23 @@ class DynamicRAGSystem:
                              document_id: Optional[str] = None,
                              chunk_size: int | None = None,
                              overlap: int | None = None) -> List[str]:
-        """Store a document with chunking and embedding generation"""
+        """Stores a document by splitting into chunks and generating embeddings.
+
+        Args:
+            content (str): Full document text content
+            actors (List[str]): Actor identifiers associated with the document
+            document_id (Optional[str]): Unique document identifier (default: None)
+            chunk_size (Optional[int]): Chunk size override (uses system default)
+            overlap (Optional[int]): Chunk overlap override (uses system default)
+
+        Returns:
+            List[str]: SHA-256 hashes of stored chunks
+
+        Raises:
+            HTTPError: If embedding server communication fails
+            DatabaseNotAccessibleError: If database storage fails
+            ServiceUnavailableError: If rate limiting is exceeded
+        """
 
         chunk_hashes = []
 
@@ -393,7 +430,20 @@ class DynamicRAGSystem:
                              similarity_threshold: float = 0.7,
                              max_results: int | None = None,
                              ) -> List[RetrievalResult]:
-        """Retrieve similar chunks based on query"""
+        """Retrieves chunks similar to query using cosine similarity.
+
+        Args:
+            query (str): Search query text
+            similarity_threshold (float): Minimum similarity score (0.0-1.0, default: 0.7)
+            max_results (Optional[int]): Maximum results to return (uses system default)
+
+        Returns:
+            List[RetrievalResult]: Sorted list of matching chunks with similarity scores
+
+        Raises:
+            NoMatchingEntryError: If no chunks meet threshold
+            HTTPError: If embedding generation fails
+        """
         if not max_results:
             max_results = self._default_max_results
 
@@ -427,8 +477,21 @@ class DynamicRAGSystem:
                                 similarity_threshold:
                                 float = 0.5,
                                 max_results: int = 5) -> List[RetrievalResult]:
+        """Retrieves chunks based on actor membership similarity.
 
-        # Generate query embedding
+                Uses custom metric: matched_actors / (query_length + |query_length - chunk_actors|)
+
+                Args:
+                    actors (list[str]): Target actor list
+                    similarity_threshold (float): Minimum similarity score (default: 0.5)
+                    max_results (int): Maximum results to return (default: 5)
+
+                Returns:
+                    List[RetrievalResult]: Sorted list of matching chunks with similarity scores
+
+                Raises:
+                    NoMatchingEntryError: If no chunks meet threshold
+        """
 
         # Get all chunks from database
         all_chunks = await self.db_manager.get_all_chunks()

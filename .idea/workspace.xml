@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Edge case fixes and minor structured syntax cleanup.">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Added more parameters to RAGRegion initialization.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
     </list>
@@ -252,7 +252,7 @@
       <workItem from="1755037537425" duration="116000" />
       <workItem from="1755037673137" duration="72147000" />
       <workItem from="1755292156729" duration="6455000" />
-      <workItem from="1755299014718" duration="35456000" />
+      <workItem from="1755299014718" duration="39542000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -382,7 +382,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755393286881</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Added more parameters to RAGRegion initialization.">
+      <option name="closed" value="true" />
+      <created>1755407431492</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1755407431492</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -417,7 +425,8 @@
     <MESSAGE value="Added unit tests for RAGRegion and cleaned up a few bugs" />
     <MESSAGE value="Working demo system added" />
     <MESSAGE value="Edge case fixes and minor structured syntax cleanup." />
-    <option name="LAST_COMMIT_MESSAGE" value="Edge case fixes and minor structured syntax cleanup." />
+    <MESSAGE value="Added more parameters to RAGRegion initialization." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added more parameters to RAGRegion initialization." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
