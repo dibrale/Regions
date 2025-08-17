@@ -129,30 +129,42 @@ class EmbeddingClient:
             await self.session.close()
     
     async def get_embedding(self, text: str) -> List[float]:
-        """Get embedding for text using OpenAI-compatible API"""
+        """Get embedding for text using OpenAI-compatible API
+
+        Args:
+            text (str): Input text to generate embedding for
+
+        Returns:
+            List[float]: Generated embedding vector
+
+        Raises:
+            HTTPError: If server returns non-200 status
+            SchemaMismatchError: If response format is invalid
+            RuntimeError: If client not used as context manager
+        """
         if not self.session:
             raise RuntimeError("EmbeddingClient must be used as async context manager")
-        
+
         url = f"{self.base_url}/v1/embeddings"
         payload = {
             "model": self.model,
             "input": text
         }
-        
+
         try:
             async with self.session.post(url, json=payload) as response:
                 if response.status != 200:
                     error_text = await response.text()
                     raise HTTPError(response.status, error_text)
-                
+
                 result = await response.json()
-                
+
                 # Extract embedding from OpenAI-compatible response
                 if "data" not in result or not result["data"]:
                     raise SchemaMismatchError("Invalid embedding response format")
-                
+
                 return result["data"][0]["embedding"]
-        
+
         except SchemaMismatchError:
             # Re-raise schema mismatch errors as-is
             raise
@@ -165,18 +177,18 @@ class EmbeddingClient:
 
 class DatabaseManager:
     """SQLite database manager with rate limiting"""
-    
+
     def __init__(self, db_path: str = "rag_storage.db"):
         self.db_path = db_path
         self.rate_limiter = RateLimiter()
         self._init_database()
-    
+
     def _init_database(self):
         """Initialize database schema"""
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
-            
+
             # Create chunks table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS chunks (
@@ -191,38 +203,48 @@ class DatabaseManager:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
-            
+
             # Create index for similarity search optimization
             cursor.execute("""
                 CREATE INDEX IF NOT EXISTS idx_chunk_hash ON chunks(chunk_hash)
             """)
-            
+
             cursor.execute("""
                 CREATE INDEX IF NOT EXISTS idx_timestamp ON chunks(timestamp)
             """)
-            
+
             conn.commit()
             conn.close()
-            
+
         except sqlite3.Error as e:
             raise DatabaseNotAccessibleError(f"Failed to initialize database: {str(e)}")
-    
+
     async def store_chunk(self, chunk: DocumentChunk) -> bool:
-        """Store a document chunk with rate limiting"""
+        """Store a document chunk with rate limiting
+
+        Args:
+            chunk (DocumentChunk): Chunk object to store
+
+        Returns:
+            bool: True if storage succeeded
+
+        Raises:
+            DatabaseNotAccessibleError: If database operation fails
+        """
         await self.rate_limiter.acquire()
-        
+
         try:
             # Generate chunk hash if not provided
             if not chunk.chunk_hash:
                 chunk.chunk_hash = hashlib.sha256(chunk.content.encode()).hexdigest()
-            
+
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
-            
+
             # Serialize embedding and actors
             embedding_blob = json.dumps(chunk.embedding).encode()
             actors_json = json.dumps(chunk.metadata.actors)
-            
+
             cursor.execute("""
                 INSERT OR REPLACE INTO chunks 
                 (chunk_hash, content, embedding, timestamp, actors, chunk_id, document_id)
@@ -236,42 +258,49 @@ class DatabaseManager:
                 chunk.metadata.chunk_id,
                 chunk.metadata.document_id
             ))
-            
+
             conn.commit()
             conn.close()
             return True
-            
+
         except sqlite3.Error as e:
             raise DatabaseNotAccessibleError(f"Failed to store chunk: {str(e)}")
-    
+
     async def get_all_chunks(self) -> List[DocumentChunk]:
-        """Retrieve all chunks from database"""
+        """Retrieve all chunks from database
+
+        Returns:
+            List[DocumentChunk]: All stored chunks
+
+        Raises:
+            DatabaseNotAccessibleError: If database operation fails
+        """
         await self.rate_limiter.acquire()
-        
+
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
-            
+
             cursor.execute("""
                 SELECT chunk_hash, content, embedding, timestamp, actors, chunk_id, document_id
                 FROM chunks
             """)
-            
+
             chunks = []
             for row in cursor.fetchall():
                 chunk_hash, content, embedding_blob, timestamp, actors_json, chunk_id, document_id = row
-                
+
                 # Deserialize data
                 embedding = json.loads(embedding_blob.decode())
                 actors = json.loads(actors_json)
-                
+
                 metadata = ChunkMetadata(
                     timestamp=timestamp,
                     actors=actors,
                     chunk_id=chunk_id,
                     document_id=document_id
                 )
-                
+
                 chunk = DocumentChunk(
                     content=content,
                     metadata=metadata,
@@ -279,43 +308,64 @@ class DatabaseManager:
                     chunk_hash=chunk_hash
                 )
                 chunks.append(chunk)
-            
+
             conn.close()
             return chunks
-            
+
         except sqlite3.Error as e:
             raise DatabaseNotAccessibleError(f"Failed to retrieve chunks: {str(e)}")
-    
+
     async def delete_chunk(self, chunk_hash: str) -> bool:
-        """Delete a chunk by hash"""
+        """Delete a chunk by hash
+
+        Args:
+            chunk_hash (str): SHA-256 hash of chunk to delete
+
+        Returns:
+            bool: True if deletion succeeded
+
+        Raises:
+            DatabaseNotAccessibleError: If database operation fails
+        """
         await self.rate_limiter.acquire()
-        
+
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
-            
+
             cursor.execute("DELETE FROM chunks WHERE chunk_hash = ?", (chunk_hash,))
             deleted = cursor.rowcount > 0
-            
+
             conn.commit()
             conn.close()
             return deleted
-            
+
         except sqlite3.Error as e:
             raise DatabaseNotAccessibleError(f"Failed to delete chunk: {str(e)}")
 
 def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
-    """Calculate cosine similarity between two vectors"""
+    """Calculate cosine similarity between two vectors
+
+    Cosine similarity measures vector orientation (range: -1 to 1), with 1 indicating
+    identical direction. Commonly used for embedding comparisons in RAG systems.
+
+    Args:
+        vec1 (List[float]): First vector
+        vec2 (List[float]): Second vector
+
+    Returns:
+        float: Similarity score between -1 and 1
+    """
     if len(vec1) != len(vec2):
         return 0.0
-    
+
     dot_product = sum(a * b for a, b in zip(vec1, vec2))
     magnitude1 = sum(a * a for a in vec1) ** 0.5
     magnitude2 = sum(b * b for b in vec2) ** 0.5
-    
+
     if magnitude1 == 0 or magnitude2 == 0:
         return 0.0
-    
+
     return dot_product / (magnitude1 * magnitude2)
 
 class DynamicRAGSystem:
@@ -333,20 +383,34 @@ class DynamicRAGSystem:
         embedding_server_url (str): URL of embedding server (default: localhost:8080)
         embedding_model (str): Embedding model name (default: text-embedding-ada-002)
         name (str): Unique system identifier (UUID if not provided)
-        _default_chunk_size (int): Default chunk size (512)
-        _default_overlap (int): Default chunk overlap (50)
-        _default_max_results (int): Default max retrieval results (5)
+        _default_chunk_size (int): Default chunk size in characters (>0, default: 512)
+        _default_overlap (int): Default chunk overlap in characters (>=0, default: 50)
+        _default_max_results (int): Default max retrieval results (>=1, default: 5)
     """
-    
+
     def __init__(self,
                  db_path: str = "rag_storage.db",
                  embedding_server_url: str = "http://localhost:8080",
                  embedding_model: str = "text-embedding-ada-002",
-                 name = str | None,
+                 name: Optional[str] = None,
                  chunk_size: int = 512,
                  overlap: int = 50,
                  max_results: int = 5,
                  ) -> None:
+        """Initializes the Dynamic RAG system with configurable parameters.
+
+        Args:
+            db_path (str): Path to SQLite database file (default: 'rag_storage.db')
+            embedding_server_url (str): URL of embedding server (default: 'http://localhost:8080')
+            embedding_model (str): Embedding model name (default: 'text-embedding-ada-002')
+            name (Optional[str]): Unique system identifier (default: generates UUID)
+            chunk_size (int): Size of text chunks in characters (>0, default: 512)
+            overlap (int): Overlap between chunks in characters (>=0, default: 50)
+            max_results (int): Maximum retrieval results (>=1, default: 5)
+
+        Raises:
+            ValueError: If chunk_size <= 0, overlap < 0, or max_results < 1
+        """
         self.db_manager = DatabaseManager(db_path)
         self.embedding_server_url = embedding_server_url
         self.embedding_model = embedding_model
@@ -357,49 +421,44 @@ class DynamicRAGSystem:
         self._default_chunk_size = chunk_size
         self._default_overlap = overlap
         self._default_max_results = max_results
-    
+
     async def store_document(self,
                              content: str,
                              actors: List[str],
                              document_id: Optional[str] = None,
-                             chunk_size: int | None = None,
-                             overlap: int | None = None) -> List[str]:
+                             chunk_size: Optional[int] = None,
+                             overlap: Optional[int] = None) -> List[str]:
         """Stores a document by splitting into chunks and generating embeddings.
 
         Args:
             content (str): Full document text content
             actors (List[str]): Actor identifiers associated with the document
             document_id (Optional[str]): Unique document identifier (default: None)
-            chunk_size (Optional[int]): Chunk size override (uses system default)
-            overlap (Optional[int]): Chunk overlap override (uses system default)
+            chunk_size (Optional[int]): Chunk size in characters (default: 512)
+            overlap (Optional[int]): Chunk overlap in characters (default: 50)
 
         Returns:
-            List[str]: SHA-256 hashes of stored chunks
+            List[str]: SHA-256 hashes of stored chunks, usable for later retrieval/deletion
 
         Raises:
             HTTPError: If embedding server communication fails
             DatabaseNotAccessibleError: If database storage fails
             ServiceUnavailableError: If rate limiting is exceeded
         """
-
         chunk_hashes = []
 
         # Populate size and overlap
-
-        if not chunk_size:
-            chunk_size = self._default_chunk_size
-        if not overlap:
-            overlap = self._default_overlap
+        chunk_size = chunk_size or self._default_chunk_size
+        overlap = overlap or self._default_overlap
 
         # Generate chunks
         chunks = self._chunk_text(content, chunk_size, overlap)
 
-        
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
             for i, chunk_content in enumerate(chunks):
                 # Generate embedding
                 embedding = await embedding_client.get_embedding(chunk_content)
-                
+
                 # Create metadata
                 metadata = ChunkMetadata(
                     timestamp=int(time.time()),
@@ -407,105 +466,101 @@ class DynamicRAGSystem:
                     chunk_id=f"{document_id or 'doc'}_{i}" if document_id else None,
                     document_id=document_id
                 )
-                
+
                 # Create chunk
                 chunk = DocumentChunk(
                     content=chunk_content,
                     metadata=metadata,
                     embedding=embedding
                 )
-                
+
                 # Store chunk with rate limiting handled by database manager
                 await self.db_manager.store_chunk(chunk)
                 chunk_hashes.append(chunk.chunk_hash)
-                
+
                 # Add delay between chunks to respect rate limiting
                 if i < len(chunks) - 1:  # Don't wait after the last chunk
                     await asyncio.sleep(0.5)
-        
+
         return chunk_hashes
-    
-    async def retrieve_similar(self, 
+
+    async def retrieve_similar(self,
                              query: str,
                              similarity_threshold: float = 0.7,
-                             max_results: int | None = None,
-                             ) -> List[RetrievalResult]:
+                             max_results: Optional[int] = None) -> List[RetrievalResult]:
         """Retrieves chunks similar to query using cosine similarity.
+
+        Cosine similarity (range: -1 to 1) measures vector orientation in embedding space,
+        with 1 indicating identical direction. Default threshold=0.7 filters weak matches.
 
         Args:
             query (str): Search query text
             similarity_threshold (float): Minimum similarity score (0.0-1.0, default: 0.7)
-            max_results (Optional[int]): Maximum results to return (uses system default)
+            max_results (Optional[int]): Maximum results to return (default: 5)
 
         Returns:
-            List[RetrievalResult]: Sorted list of matching chunks with similarity scores
+            List[RetrievalResult]: Sorted list of matching chunks ordered by similarity score
 
         Raises:
             NoMatchingEntryError: If no chunks meet threshold
             HTTPError: If embedding generation fails
         """
-        if not max_results:
-            max_results = self._default_max_results
+        max_results = max_results or self._default_max_results
 
         # Generate query embedding
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
             query_embedding = await embedding_client.get_embedding(query)
-        
+
         # Get all chunks from database
         all_chunks = await self.db_manager.get_all_chunks()
-        
+
         # Calculate similarities
         results = []
         for chunk in all_chunks:
             if chunk.embedding:
                 similarity = cosine_similarity(query_embedding, chunk.embedding)
                 if similarity >= similarity_threshold:
-                    # print(f"Similarity: {similarity:.2f}")
                     results.append(RetrievalResult(chunk=chunk, similarity_score=similarity))
-        
+
         # Sort by similarity and limit results
         results.sort(key=lambda x: x.similarity_score, reverse=True)
         results = results[:max_results]
-        
+
         if not results:
             raise NoMatchingEntryError(similarity_threshold)
-        
+
         return results
 
     async def retrieve_by_actor(self,
-                                actors: list[str],
-                                similarity_threshold:
-                                float = 0.5,
+                                actors: List[str],
+                                similarity_threshold: float = 0.5,
                                 max_results: int = 5) -> List[RetrievalResult]:
         """Retrieves chunks based on actor membership similarity.
 
-                Uses custom metric: matched_actors / (query_length + |query_length - chunk_actors|)
+        Uses metric: similarity = matched_actors / (len(actors) + |len(actors) - len(chunk_actors)|),
+        which penalizes discrepancies in actor list lengths.
 
-                Args:
-                    actors (list[str]): Target actor list
-                    similarity_threshold (float): Minimum similarity score (default: 0.5)
-                    max_results (int): Maximum results to return (default: 5)
+        Args:
+            actors (List[str]): Target actor list
+            similarity_threshold (float): Minimum similarity score (default: 0.5)
+            max_results (int): Maximum results to return (default: 5)
 
-                Returns:
-                    List[RetrievalResult]: Sorted list of matching chunks with similarity scores
+        Returns:
+            List[RetrievalResult]: Sorted list of matching chunks with similarity scores
 
-                Raises:
-                    NoMatchingEntryError: If no chunks meet threshold
+        Raises:
+            NoMatchingEntryError: If no chunks meet threshold
         """
-
         # Get all chunks from database
         all_chunks = await self.db_manager.get_all_chunks()
 
         # Calculate similarities
         results = []
         for chunk in all_chunks:
-
-            # similarity function: matched / (query_length + |query_length - actors_in_chunk|)
-            # imposes penalty proportional to list length discrepancy
             actors_matched = len(set(actors).intersection(chunk.metadata.actors))
             similarity = actors_matched/(len(actors) + abs(len(actors) - len(chunk.metadata.actors)))
 
-            if actors_matched >= similarity_threshold:
+            if similarity >= similarity_threshold:
                 results.append(RetrievalResult(chunk=chunk, similarity_score=similarity))
 
         # Sort by similarity and limit results
@@ -517,23 +572,47 @@ class DynamicRAGSystem:
 
         return results
 
-    async def delete_chunk(self, chunk: DocumentChunk | str) -> bool:
-        if type(chunk) == DocumentChunk:
-            deleted = await self.db_manager.delete_chunk(chunk.chunk_hash)
-        elif type(chunk) == str:
-            deleted = await self.db_manager.delete_chunk(chunk)
-        else:
-            raise TypeError(f"Chunk type {type(chunk)} is not supported")
+    async def delete_chunk(self, chunk: Union[DocumentChunk, str]) -> bool:
+        """Deletes a chunk by hash.
+
+        Accepts either DocumentChunk object or SHA-256 hash string.
+
+        Args:
+            chunk (Union[DocumentChunk, str]): Chunk object or hash to delete
+
+        Returns:
+            bool: True if deletion succeeded, False if chunk not found
+
+        Raises:
+            TypeError: If unsupported chunk type provided
+        """
+        chunk_hash = chunk.chunk_hash if isinstance(chunk, DocumentChunk) else chunk
+
+        deleted = await self.db_manager.delete_chunk(chunk_hash)
         if not deleted:
-            print(f"Chunk {chunk} could not be deleted")
+            logger.warning(f"Chunk {chunk_hash} could not be deleted")
             return False
         else:
-            print(f"Deleted chunk {chunk.chunk_hash}")
+            logger.info(f"Deleted chunk {chunk_hash}")
             return True
 
     async def update_chunk(self, chunk_hash: str, new_content: str, actors: List[str]) -> bool:
-        """Update an existing chunk with new content"""
-        
+        """Updates chunk content through delete-then-store operation.
+
+        Includes 0.5s rate limiting delay between operations to comply with database constraints.
+
+        Args:
+            chunk_hash (str): SHA-256 hash of chunk to update
+            new_content (str): New text content
+            actors (List[str]): New actor identifiers
+
+        Returns:
+            bool: True if update succeeded, False otherwise
+
+        Raises:
+            DatabaseNotAccessibleError: If storage fails
+            HTTPError: If embedding generation fails
+        """
         # Delete old chunk
         deleted = await self.db_manager.delete_chunk(chunk_hash)
         if not deleted:
@@ -545,55 +624,73 @@ class DynamicRAGSystem:
         # Generate new embedding
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
             embedding = await embedding_client.get_embedding(new_content)
-        
+
         # Create updated chunk
         metadata = ChunkMetadata(
             timestamp=int(time.time()),
             actors=actors
         )
-        
+
         chunk = DocumentChunk(
             content=new_content,
             metadata=metadata,
             embedding=embedding,
             chunk_hash=chunk_hash
         )
-        
+
         # Store updated chunk
         await self.db_manager.store_chunk(chunk)
         return True
-    
-    def _chunk_text(self, text: str, chunk_size: int, overlap: int) -> List[str]:
-        """Split text into overlapping chunks"""
 
+    def _chunk_text(self, text: str, chunk_size: int, overlap: int) -> List[str]:
+        """Split text into overlapping chunks.
+
+        Example: With chunk_size=100 and overlap=20, each subsequent chunk starts 80 characters after previous.
+
+        Args:
+            text (str): Input text to chunk
+            chunk_size (int): Size of each chunk in characters (>0)
+            overlap (int): Overlap between chunks in characters (>=0)
+
+        Returns:
+            List[str]: Generated text chunks
+        """
         if len(text) <= chunk_size:
             return [text]
-        
+
         chunks = []
         start = 0
-        
+
         while start < len(text):
             end = start + chunk_size
             chunk = text[start:end]
             chunks.append(chunk)
-            
+
             if end >= len(text):
                 break
-            
+
             start = end - overlap
-        
+
         return chunks
-    
+
     async def get_stats(self) -> Dict[str, Any]:
-        """Get system statistics"""
+        """Gets system statistics.
+
+        Returns:
+            Dict[str, Any]: Contains:
+                - 'total_chunks': Total stored chunks
+                - 'unique_documents': Count of unique document IDs
+                - 'unique_actors': Count of unique actors
+                - 'actors': List of all unique actor identifiers
+        """
         chunks = await self.db_manager.get_all_chunks()
-        
+
         total_chunks = len(chunks)
         unique_documents = len(set(chunk.metadata.document_id for chunk in chunks if chunk.metadata.document_id))
         unique_actors = set()
         for chunk in chunks:
             unique_actors.update(chunk.metadata.actors)
-        
+
         return {
             "total_chunks": total_chunks,
             "unique_documents": unique_documents,
@@ -617,7 +714,7 @@ if __name__ == "__main__":
     # Example usage
     async def main():
         rag_system = DynamicRAGSystem()
-        
+
         try:
             # Store a document
             chunk_hashes = await rag_system.store_document(
@@ -626,30 +723,29 @@ if __name__ == "__main__":
                 document_id="doc_001"
             )
             print(f"Stored document with {len(chunk_hashes)} chunks")
-            
+
             # Retrieve similar content
             results = await rag_system.retrieve_similar(
                 query="machine learning",
                 similarity_threshold=0.5,
                 max_results=3
             )
-            
+
             print(f"Found {len(results)} similar chunks:")
             for result in results:
                 print(f"  Similarity: {result.similarity_score:.3f}")
                 print(f"  Content: {result.chunk.content[:100]}...")
                 print(f"  Actors: {result.chunk.metadata.actors}")
                 print()
-            
+
             # Get system stats
             stats = await rag_system.get_stats()
             print("System stats:", stats)
-            
+
         except RAGException as e:
             print(f"RAG Error {e.code}: {e.description}")
         except Exception as e:
             print(f"Unexpected error: {e}")
-    
+
     # Run example
     # asyncio.run(main())
-
