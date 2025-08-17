@@ -4,9 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Partially documented the RAG system">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Completed RAG system documentation.">
+      <change beforePath="$PROJECT_DIR$/.idea/Morphea.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Regions.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_old.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/params.json" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,68 +38,68 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python tests.Doctests in llamacpp_api.executor": "Run",
-    "Python tests.Python tests for tests.async_test.TestLLMLink.executor": "Run",
-    "Python tests.Python tests for tests.test_ragregion.TestRAGRegion.test_make_replies_no_matches.executor": "Run",
-    "Python tests.Python tests for tests.test_ragregion.TestRAGRegion.test_make_replies_no_matches_sync.executor": "Run",
-    "Python tests.Python tests for tests.test_ragregion.TestRAGRegion.test_make_replies_success_sync.executor": "Run",
-    "Python tests.Python tests for tests.test_ragregion.TestRAGRegion.test_make_replies_without_actors.executor": "Run",
-    "Python tests.Python tests for tests.test_region.TestRegion.executor": "Run",
-    "Python tests.Python tests for tests.test_region.TestRegion.test_make_prompt.executor": "Run",
-    "Python tests.Python tests for tests.test_region.TestRegion.test_make_prompt_structure.executor": "Run",
-    "Python tests.Python tests for tests.test_region.TestRegion.test_make_questions_success.executor": "Run",
-    "Python tests.Python tests for tests.test_region.TestRegion.test_make_questions_success_sync.executor": "Run",
-    "Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success.executor": "Run",
-    "Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success_sync.executor": "Run",
-    "Python tests.Python tests in async_test.py.executor": "Run",
-    "Python tests.Python tests in test_ragregion.py.executor": "Run",
-    "Python tests.Python tests in test_region.py.executor": "Run",
-    "Python.comprehensive_unit_tests.executor": "Run",
-    "Python.config.executor": "Run",
-    "Python.demo.executor": "Run",
-    "Python.dynamic_rag.executor": "Run",
-    "Python.example_usage.executor": "Run",
-    "Python.llamacpp_api.executor": "Run",
-    "Python.llamacpp_api_test.executor": "Run",
-    "Python.neural_region.executor": "Run",
-    "Python.ooba_api.executor": "Run",
-    "Python.rag_test.executor": "Run",
-    "Python.self_indulgent_demo.executor": "Run",
-    "Python.system_validation (1).executor": "Run",
-    "Python.system_validation.executor": "Run",
-    "Python.test_database.executor": "Run",
-    "Python.test_embedding_client.executor": "Run",
-    "Python.test_error (1).executor": "Run",
-    "Python.test_error_handling.executor": "Run",
-    "Python.test_rag (1).executor": "Run",
-    "Python.test_rag.executor": "Run",
-    "Python.test_rag_system.executor": "Run",
-    "Python.tools_test.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "C:/Users/adibrov/PycharmProjects/Morphea",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python tests.Doctests in llamacpp_api.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.async_test.TestLLMLink.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_ragregion.TestRAGRegion.test_make_replies_no_matches.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_ragregion.TestRAGRegion.test_make_replies_no_matches_sync.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_ragregion.TestRAGRegion.test_make_replies_success_sync.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_ragregion.TestRAGRegion.test_make_replies_without_actors.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_region.TestRegion.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_region.TestRegion.test_make_prompt.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_region.TestRegion.test_make_prompt_structure.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_region.TestRegion.test_make_questions_success.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_region.TestRegion.test_make_questions_success_sync.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success_sync.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests in async_test.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests in test_ragregion.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests in test_region.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.comprehensive_unit_tests.executor&quot;: &quot;Run&quot;,
+    &quot;Python.config.executor&quot;: &quot;Run&quot;,
+    &quot;Python.demo.executor&quot;: &quot;Run&quot;,
+    &quot;Python.dynamic_rag.executor&quot;: &quot;Run&quot;,
+    &quot;Python.example_usage.executor&quot;: &quot;Run&quot;,
+    &quot;Python.llamacpp_api.executor&quot;: &quot;Run&quot;,
+    &quot;Python.llamacpp_api_test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.neural_region.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ooba_api.executor&quot;: &quot;Run&quot;,
+    &quot;Python.rag_test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.self_indulgent_demo.executor&quot;: &quot;Run&quot;,
+    &quot;Python.system_validation (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.system_validation.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_database.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_embedding_client.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_error (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_error_handling.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_rag (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_rag.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_rag_system.executor&quot;: &quot;Run&quot;,
+    &quot;Python.tools_test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/adibrov/PycharmProjects/Morphea&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "sqlite"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;sqlite&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea" />
@@ -113,7 +117,7 @@
   </component>
   <component name="RunManager" selected="Python.self_indulgent_demo">
     <configuration name="demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Morphea" />
+      <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -136,7 +140,7 @@
       <method v="2" />
     </configuration>
     <configuration name="self_indulgent_demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Morphea" />
+      <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -159,7 +163,7 @@
       <method v="2" />
     </configuration>
     <configuration name="test_rag" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Morphea" />
+      <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -182,7 +186,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Python tests for tests.test_ragregion.TestRAGRegion.test_make_replies_success_sync" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
-      <module name="Morphea" />
+      <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -198,7 +202,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Python tests in test_ragregion.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
-      <module name="Morphea" />
+      <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -260,7 +264,7 @@
       <workItem from="1755037537425" duration="116000" />
       <workItem from="1755037673137" duration="72147000" />
       <workItem from="1755292156729" duration="6455000" />
-      <workItem from="1755299014718" duration="40136000" />
+      <workItem from="1755299014718" duration="41307000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -406,7 +410,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755413704935</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Completed RAG system documentation.">
+      <option name="closed" value="true" />
+      <created>1755414298932</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1755414298932</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -443,7 +455,8 @@
     <MESSAGE value="Edge case fixes and minor structured syntax cleanup." />
     <MESSAGE value="Added more parameters to RAGRegion initialization." />
     <MESSAGE value="Partially documented the RAG system" />
-    <option name="LAST_COMMIT_MESSAGE" value="Partially documented the RAG system" />
+    <MESSAGE value="Completed RAG system documentation." />
+    <option name="LAST_COMMIT_MESSAGE" value="Completed RAG system documentation." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
