@@ -1,13 +1,12 @@
 import asyncio
 import json
+import logging
 import re
 
 # from typing import override
 
 from modules.llamacpp_api import LLMLink
 from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
-from modules.logutils import print_v
-from modules.stringutils import extract_json_segment
 
 
 class BaseRegion:
@@ -193,7 +192,7 @@ class Region(BaseRegion):
             reply = None
             try:
                 raw_reply = await self.llm.text(prompt)
-                print_v(f"{self.name}: Got reply from LLM: {raw_reply}", False)
+                logging.debug(f"{self.name}: Got reply from LLM: {raw_reply}")
 
                 # Parse out model thinking
                 # If there is no thinking block, pass the raw reply
@@ -202,7 +201,7 @@ class Region(BaseRegion):
                 except IndexError:
                     reply = raw_reply.strip()
 
-                print_v(f"{self.name}: Extracted reply: {reply}", False)
+                logging.debug(f"{self.name}: Extracted reply: {reply}", False)
 
             except Exception as e:
                 print(f"\n{self.name}: Processing failed. {e}")
@@ -239,9 +238,9 @@ class Region(BaseRegion):
         prompt = self._make_prompt(user_prompt)
         try:
             reply = await self.llm.text(prompt)
-            print_v(f"{self.name}: Got reply from LLM: {reply}", False)
+            logging.debug(f"{self.name}: Got reply from LLM: {reply}", False)
             questions = json.loads(re.findall(r"\[\s*?\n*?\s*?{.*?}\s*?\n*?\s*?]", reply, flags=re.DOTALL)[-1])
-            print_v(f"{self.name}: Extracted questions: {questions}", False)
+            logging.debug(f"{self.name}: Extracted questions: {questions}", False)
         except Exception as e:
             print(f"\n{self.name}: Processing failed. {e}")
             faultless = False
