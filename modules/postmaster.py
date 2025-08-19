@@ -28,7 +28,7 @@ class Postmaster:
         delay: float = 0.5,
         undeliverable: str = 'drop',
         rts_source: str = '',
-        rts_prepend: bool = True,
+        rts_prepend: bool = None,
         reroute_destination: str = '',
     ) -> None:
         """Initializes the Postmaster with routing configuration.
