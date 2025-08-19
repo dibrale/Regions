@@ -1,0 +1,14 @@
+[
+    {
+        "name":"foo",
+        "type":"Region",
+        "task":"Does things",
+        "connections":["bar"]
+    },
+    {
+        "name":"bar",
+        "type": "RAGRegion",
+        "task":"Does things",
+        "connections":[]
+    }
+]

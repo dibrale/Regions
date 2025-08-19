@@ -1,6 +1,7 @@
 import json
 from typing import Any
 
+import os.path
 import re
 
 
@@ -121,3 +122,31 @@ def extract_json_segment(s: str) -> str | None:
         if last_valid > i:
             return s[i:last_valid]
     return None
+
+def sanitize_path(path):
+    """
+    Sanitize a path against directory traversals
+
+    >>> sanitize_path('../test')
+    'test'
+    >>> sanitize_path('../../test')
+    'test'
+    >>> sanitize_path('../../abc/../test')
+    'test'
+    >>> sanitize_path('../../abc/../test/fixtures')
+    'test/fixtures'
+    >>> sanitize_path('../../abc/../.test/fixtures')
+    '.test/fixtures'
+    >>> sanitize_path('/test/foo')
+    'test/foo'
+    >>> sanitize_path('./test/bar')
+    'test/bar'
+    >>> sanitize_path('.test/baz')
+    '.test/baz'
+    >>> sanitize_path('qux')
+    'qux'
+    """
+    # - pretending to chroot to the current directory
+    # - cancelling all redundant paths (/.. = /)
+    # - making the path relative
+    return os.path.relpath(os.path.normpath(os.path.join("/", path)), "/")
