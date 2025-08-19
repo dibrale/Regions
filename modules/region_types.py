@@ -1,8 +1,10 @@
-from region import BaseRegion, Region, RAGRegion
+from region import BaseRegion, Region, RAGRegion, MockRegion, MockRAGRegion
 
 region_types = [
     {"name": "Region", "class": Region},
-    {"name": "RAGRegion", "class": RAGRegion}
+    {"name": "RAGRegion", "class": RAGRegion},
+    {"name": "MockRegion", "class": MockRegion},
+    {"name": "MockRAGRegion", "class": MockRAGRegion},
 ]
 
 def class_from_str(class_name: str) -> type[BaseRegion]:

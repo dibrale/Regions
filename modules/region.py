@@ -427,3 +427,16 @@ class RAGRegion(BaseRegion):
             raise ValueError(f"{self.name}: No valid connections for summarization.")
         for connection in self.connections:
             self._ask(connection, "Summarize the knowledge you have.")
+
+# Mock region classes for testing
+class MockRegion(BaseRegion):
+    def __init__(self, name, task, connections=None, **kwargs):
+        super().__init__(name, task, connections)
+        self.kwargs = kwargs
+
+
+class MockRAGRegion(BaseRegion):
+    def __init__(self, name, task, rag=None, connections=None, **kwargs):
+        super().__init__(name, task, connections)
+        self.rag = rag
+        self.kwargs = kwargs
