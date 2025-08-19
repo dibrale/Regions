@@ -11,9 +11,33 @@ from typing import List
 from functools import partial
 import inspect
 
+
 @dataclass
 class RegionEntry:
-    """Region Entries"""
+    """Configuration and state container for region instances in a distributed system.
+
+    Represents a serialized blueprint for a region (a specialized component in a multi-agent system).
+    Contains both metadata (name, type, task) and runtime dependencies (RAG systems, LLMs, connections).
+    Used to:
+    - Persist region configurations
+    - Recreate regions from stored state
+    - Manage inter-region relationships
+
+    Attributes:
+        name (str): Unique identifier for the region. Default: None
+        type (str): Fully qualified class name of the region implementation. Default: None
+        task (str): Primary objective/functionality description of the region. Default: None
+        connections (list[str]): Names of regions this region interacts with. Default: None
+        rag (DynamicRAGSystem): Optional retrieval-augmented generation system for knowledge access. Default: None
+        llm (LLMLink): Optional language model interface for generating responses. Default: None
+        region (BaseRegion): Live instance of the region (populated when active). Default: None
+        reply_with_actors (bool): Whether responses should include actor references. Default: None
+
+    Example:
+        >>> entry = RegionEntry(name="customer_support", type="regions.SupportRegion")
+        >>> entry.from_region(support_region_instance)
+        >>> recreated_region = entry.make_region()
+    """
     name: str = None
     type: str = None
     task: str = None
@@ -24,12 +48,43 @@ class RegionEntry:
     reply_with_actors: bool = None
 
     def __repr__(self):
+        """Return debug-friendly representation showing region name.
+
+        Returns:
+            str: Formatted string like '<RegionEntry name=...>' for inspection.
+        """
         return f"<RegionEntry name={self.name}>"
 
     def __str__(self):
+        """Return human-readable name of the region.
+
+        Returns:
+            str: Region name (e.g., 'customer_support').
+        """
         return f"{self.name}"
 
     def from_region(self, region: BaseRegion):
+        """Populate entry attributes from a live region instance.
+
+        Copies critical metadata and optional dependencies from a BaseRegion object.
+        Handles optional attributes (rag, llm, reply_with_actors) safely via hasattr checks.
+
+        Args:
+            region (BaseRegion): Source region instance to serialize
+
+        Side Effects:
+            Sets all attributes on self:
+            - name, type (from class name), task, connections
+            - rag (if present on region)
+            - llm (if present on region)
+            - reply_with_actors (if present on region)
+            - region (direct reference to source object)
+
+        Example:
+            >>> entry = RegionEntry()
+            >>> entry.from_region(customer_region)
+            >>> assert entry.name == "customer_region"
+        """
         self.name = region.name
         self.type = str_from_class(region.__class__)
 
@@ -47,31 +102,92 @@ class RegionEntry:
         self.region = region
 
     def make_region(self):
+        """Instantiate a region from stored configuration.
+
+        Recreates a region object using the entry's metadata and dependencies.
+        Uses partial application to build constructor arguments incrementally.
+
+        Behavior:
+            - If region already exists: Logs recreation attempt
+            - On success: Populates self.region and logs creation
+            - On failure: Logs error with exception details
+
+        Side Effects:
+            Sets self.region to new instance (or retains old instance on failure)
+
+        Returns:
+            BaseRegion: Created region instance (also stored in self.region)
+
+        Raises:
+            Exception: If region construction fails (logged internally)
+
+        Example:
+            >>> entry = RegionEntry(name="sales", type="regions.SalesRegion")
+            >>> region = entry.make_region()
+            >>> assert isinstance(region, BaseRegion)
+        """
         if self.region:
             logging.info(f"Remaking '{self.name}' {self.type}")
 
         f = partial(
             class_from_str(self.type),
-            name = self.name,
-            task = self.task,
-            connections = {}
+            name=self.name,
+            task=self.task,
+            connections={}
         )
 
         if self.rag:
-            f = partial(f, rag = self.rag)
+            f = partial(f, rag=self.rag)
         if self.llm:
-            f = partial(f, llm = self.llm)
+            f = partial(f, llm=self.llm)
         if self.reply_with_actors:
-            f = partial(f, reply_with_actors = self.reply_with_actors)
+            f = partial(f, reply_with_actors=self.reply_with_actors)
 
         try:
             self.region = f()
             logging.info(f"Created '{self.name}' {self.type} from entry")
         except Exception as e:
             logging.error(f"Exception while making '{self.name}' {self.type}: {e}")
+        return self.region
 
     @classmethod
     def load_list(cls, path: str) -> List["RegionEntry"]:
+        """Load and validate region configuration from a JSON file.
+
+                Reads a JSON file containing serialized region entries and converts them into
+                RegionEntry objects. Enforces critical validation that all region names are unique
+                to prevent routing conflicts in the distributed system.
+
+                The JSON file must contain a list of dictionaries where each dictionary has keys
+                corresponding to RegionEntry attributes (name, type, task, etc.). Missing optional
+                fields will be initialized with None values per the dataclass defaults.
+
+                Args:
+                    path (str): File path to JSON configuration (supports POSIX-style paths)
+
+                Returns:
+                    List[RegionEntry]: Validated list of region entry objects
+
+                Raises:
+                    ValueError: If duplicate region names are detected in the source file
+                    FileNotFoundError: If the specified path doesn't exist
+                    JSONDecodeError: If the file contains invalid JSON
+
+                Validation:
+                    Performs critical uniqueness check on region names:
+                    - Compares total entries against unique names (len vs set)
+                    - Fails immediately on duplicates to prevent system instability
+
+                Example:
+                    >>> entries = RegionEntry.load_list("config/regions.json")
+                    >>> print(f"Loaded {len(entries)} unique regions")
+                    >>> assert all(e.region is None for e in entries)  # Regions not yet instantiated
+
+                Note:
+                    This method only deserializes configuration metadata - actual region instances
+                    must be created separately via RegionEntry.make_region(). The returned entries
+                    contain no live region objects (region attribute remains None).
+                """
         posix_path = pathlib.PurePosixPath(path)
 
         with open(str(posix_path)) as f:
