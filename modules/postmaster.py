@@ -131,6 +131,7 @@ class Postmaster:
             await asyncio.sleep(0.01)
 
         await self.messages.put(msg)
+        print("resent")
 
 
 
@@ -156,48 +157,70 @@ class Postmaster:
 
             # Wait at least the delay time
             start_time = asyncio.get_event_loop().time()
-            while asyncio.get_event_loop().time() - start_time < self.delay:
+            while asyncio.get_event_loop().time() - start_time < self.delay or self.messages.empty():
                 await asyncio.sleep(0.01)
 
-            message = await self.messages.get()  # Blocks until message arrives
+            while not self.messages.empty():
+                await asyncio.sleep(0)
+                message = self.messages.get_nowait()
 
-            sent = False
-            for region in self.registry:
-                if message['destination'] == region.name:
-                    region.inbox.put_nowait(message)
-                    break   # Exit region loop after delivery
+                sent = False
+                # logging.info(f"Regions in registry: {len(self.registry)}")
+                for region in self.registry:
+                    # logging.info(f"Message sent from '{message['source']}' to '{message['destination']}'")
+                    if message['destination'] == region.name:
+                        region.inbox.put_nowait(message)
+                        sent = True
+                        logging.info(f"Message sent from '{message['source']}' to '{message['destination']}'")
+                        break   # Exit region loop after delivery
 
-            if not sent:
-                logging.warning(
-                    f"Message from '{message['source']}' to '{message['destination']}' could not be delivered")
+                if not sent:
 
-                match self.undeliverable:
-                    case 'drop':
-                        continue        # Skip to next message
+                    # if message['destination'] == 'postmaster':
+                    #     logging.warning(f"Message from '{message['source']}' to postmaster dropped")
+                    #     continue
+                    # else:
+                    logging.warning(
+                        f"Message from '{message['source']}' to '{message['destination']}' could not be delivered")
 
-                    case 'retry':       # Note: Unlimited retries can cause bottlenecks. Consider implementing maximum.
+                    match self.undeliverable:
+                        case 'drop':
+                            continue        # Skip to next message
 
-                        asyncio.create_task(self.resend(message))
+                        case 'retry':       # Note: Unlimited retries can cause bottlenecks. Consider implementing maximum.
 
-                        # await asyncio.sleep(self.delay)
-                                        # Should optimistically be long enough for other messages to arrive first
-                                        # This reduces retry priority
-                        # self.messages.put_nowait(message)
+                            asyncio.create_task(self.resend(message))
 
-                    case 'reroute':
-                        message['destination'] = self.reroute_destination
-                        asyncio.create_task(self.resend(message, 0))
+                            # await asyncio.sleep(self.delay)
+                                            # Should optimistically be long enough for other messages to arrive first
+                                            # This reduces retry priority
+                            # self.messages.put_nowait(message)
 
-                    case 'return':
-                        original = message
-                        if self.rts_prepend:
-                            message['content'] = \
-                                f"Could not deliver message to '{message['destination']}'. Content: {original['content']}"
-                        message['destination'] = original['source']
-                        if self.rts_source:
-                            message['source'] = self.rts_source
+                        case 'reroute':
 
-                        asyncio.create_task(self.resend(message, 0))
+                            # If the rerouting destination is unavailable despite reroute behavior, drop the message
+                            if message['destination'] == self.reroute_destination:
+                                logging.warning(f"Reroute destination '{message['destination']}' unavailable. Dropping message.")
 
-                    case 'error':
-                        raise RuntimeError(f"Could not deliver message to '{message['destination']}'")
+                            else:
+                                message['destination'] = self.reroute_destination
+                                logging.info(f"Rerouting from '{message['source']}' to '{message['destination']}'")
+                                self.messages.put_nowait(message)
+                                continue
+
+                        case 'return':
+                            if message['source'] == self.rts_source:
+                                logging.warning(f"Could not return message to sender '{message['destination']}'. Message dropped.")
+                            else:
+                                original = message
+                                if self.rts_prepend:
+                                    message['content'] = \
+                                        f"Could not deliver message to '{message['destination']}'. Content: {original['content']}"
+                                message['destination'] = original['source']
+                                if self.rts_source:
+                                    message['source'] = self.rts_source
+
+                                self.messages.put_nowait(message)
+
+                        case 'error':
+                            raise RuntimeError(f"Could not deliver message to '{message['destination']}'")
