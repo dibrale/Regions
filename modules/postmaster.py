@@ -13,10 +13,11 @@ class Postmaster:
     Attributes:
         registry (RegionRegistry): Registry containing all managed regions
         delay (float): Collection interval in seconds (default: 0.5)
+        default_resend_delay (float): Delay used for retry operations (default: delay-0.01)
         messages (asyncio.Queue): Internal queue for collected messages
         undeliverable (str): Policy for undeliverable messages ('drop', 'retry', 'reroute', 'return', 'error')
         rts_source (str): Custom return-to-sender source address (used when undeliverable='return')
-        rts_prepend (bool): Whether to prepend undeliverable notice to message content (used when undeliverable='return')
+        rts_prepend (bool|None): Whether to prepend undeliverable notice to message content (used when undeliverable='return')
         reroute_destination (str): Target region for rerouted messages (used when undeliverable='reroute')
         collect (asyncio.Task): Background task for message collection
         emit (asyncio.Task): Background task for message emission
@@ -38,12 +39,13 @@ class Postmaster:
             delay: Collection interval in seconds (default: 0.5)
             undeliverable: Policy for handling undeliverable messages:
                 - 'drop': Discard messages (default)
-                - 'retry': Requeue messages indefinitely
+                - 'retry': Requeue messages after delay
                 - 'reroute': Redirect to reroute_destination
                 - 'return': Return to sender with optional modifications
                 - 'error': Raise RuntimeError
             rts_source: Custom source address for return-to-sender messages
-            rts_prepend: Whether to prepend undeliverable notice to message content
+            rts_prepend: Whether to prepend undeliverable notice to message content.
+                         If None (default), no prepend occurs.
             reroute_destination: Target region name for rerouted messages
 
         Raises:
@@ -54,6 +56,7 @@ class Postmaster:
               undeliverable='return'. Otherwise they're ignored with a warning.
             - Reroute destination must be specified when undeliverable='reroute'.
             - Configured undeliverable policy is logged at initialization.
+            - default_resend_delay is automatically set to delay-0.01 to reduce retry priority
         """
         self.registry = registry
         self.delay = delay
@@ -121,6 +124,19 @@ class Postmaster:
                     await asyncio.sleep(0)  # Yield to other tasks
 
     async def resend(self, msg: dict, resend_delay: float = None):
+        """Requeues a message after a configurable delay for retry delivery.
+
+        Args:
+            msg (dict): The undeliverable message to be resent
+            resend_delay (float, optional): Custom delay before resending.
+                If not provided, uses default_resend_delay (delay-0.01 seconds)
+
+        Notes:
+            - Delay is implemented with non-blocking sleeps to avoid starving other tasks
+            - After delay, message is re-queued for delivery attempt
+            - Used when undeliverable='retry' policy is active
+            - default_resend_delay creates lower priority for resends compared to new messages
+        """
         if resend_delay:
             delay = resend_delay
         else:
@@ -133,25 +149,30 @@ class Postmaster:
         await self.messages.put(msg)
         print("resent")
 
-
-
     async def emitter(self):
-        """Background task that processes messages for delivery.
+        """Background task that processes messages in batches after fixed intervals.
 
         Operation:
-            1. Waits for messages from internal queue
-            2. Attempts delivery to target region's inbox
-            3. Handles undeliverable messages per configured policy:
-                - 'drop': Discards message
-                - 'retry': Requeues message after delay
-                - 'reroute': Changes destination to reroute_destination
-                - 'return': Modifies message for return to sender
-                - 'error': Raises exception
+            1. Waits at least `delay` seconds between processing batches
+            2. Processes ALL messages currently in the internal queue:
+                a. Attempts delivery to target region's inbox
+                b. Handles undeliverable messages per configured policy:
+                    - 'drop': Discards message immediately
+                    - 'retry': Schedules retry after `default_resend_delay` (delay-0.01)
+                    - 'reroute': Redirects to `reroute_destination` (if available)
+                    - 'return': Modifies message for return to sender with optional:
+                        * Source address override (rts_source)
+                        * Content prepend (rts_prepend)
+                    - 'error': Raises RuntimeError
 
         Notes:
+            - Processes messages in batches rather than individual items
+            - Retry delay is intentionally shorter than collection interval to:
+                * Reduce priority of resends compared to new messages
+                * Prevent retry bottlenecks
+            - Unlimited retries possible (monitor for message buildup)
+            - Logs undeliverable messages as warnings
             - Runs continuously until task cancellation
-            - Logs warnings for undeliverable messages
-            - Retry policy has no maximum attempts (potential bottleneck risk)
         """
         while True:
 
@@ -163,11 +184,8 @@ class Postmaster:
             while not self.messages.empty():
                 await asyncio.sleep(0)
                 message = self.messages.get_nowait()
-
                 sent = False
-                # logging.info(f"Regions in registry: {len(self.registry)}")
                 for region in self.registry:
-                    # logging.info(f"Message sent from '{message['source']}' to '{message['destination']}'")
                     if message['destination'] == region.name:
                         region.inbox.put_nowait(message)
                         sent = True
@@ -176,10 +194,6 @@ class Postmaster:
 
                 if not sent:
 
-                    # if message['destination'] == 'postmaster':
-                    #     logging.warning(f"Message from '{message['source']}' to postmaster dropped")
-                    #     continue
-                    # else:
                     logging.warning(
                         f"Message from '{message['source']}' to '{message['destination']}' could not be delivered")
 
@@ -190,17 +204,14 @@ class Postmaster:
                         case 'retry':       # Note: Unlimited retries can cause bottlenecks. Consider implementing maximum.
 
                             asyncio.create_task(self.resend(message))
-
-                            # await asyncio.sleep(self.delay)
-                                            # Should optimistically be long enough for other messages to arrive first
-                                            # This reduces retry priority
-                            # self.messages.put_nowait(message)
+                            continue
 
                         case 'reroute':
 
                             # If the rerouting destination is unavailable despite reroute behavior, drop the message
                             if message['destination'] == self.reroute_destination:
                                 logging.warning(f"Reroute destination '{message['destination']}' unavailable. Dropping message.")
+                                continue
 
                             else:
                                 message['destination'] = self.reroute_destination
@@ -211,6 +222,7 @@ class Postmaster:
                         case 'return':
                             if message['source'] == self.rts_source:
                                 logging.warning(f"Could not return message to sender '{message['destination']}'. Message dropped.")
+                                continue
                             else:
                                 original = message
                                 if self.rts_prepend:
@@ -221,6 +233,7 @@ class Postmaster:
                                     message['source'] = self.rts_source
 
                                 self.messages.put_nowait(message)
+                                continue
 
                         case 'error':
                             raise RuntimeError(f"Could not deliver message to '{message['destination']}'")
