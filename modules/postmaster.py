@@ -57,6 +57,8 @@ class Postmaster:
         """
         self.registry = registry
         self.delay = delay
+        self.default_resend_delay = delay-0.01  # Should optimistically be long enough for other messages to arrive first
+                                                # This reduces priority of resends compared to new arrivals
         self.messages = asyncio.Queue()
         self.undeliverable = undeliverable
         logging.info(f"Undeliverable message behavior is '{self.undeliverable}'")
@@ -118,6 +120,20 @@ class Postmaster:
                     self.messages.put_nowait(msg)
                     await asyncio.sleep(0)  # Yield to other tasks
 
+    async def resend(self, msg: dict, resend_delay: float = None):
+        if resend_delay:
+            delay = resend_delay
+        else:
+            delay = self.default_resend_delay
+
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < delay:
+            await asyncio.sleep(0.01)
+
+        await self.messages.put(msg)
+
+
+
     async def emitter(self):
         """Background task that processes messages for delivery.
 
@@ -137,6 +153,12 @@ class Postmaster:
             - Retry policy has no maximum attempts (potential bottleneck risk)
         """
         while True:
+
+            # Wait at least the delay time
+            start_time = asyncio.get_event_loop().time()
+            while asyncio.get_event_loop().time() - start_time < self.delay:
+                await asyncio.sleep(0.01)
+
             message = await self.messages.get()  # Blocks until message arrives
 
             sent = False
@@ -154,24 +176,28 @@ class Postmaster:
                         continue        # Skip to next message
 
                     case 'retry':       # Note: Unlimited retries can cause bottlenecks. Consider implementing maximum.
-                        await asyncio.sleep(self.delay)
+
+                        asyncio.create_task(self.resend(message))
+
+                        # await asyncio.sleep(self.delay)
                                         # Should optimistically be long enough for other messages to arrive first
                                         # This reduces retry priority
-                        self.messages.put_nowait(message)
+                        # self.messages.put_nowait(message)
 
                     case 'reroute':
                         message['destination'] = self.reroute_destination
-                        self.messages.put_nowait(message)
+                        asyncio.create_task(self.resend(message, 0))
 
                     case 'return':
                         original = message
+                        if self.rts_prepend:
+                            message['content'] = \
+                                f"Could not deliver message to '{message['destination']}'. Content: {original['content']}"
                         message['destination'] = original['source']
                         if self.rts_source:
                             message['source'] = self.rts_source
-                        if self.rts_prepend:
-                            message['content'] = \
-                                f"Could not deliver message to '{original['destination']}'. Content: {original['content']}"
-                        self.messages.put_nowait(message)
+
+                        asyncio.create_task(self.resend(message, 0))
 
                     case 'error':
                         raise RuntimeError(f"Could not deliver message to '{message['destination']}'")

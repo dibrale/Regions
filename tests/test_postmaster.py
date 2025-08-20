@@ -4,6 +4,7 @@ import pytest
 import asyncio
 from unittest.mock import MagicMock, call
 from postmaster import Postmaster
+from region import Region
 
 
 class TestPostmasterInitialization:
@@ -48,7 +49,6 @@ class TestPostmasterInitialization:
 
 class TestPostmasterCollector:
     @pytest.fixture
-    @pytest.mark.asyncio
     async def pm_with_regions(self):
         registry = MagicMock()
         region1 = MagicMock(name='region1', outbox=asyncio.Queue())
@@ -64,15 +64,33 @@ class TestPostmasterCollector:
     async def test_collector_drains_outboxes(self, pm_with_regions):
         pm, region1, region2 = pm_with_regions
 
-        # Add messages to regions
-        await region1.outbox.put({'content': 'msg1'})
-        await region2.outbox.put({'content': 'msg2'})
+        # Isolate collector behavior
+        pm.emit.cancel()
 
-        # Wait for collector to run (2x delay to ensure collection)
-        await asyncio.sleep(0.03)
+        # Add properly structured messages
+        await region1.outbox.put({
+            'source': 'test',
+            'destination': 'nonexistent1',
+            'content': 'msg1'
+        })
+        await region2.outbox.put({
+            'source': 'test',
+            'destination': 'nonexistent2',
+            'content': 'msg2'
+        })
 
-        # Verify messages collected
+        # Allow collector to run
+        await asyncio.sleep(0.02)
+
+        # Verify collector behavior
         assert pm.messages.qsize() == 2
+
+        # Verify outboxes are empty
+        assert region1.outbox.qsize() == 0
+        assert region2.outbox.qsize() == 0
+
+        # Restart emitter for other tests (optional)
+        pm.emit = asyncio.create_task(pm.emitter())
 
     @pytest.mark.asyncio
     async def test_collector_respects_delay(self):
@@ -81,6 +99,9 @@ class TestPostmasterCollector:
         registry.__iter__.return_value = [region]
         pm = Postmaster(registry, delay=0.1)
         await pm.start()
+
+        # Isolate collector behavior
+        pm.emit.cancel()
 
         # Add message
         await region.outbox.put({'content': 'test'})
@@ -95,6 +116,10 @@ class TestPostmasterCollector:
     @pytest.mark.asyncio
     async def test_collector_yields_control(self, pm_with_regions):
         pm, region1, region2 = pm_with_regions
+
+        # Isolate collector behavior
+        pm.emit.cancel()
+
         await region1.outbox.put({'content': 'msg1'})
 
         # Short sleep should allow collector to yield
@@ -109,6 +134,7 @@ class TestPostmasterEmitter:
         # Registry with no matching regions
         registry = MagicMock()
         registry.__iter__.return_value = []
+        registry.messages = asyncio.Queue()
         pm = Postmaster(registry)
         await pm.start()
         yield pm
@@ -119,14 +145,22 @@ class TestPostmasterEmitter:
     async def test_delivery_success(self):
         # Setup registry with matching region
         registry = MagicMock()
-        region = MagicMock(name='target', inbox=asyncio.Queue())
+        region = Region('target','', MagicMock(), None)
+
         registry.__iter__.return_value = [region]
+
         pm = Postmaster(registry)
         await pm.start()
 
+        pm.collect.cancel()
+
         # Send message
         await pm.messages.put({'source': 'sender', 'destination': 'target', 'content': 'test'})
-        await asyncio.sleep(0.01)
+
+        # Wait for emitter to process
+        start_time = asyncio.get_event_loop().time()
+        while region.inbox.qsize() == 0 and asyncio.get_event_loop().time() - start_time < 0.1:
+            await asyncio.sleep(0.51)
 
         # Verify delivery
         assert region.inbox.qsize() == 1
@@ -136,23 +170,49 @@ class TestPostmasterEmitter:
     @pytest.mark.asyncio
     async def test_undeliverable_drop(self, pm_no_delivery, caplog):
         await pm_no_delivery.messages.put({'source': 'sender', 'destination': 'unknown', 'content': 'test'})
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.51)
         assert "could not be delivered" in caplog.text
         assert pm_no_delivery.messages.qsize() == 0  # Message dropped
 
     @pytest.mark.asyncio
-    async def test_undeliverable_retry(self, pm_no_delivery):
+    async def test_undeliverable_retry(self, pm_no_delivery, caplog):
+        """Verifies retry policy creates multiple delivery attempts"""
         pm_no_delivery.undeliverable = 'retry'
-        await pm_no_delivery.messages.put({'source': 'sender', 'destination': 'unknown', 'content': 'test'})
-        await asyncio.sleep(0.02)  # Allow retry cycle
-        assert pm_no_delivery.messages.qsize() == 1  # Message requeued
+
+        # Ensure log messages are captured
+        caplog.set_level(logging.INFO)
+
+        # Send undeliverable message
+        await pm_no_delivery.messages.put({
+            'source': 'sender',
+            'destination': 'unknown_region',
+            'content': 'test_message'
+        })
+
+        # Wait for multiple delivery attempts
+        start_time = asyncio.get_event_loop().time()
+        while True:
+            # Count delivery failure logs
+            failure_count = sum(
+                1 for record in caplog.records
+                if "could not be delivered" in record.message
+            )
+
+            # Stop when we've seen enough failures or timeout
+            if failure_count >= 2 or asyncio.get_event_loop().time() - start_time > 1:
+                break
+
+            await asyncio.sleep(0.01)
+
+        # Verify multiple retry attempts occurred
+        assert failure_count >= 2, f"Expected ≥2 delivery failures, got {failure_count}"
 
     @pytest.mark.asyncio
     async def test_undeliverable_reroute(self, pm_no_delivery):
         pm_no_delivery.undeliverable = 'reroute'
         pm_no_delivery.reroute_destination = 'new_dest'
         await pm_no_delivery.messages.put({'source': 'sender', 'destination': 'unknown', 'content': 'test'})
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.51)
         msg = await pm_no_delivery.messages.get()
         assert msg['destination'] == 'new_dest'
 
@@ -168,7 +228,7 @@ class TestPostmasterEmitter:
             'content': 'test'
         }
         await pm_no_delivery.messages.put(original)
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.51)
 
         msg = await pm_no_delivery.messages.get()
         assert msg['destination'] == 'sender'
@@ -187,7 +247,7 @@ class TestPostmasterEmitter:
             'content': 'test'
         }
         await pm_no_delivery.messages.put(original)
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.51)
 
         msg = await pm_no_delivery.messages.get()
         assert msg['destination'] == 'sender'
@@ -218,10 +278,23 @@ class TestPostmasterEdgeCases:
 
         # Add message
         await pm.messages.put({'source': 'sender', 'destination': 'test', 'content': 'test'})
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.51)
 
         # Should handle undeliverable (default 'drop' policy)
         assert pm.messages.qsize() == 0
+
+    @pytest.fixture
+    @pytest.mark.asyncio
+    async def pm_no_delivery(self):
+        # Registry with no matching regions
+        registry = MagicMock()
+        registry.__iter__.return_value = []
+        registry.messages = asyncio.Queue()
+        pm = Postmaster(registry)
+        await pm.start()
+        yield pm
+        pm.collect.cancel()
+        pm.emit.cancel()
 
     @pytest.mark.asyncio
     async def test_multiple_undeliverable_messages(self, pm_no_delivery):
@@ -236,7 +309,7 @@ class TestPostmasterEdgeCases:
                 'content': 'test'
             })
 
-        await asyncio.sleep(0.02)
+        await asyncio.sleep(0.51)
         assert pm_no_delivery.messages.qsize() == 3
 
         # Verify all were rerouted
@@ -248,7 +321,7 @@ class TestPostmasterEdgeCases:
     async def test_mixed_delivery_scenarios(self):
         # Setup registry with one matching region
         registry = MagicMock()
-        region = MagicMock(name='target', inbox=asyncio.Queue())
+        region = Region('target','', MagicMock(), None)
         registry.__iter__.return_value = [region]
         pm = Postmaster(registry, undeliverable='reroute', reroute_destination='new_dest')
         await pm.start()
@@ -271,7 +344,7 @@ class TestPostmasterEdgeCases:
     @pytest.mark.asyncio
     async def test_collector_drain_behavior(self):
         registry = MagicMock()
-        region = MagicMock(name='region', outbox=asyncio.Queue())
+        region = Region('region','', MagicMock(), None)
         registry.__iter__.return_value = [region]
         pm = Postmaster(registry, delay=0.01)
         await pm.start()
