@@ -4,9 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Second Postmaster documentation pass.">
-      <change afterPath="$PROJECT_DIR$/modules/orchestrator.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Functional description of the Orchestrator class.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/demo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/llamacpp_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/llmlink.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/orchestrator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/region_registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_registry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_llmlink.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_llmlink.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_region.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_region.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -274,7 +280,7 @@
       <workItem from="1755626194851" duration="43000" />
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
-      <workItem from="1755627181614" duration="55972000" />
+      <workItem from="1755627181614" duration="67363000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -524,7 +530,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755730589548</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Functional description of the Orchestrator class.">
+      <option name="closed" value="true" />
+      <created>1755751354893</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1755751354893</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -542,8 +556,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(test): add comprehensive RAG system tests" />
-    <MESSAGE value="Rewrote the region system." />
     <MESSAGE value="Added unit tests for 'Region' class." />
     <MESSAGE value="Added 'RAGRegion' class" />
     <MESSAGE value="- Added 'RAGRegion' class&#10;- Added search by actor to RAG" />
@@ -567,7 +579,9 @@
     <MESSAGE value="- Postmaster passing unit tests, except edge cases.&#10;- Better behavior for emitter function" />
     <MESSAGE value="Postmaster passing all tests" />
     <MESSAGE value="Second Postmaster documentation pass." />
-    <option name="LAST_COMMIT_MESSAGE" value="Second Postmaster documentation pass." />
+    <MESSAGE value="Orchestrator technical description added." />
+    <MESSAGE value="Functional description of the Orchestrator class." />
+    <option name="LAST_COMMIT_MESSAGE" value="Functional description of the Orchestrator class." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

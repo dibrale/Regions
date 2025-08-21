@@ -5,7 +5,7 @@ import re
 
 # from typing import override
 
-from modules.llamacpp_api import LLMLink
+from modules.llmlink import LLMLink
 from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
 
 

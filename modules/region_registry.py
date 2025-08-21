@@ -3,7 +3,7 @@ import logging
 import pathlib
 
 from dynamic_rag import DynamicRAGSystem
-from llamacpp_api import LLMLink
+from llmlink import LLMLink
 from region_types import *
 from dataclasses import dataclass
 from typing import List
@@ -307,7 +307,18 @@ class RegionRegistry:
         entry.name = key
         entry.region.name = key
         self.register(entry)
-        self.update(entry)
+        self.update(entry)          # If a region is already present, update it instead
+
+    def __delitem__(self, key: str):
+        """Strike an item from the registry.
+
+                Args:
+                    key (str): Name of registered region
+
+                Side Effects:
+                    - Same as self.deregister(key)
+        """
+        self.deregister(key)
 
     def __iter__(self):
         """Iterate over all region entries in the registry.
@@ -320,6 +331,14 @@ class RegionRegistry:
             ...     print(f"Region: {entry.name}")
         """
         return iter(self.regions)
+
+    def __reversed__(self):
+        """Iterate over all region entries in the registry, in reversed order.
+
+        Returns:
+            Iterator[RegionEntry]: Iterator over RegionEntry objects
+        """
+        return reversed(self.regions)
 
     def _update_names(self):
         """Update the list of region names from the current regions list.
@@ -393,6 +412,8 @@ class RegionRegistry:
         Side Effects:
             - Removes region from self.regions list
             - Removes name from self.names list
+            - Logs a warning if the name is not registered
+            - Will find and remove a named region even if it is absent from the name list
 
         Example:
             >>> registry.deregister("customer_support")

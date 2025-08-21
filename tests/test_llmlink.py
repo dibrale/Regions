@@ -1,6 +1,6 @@
 import asyncio
 import unittest
-from modules.llamacpp_api import LLMLink
+from modules.llmlink import LLMLink
 
 class TestLLMLink(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
