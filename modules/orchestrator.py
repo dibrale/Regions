@@ -5,14 +5,13 @@ import pathlib
 
 from dataclasses import dataclass
 from typing import List
-from stringutils import sanitize_path
 
 from dynamic_rag import DynamicRAGSystem
 from llmlink import LLMLink
+from utils import set_list, trim_list
 from region import BaseRegion, RAGRegion, Region
 from region_registry import RegionRegistry, RegionEntry
 from postmaster import Postmaster
-
 
 class Orchestrator:
     """
@@ -68,35 +67,311 @@ class Orchestrator:
         >>> executions = [("bar", "make_questions"), ("baz", "ponder_deeply"), ("foo", "make_questions"), ("baz", "make_answers")]
     """
     def __init__(self,
-                 registry: RegionRegistry,
                  layer_config: list[dict] = None,
                  execution_config: list[tuple] = None,
+                 execution_order: list[int] = None,
                  ):
-        self.registry = registry
-        self.layer_config = layer_config
-        self.execution_config = execution_config
+        self.layer_config = set_list(layer_config)
+        self.execution_config = set_list(execution_config)
+        self.execution_order = set_list(execution_order)
 
-    def __len__(self):
-        return len(self.layer_config)
+    def __str__(self):
+        return f"LayerConfig: {self.layer_config}\nExecutionConfig: {self.execution_config}\nExecutionOrder: {self.execution_order}"
 
-    def __getitem__(self, item):
-        return self.layer_config[item]
+    # pad layer and execution configurations to a given length
+    def pad(self, length: int):
+        for n in range(len(self.layer_config), length):
+            self.layer_config.append({})
+        for n in range(len(self.execution_config), length):
+            self.execution_config.append(())
 
-    def __setitem__(self, key, value):
-        self.layer_config[key] = value
+    def region_layers(self, region: str) -> list[int]:
+        associated_layers = []
+        for index, layer_plan in enumerate(self.layer_config):
+            if region in sum(layer_plan.values(),[]):
+                associated_layers.append(index)
+        return associated_layers
 
-    def __iter__(self):
+    # Return list of methods that a region runs in a given layer, in order of execution
+    def methods_in_layer(self, layer: int, region: str) -> list:
+        if layer >= len(self.execution_config):
+            logging.error(f"Layer {layer} out of range")
+            return []
+        methods = []
+        for exec_tuple in self.execution_config[layer]:
+            if region == exec_tuple[0]:
+                methods.append(exec_tuple[1])
+        return methods
 
+    def remove_method(self, layer: int, region: str, method: str) -> bool:
+        if layer >= len(self.execution_config):
+            logging.error(f"Layer {layer} out of range")
+            return False
+        for exec_tuple in self.execution_config[layer]:
+            if region == exec_tuple[0] and method == exec_tuple[1]:
+                self.execution_config[layer].remove(exec_tuple)
+                return True
+        logging.error(f"'{method}' for region '{region}' not found in layer {layer}")
+        return False
 
-dict()
+    def remove_methods(self, layer: int, region: str) -> int:
+        if layer >= len(self.execution_config):
+            logging.error(f"Layer {layer} out of range")
+            return 0
+        methods_removed = 0
+        for exec_tuple in self.execution_config[layer]:
+            if region == exec_tuple[0]:
+                self.execution_config[layer].remove(exec_tuple)
+                methods_removed += 1
+        if not methods_removed:
+            logging.error(f"No methods found for region '{region}' in layer {layer}")
+        return methods_removed
 
-rag = DynamicRAGSystem()
-llm = LLMLink()
+    def append_method(self, layer: int, region: str, method: str) -> bool:
+        if layer >= len(self.execution_config):
+            self.pad(layer + 1)
+        original_methods = self.methods_in_layer(layer, region)
+        if not original_methods or method not in original_methods:
+            self.execution_config[layer].append((region, method))
+            logging.info(f"Method '{method}' added for region '{region}' in layer {layer}")
+            return True
+        else:
+            logging.error(f"'{method}' for region '{region}' already in layer {layer}, not appending")
+            return False
+
+    def replace_method(self, layer: int, region: str, method_to_replace: str, new_method: str) -> bool:
+        original_methods = self.methods_in_layer(layer, region)
+        if not original_methods:
+            logging.error(f"Region '{region}' not found in execution configuration for layer {layer}")
+            return False
+
+        elif method_to_replace == new_method:
+            logging.error(f"Attempted to replace '{method_to_replace}' with itself")
+            return False
+
+        elif method_to_replace not in original_methods:
+            logging.error(f"'{method_to_replace}' not found for region '{region}' in layer {layer}")
+            return False
+
+        elif new_method in original_methods:
+            logging.error(f"'{new_method}' already exists for region '{region}' in layer {layer}")
+            return False
+
+        else:
+            for idx, exec_tuple in enumerate(self.execution_config[layer]):
+                if exec_tuple[0] == region and exec_tuple[1] == method_to_replace:
+                    self.execution_config[layer][idx] = (region, new_method)
+                    logging.info(f"Replaced '{method_to_replace}' with '{new_method}' for region '{region}' in layer {layer}")
+                    return True
+            raise RuntimeError("Method should have been replaced but was not")
+
+    # Returns a dictionary mapping region names to associated layer indices, as well as the methods they run in that layer
+    def region_profile(self, region: str) -> dict:
+        profile = {}
+        for layer in self.execution_config:
+            layer_profile = self.methods_in_layer(layer, region)
+            if layer_profile:
+                profile.update({layer: layer_profile})
+        if not profile:
+            logging.error(f"'{region}' not found in execution configuration")
+        return profile
+
+    def append_to_layer(self, layer_index: int, chain: str, region: str) -> bool:
+        if layer_index >= len(self.layer_config):
+            self.pad(layer_index + 1)
+
+        work_layer = self.layer_config[layer_index]
+
+        # Check if the region is already present in any chain of the layer
+        for existing_chain in work_layer.values():
+            if region in existing_chain:
+                return False  # Region is already present, so do not append
+
+        # Append the region to the specified chain
+        if chain not in work_layer:
+            work_layer[chain] = []
+        work_layer[chain].append(region)
+        self.layer_config[layer_index] = work_layer
+        return True
+
+    def remove_from_layer(self, layer_index: int, region: str) -> bool:
+        region_deleted = False
+        chain_deleted = ''
+
+        for chain in self.layer_config[layer_index]:
+            if region in chain:
+                self.layer_config[layer_index][chain].remove(region)    # remove the region from the chain
+                if not self.layer_config[layer_index][chain]:           # if chain is thereby empty, remove chain
+                    del self.layer_config[layer_index][chain]
+                    chain_deleted = chain
+                region_deleted = True
+                break
+
+        if region_deleted:
+            logging.info(f"Region '{region}' removed from layer {layer_index}")
+            if chain_deleted:
+                logging.info(f"Empty chain '{chain_deleted}' removed from layer {layer_index}")
+                layers_trimmed = trim_list(self.layer_config)
+                if layers_trimmed:
+                    logging.info(f"Removed {layers_trimmed} empty layers from the layer configuration")
+            return True
+        else:
+            logging.error(f"Region '{region}' not found in layer {layer_index}")
+            return False
+
+    def save(self, output_path: str):
+        with open(output_path, "w") as f:
+            json.dump({
+                "layer_config": self.layer_config,
+                "execution_config": self.execution_config,
+                "self.execution_order": self.execution_order
+            }, f)
+
+    def load(self, path: str) -> bool:
+
+        posix_path = pathlib.PurePosixPath(path)
+
+        with open(str(posix_path), "r") as f:
+            data = json.load(f)
+            logging.info(f"Loaded data from '{posix_path.name}'")
+
+        if not 'layer_config' in data and not 'execution_config' in data and not 'execution_order' in data:
+            logging.error(
+                f"None of layer_config, execution_config or execution_order keys found. Unable to load the data."
+            )
+            return False
+        if 'layer_config' in data:
+            self.layer_config = data['layer_config']
+            logging.info("Layer configuration loaded successfully")
+        else:
+            self.layer_config = []
+        if 'execution_config' in data:
+            self.execution_config = data['execution_config']
+            logging.info("Execution configuration loaded successfully")
+        else:
+            self.execution_config = []
+        if 'execution_order' in data:
+            self.execution_order = data['execution_order']
+            logging.info("Execution order loaded successfully")
+        else:
+            self.execution_order = []
+        return True
+
+    def verify(self) -> bool:
+        valid = True
+
+        # Check layer_config and execution_config lengths
+        layer_count = len(self.layer_config)
+        execution_count = len(self.execution_config)
+
+        # Handle length discrepancies
+        if layer_count > execution_count:
+            logging.warning(
+                f"Trailing silent layers detected: {layer_count - execution_count} layers in layer_config have no execution_config entries")
+        elif layer_count < execution_count:
+            logging.warning(
+                f"Missing layers detected: {execution_count - layer_count} execution_config entries have no corresponding layer_config entries")
+
+        # Check layers within common range
+        common_range = min(layer_count, execution_count)
+        for i in range(common_range):
+            layer_empty = not self.layer_config[i] or all(not chain for chain in self.layer_config[i].values())
+            execution_empty = not self.execution_config[i]
+
+            # Silent layer check (empty layer but non-empty execution)
+            if layer_empty and not execution_empty:
+                logging.warning(f"Layer {i} is silent: empty layer configuration but non-empty execution configuration")
+
+            # Missing layer check (non-empty execution but empty layer)
+            if not layer_empty and execution_empty:
+                logging.warning(f"Layer {i} is missing: execution configuration present but empty layer configuration")
+
+        # Check execution_order
+        if not self.execution_order:
+            logging.warning(
+                "No execution_order provided. System will default to iterating through layers sequentially.")
+        else:
+            # Validate execution_order indices
+            for idx in self.execution_order:
+                if idx < 0 or idx >= layer_count:
+                    logging.error(
+                        f"Execution order contains invalid layer index {idx} (must be between 0 and {layer_count - 1})")
+                    valid = False
+
+            # Check for missing layers in execution_order
+            missing_layers = [i for i in range(layer_count) if i not in self.execution_order]
+            if missing_layers:
+                logging.warning(f"Layers {missing_layers} are missing from execution_order and will be silent")
+
+        # Collect all regions from layer_config
+        all_regions = set()
+        for layer in self.layer_config:
+            for chain in layer.values():
+                all_regions.update(chain)
+
+        # Check regions with no methods
+        for region in all_regions:
+            has_methods = False
+            for layer_idx in range(execution_count):
+                if self.methods_in_layer(layer_idx, region):
+                    has_methods = True
+                    break
+            if not has_methods:
+                logging.warning(f"Region '{region}' has no execution methods defined")
+
+        # Validate each layer in layer_config
+        for layer_idx, layer in enumerate(self.layer_config):
+            # Check for empty chains
+            for chain_name, chain in layer.items():
+                if not chain:
+                    logging.warning(f"Layer {layer_idx}: chain '{chain_name}' is empty")
+
+            # Check for duplicate regions within layer
+            all_regions_in_layer = []
+            for chain in layer.values():
+                all_regions_in_layer.extend(chain)
+
+            if len(all_regions_in_layer) != len(set(all_regions_in_layer)):
+                duplicate_regions = [r for r in all_regions_in_layer if all_regions_in_layer.count(r) > 1]
+                logging.error(f"Layer {layer_idx} contains duplicate regions: {duplicate_regions}")
+                valid = False
+
+            # Check regions with no methods in this layer
+            for region in all_regions_in_layer:
+                if not self.methods_in_layer(layer_idx, region):
+                    logging.warning(f"Region '{region}' in layer {layer_idx} has no execution methods")
+
+        return valid
+        # TODO: ideally has same number of layers in layer_config and execution_config
+            # len(layer_config) > len(execution_config)
+                # warn about trailing silent layers (ie, not listed in execution config but present in layer config)
+            # len(layer_config) < len(execution_config)
+                # warn about missing layers (ie, listed in execution config but absent from layer config)
+            # for indices in range of shortest of execution_config and layer_config
+                # warn about silent layers (ie empty layer, but nonempty execution entry)
+                # warn about missing layers (ie, nonempty execution entry, but empty layer)
+                # warn about layer indices that are both missing and silent (ie. listed in neither)
+        # TODO: if no execution_order:
+            # warn that system will default to iterating through layers sequentially
+        # TODO: if execution_order is nonempty:
+            # all execution_order items must be >0 and < len(layer_config)
+                # fail the verify if this is not the case
+            # every layer index can be found in execution_order
+                # warn which layers are missing from execution order, and that they will be silent
+        # TODO: for each unique region:
+            # warn if any regions runs no methods
+        # TODO: for each layer in layer_config:
+            # each chain is associated with at least one region - warn for any empty chains
+            # no duplicate regions are allowed to be present in a given single layer
+                # fail the verify if this is not the case
+            # no duplicate chains within a layer
+                # fail the verify if this is not the case
+            # each region runs at least one method for same layer in execution_config - warn for silent regions
 
 async def main():
-    entry = RegionEntry()
-    getattr(llm,'chat')
-
+    pass
+    # llm = LLMLink()
+    # getattr(llm,'chat')
     return
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import json
 import aiohttp
 
-from modules.stringutils import assure_string, parse_host_port
+from modules.utils import assure_string, parse_host_port
 
 
 class LLMLink:

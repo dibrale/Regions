@@ -55,33 +55,11 @@ async def parse_question(input_string: str):
 
     try:
         question = result.group('QUESTION')
-        print_v(f'Question: {question}')
+        print(f'Question: {question}')
         return question
     except AttributeError:
         return None
 
-
-# Test for a string or string list that is not worth processing
-def check_nil(query: str | list | dict) -> bool:
-    check_list = []
-
-    if type(query) is str:
-        check_list = [query]
-    elif type(query) is list:
-        check_list = query
-    elif type(query) is dict:
-        intermediate_list = query.values()
-        for item in intermediate_list:
-            check_list.append(item)
-
-    if not check_list:
-        return True
-
-    for item in check_list:
-        if not (str(item) == 'Nothing.' or str(item) == '' or not item):
-            return False
-
-    return True
 
 #Get host and port from string
 def parse_host_port(s: str) -> tuple[str | Any, int] | tuple[str | Any, None] | None:
@@ -100,53 +78,18 @@ def parse_host_port(s: str) -> tuple[str | Any, int] | tuple[str | Any, None] | 
 
     return None
 
-def extract_json_segment(s: str) -> str | None:
-    in_string = False
-    n = len(s)
-    for i in range(n):
-        if in_string:
-            if s[i] == '"' and (i == 0 or s[i - 1] != '\\'):
-                in_string = False
-            continue
+# Initialize a list
+def set_list(list_input: list) -> list:
+    if not list_input: return []
+    return list_input
 
-        last_valid = i
-        for j in range(i, n + 1):
-            try:
-                json.loads(s[i:j])
-                last_valid = j
-            except json.JSONDecodeError:
-                break
-            except Exception as e:
-                print(e)
-                break
-        if last_valid > i:
-            return s[i:last_valid]
-    return None
-
-def sanitize_path(path):
-    """
-    Sanitize a path against directory traversals
-
-    >>> sanitize_path('../test')
-    'test'
-    >>> sanitize_path('../../test')
-    'test'
-    >>> sanitize_path('../../abc/../test')
-    'test'
-    >>> sanitize_path('../../abc/../test/fixtures')
-    'test/fixtures'
-    >>> sanitize_path('../../abc/../.test/fixtures')
-    '.test/fixtures'
-    >>> sanitize_path('/test/foo')
-    'test/foo'
-    >>> sanitize_path('./test/bar')
-    'test/bar'
-    >>> sanitize_path('.test/baz')
-    '.test/baz'
-    >>> sanitize_path('qux')
-    'qux'
-    """
-    # - pretending to chroot to the current directory
-    # - cancelling all redundant paths (/.. = /)
-    # - making the path relative
-    return os.path.relpath(os.path.normpath(os.path.join("/", path)), "/")
+# Trim empty list items from the end of a list. Returns number of items removed.
+def trim_list(list_input: list) -> int:
+    num_popped = 0
+    for i in range(len(list_input))[::-1]:
+        if not list_input[i]:
+            list_input.pop(i)
+            num_popped += 1
+        else:
+            break
+    return num_popped

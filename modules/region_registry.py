@@ -192,6 +192,7 @@ class RegionEntry:
 
         with open(str(posix_path)) as f:
             raw_list = json.load(f)     # [{"name": ..., "type": ..., ...}, ...]
+            logging.info(f"Loaded {len(raw_list)} entries from '{posix_path.name}'")
             name_roll = []
             for entry in raw_list: name_roll.append(entry['name'])
             if len(name_roll) != len(set(name_roll)):
