@@ -62,7 +62,7 @@ class Orchestrator:
 
     def __init__(self,
                  layer_config: list[dict] = None,
-                 execution_config: list[tuple] = None,
+                 execution_config: list[list[tuple]] = None,
                  execution_order: list[int] = None,
                  ):
         """
@@ -71,8 +71,8 @@ class Orchestrator:
         Args:
             layer_config: List of dictionaries where each dict maps chain names to region lists
                           for concurrent execution within a layer. Defaults to empty list.
-            execution_config: List of tuples specifying (region, method) execution sequences
-                              per layer. Defaults to empty list.
+            execution_config: List of lists for each layer containing tuples specifying (region, method) execution
+                              sequences. Defaults to empty list.
             execution_order: List of layer indices defining custom execution sequence.
                              Defaults to sequential order if not provided.
 
@@ -371,7 +371,11 @@ class Orchestrator:
         chain_deleted = ''
 
         # Get the layer dictionary
-        work_layer = self.layer_config[layer_index]
+        try:
+            work_layer = self.layer_config[layer_index]
+        except IndexError:
+            logging.error(f"Layer {layer_index} does not exist")
+            return False
 
         # Iterate through chains (keys) and their values
         for chain_name, chain in work_layer.items():
@@ -450,7 +454,11 @@ class Orchestrator:
         else:
             self.layer_config = []
         if 'execution_config' in data:
-            self.execution_config = data['execution_config']
+            raw_execution_config = data['execution_config']
+            new_execution_config = []
+            for raw_layer in raw_execution_config:
+                new_execution_config.append([tuple(x) for x in raw_layer])
+            self.execution_config = new_execution_config
             logging.info("Execution configuration loaded successfully")
         else:
             self.execution_config = []
