@@ -59,34 +59,92 @@ class Orchestrator:
 
         >>> executions = [("bar", "make_questions"), ("baz", "ponder_deeply"), ("foo", "make_questions"), ("baz", "make_answers")]
     """
+
     def __init__(self,
                  layer_config: list[dict] = None,
                  execution_config: list[tuple] = None,
                  execution_order: list[int] = None,
                  ):
+        """
+        Initialize Orchestrator with execution planning configurations.
+
+        Args:
+            layer_config: List of dictionaries where each dict maps chain names to region lists
+                          for concurrent execution within a layer. Defaults to empty list.
+            execution_config: List of tuples specifying (region, method) execution sequences
+                              per layer. Defaults to empty list.
+            execution_order: List of layer indices defining custom execution sequence.
+                             Defaults to sequential order if not provided.
+
+        Note:
+            Uses `set_list()` utility to convert None inputs to empty lists. Configuration
+            validation occurs during `verify()` calls.
+        """
         self.layer_config = set_list(layer_config)
         self.execution_config = set_list(execution_config)
         self.execution_order = set_list(execution_order)
 
     def __str__(self):
+        """
+        Return human-readable string representation of Orchestrator configuration.
+
+        Returns:
+            String containing formatted layer, execution, and order configurations.
+        """
         return f"LayerConfig: {self.layer_config}\nExecutionConfig: {self.execution_config}\nExecutionOrder: {self.execution_order}"
 
-    # pad layer and execution configurations to a given length
     def pad(self, length: int):
+        """
+        Extend configurations to match specified length by adding empty elements.
+
+        Args:
+            length: Target length for both layer_config and execution_config lists.
+
+        Note:
+            Adds empty dictionaries to layer_config and empty lists to execution_config
+            until they reach the specified length. Uses `set_list()` internally for safety.
+        """
         for n in range(len(self.layer_config), length):
             self.layer_config.append({})
         for n in range(len(self.execution_config), length):
             self.execution_config.append([])
 
     def region_layers(self, region: str) -> list[int]:
+        """
+        Identify layers containing a specified region.
+
+        Args:
+            region: Name of the region to search for.
+
+        Returns:
+            List of layer indices where the region appears in layer_config.
+
+        Example:
+            >>> orchestrator.region_layers("foo")
+            [0, 2]  # Region 'foo' appears in layers 0 and 2
+        """
         associated_layers = []
         for index, layer_plan in enumerate(self.layer_config):
             if any(region in chain for chain in layer_plan.values()):
                 associated_layers.append(index)
         return associated_layers
 
-    # Return list of methods that a region runs in a given layer, in order of execution
     def methods_in_layer(self, layer: int, region: str) -> list:
+        """
+        Retrieve execution methods for a region within a specific layer.
+
+        Args:
+            layer: Target layer index.
+            region: Region name to query.
+
+        Returns:
+            List of method names in execution order for the region in the layer.
+            Empty list if layer is out of range or region has no methods.
+
+        Note:
+            Methods are returned in the order defined in execution_config[layer].
+            Logs error if layer index exceeds configuration length.
+        """
         if layer >= len(self.execution_config):
             logging.error(f"Layer {layer} out of range")
             return []
@@ -97,6 +155,21 @@ class Orchestrator:
         return methods
 
     def remove_method(self, layer: int, region: str, method: str) -> bool:
+        """
+        Remove a specific method execution from a region in a layer.
+
+        Args:
+            layer: Target layer index.
+            region: Region name.
+            method: Method name to remove.
+
+        Returns:
+            True if method was successfully removed, False otherwise.
+
+        Note:
+            Uses `check_execution_entry()` implicitly via tuple comparison.
+            Logs error if method not found or layer out of range.
+        """
         if layer >= len(self.execution_config):
             logging.error(f"Layer {layer} out of range")
             return False
@@ -109,6 +182,20 @@ class Orchestrator:
         return False
 
     def remove_methods(self, layer: int, region: str) -> int:
+        """
+        Remove all method executions for a region in a layer.
+
+        Args:
+            layer: Target layer index.
+            region: Region name.
+
+        Returns:
+            Number of methods removed (0 if none found).
+
+        Note:
+            Collects all matching entries first to avoid modification during iteration.
+            Logs error if no methods found or layer out of range.
+        """
         if layer >= len(self.execution_config):
             logging.error(f"Layer {layer} out of range")
             return 0
@@ -130,6 +217,22 @@ class Orchestrator:
         return methods_removed
 
     def append_method(self, layer: int, region: str, method: str) -> bool:
+        """
+        Add a new method execution for a region in a layer.
+
+        Args:
+            layer: Target layer index.
+            region: Region name.
+            method: Method name to add.
+
+        Returns:
+            True if method was successfully added, False if duplicate exists.
+
+        Note:
+            Uses `check_execution_entry()` to validate (region, method) tuple.
+            Pads execution_config if layer index exceeds current length.
+            Logs error if method already exists in layer.
+        """
         new_tuple = check_execution_entry((region, method))
         if layer >= len(self.execution_config):
             self.pad(layer + 1)
@@ -143,8 +246,26 @@ class Orchestrator:
             return False
 
     def replace_method(self, layer: int, region: str, method_to_replace: str, new_method: str) -> bool:
+        """
+        Replace an existing method with a new one for a region in a layer.
+
+        Args:
+            layer: Target layer index.
+            region: Region name.
+            method_to_replace: Existing method name to replace.
+            new_method: New method name.
+
+        Returns:
+            True if replacement was successful, False otherwise.
+
+        Note:
+            Validates via `check_execution_entry()` for new method.
+            Logs specific errors for: missing region, self-replacement, missing old method,
+            or duplicate new method.
+            Raises RuntimeError if replacement fails unexpectedly.
+        """
         original_methods = self.methods_in_layer(layer, region)
-        old_tuple = (region, method_to_replace)     # This is getting replaced anyway, so no need to check
+        old_tuple = (region, method_to_replace)  # This is getting replaced anyway, so no need to check
         new_tuple = check_execution_entry((region, new_method))
 
         if not original_methods:
@@ -167,12 +288,26 @@ class Orchestrator:
             for idx, exec_tuple in enumerate(self.execution_config[layer]):
                 if exec_tuple == old_tuple:
                     self.execution_config[layer][idx] = new_tuple
-                    logging.info(f"Replaced '{method_to_replace}' with '{new_method}' for region '{region}' in layer {layer}")
+                    logging.info(
+                        f"Replaced '{method_to_replace}' with '{new_method}' for region '{region}' in layer {layer}")
                     return True
             raise RuntimeError("Method should have been replaced but was not")
 
-    # Returns a dictionary mapping region names to associated layer indices, as well as the methods they run in that layer
     def region_profile(self, region: str) -> dict:
+        """
+        Generate execution profile for a region across all layers.
+
+        Args:
+            region: Region name to profile.
+
+        Returns:
+            Dictionary mapping layer indices to lists of methods executed in that layer.
+            Empty dict if region has no executions.
+
+        Example:
+            >>> orchestrator.region_profile("baz")
+            {0: ["make_answers"], 1: ["ponder_deeply"]}
+        """
         profile = {}
         for index, layer in enumerate(self.execution_config):
             layer_profile = self.methods_in_layer(index, region)
@@ -183,6 +318,22 @@ class Orchestrator:
         return profile
 
     def append_to_layer(self, layer_index: int, chain: str, region: str) -> bool:
+        """
+        Add a region to a chain within a layer.
+
+        Args:
+            layer_index: Target layer index.
+            chain: Chain name within the layer.
+            region: Region name to add.
+
+        Returns:
+            True if region was added, False if already present.
+
+        Note:
+            Pads layer_config if layer_index exceeds current length.
+            Checks for region existence in any chain before adding.
+            Logs success on addition, returns False if region exists elsewhere.
+        """
         if layer_index >= len(self.layer_config):
             self.pad(layer_index + 1)
 
@@ -201,6 +352,21 @@ class Orchestrator:
         return True
 
     def remove_from_layer(self, layer_index: int, region: str) -> bool:
+        """
+        Remove a region from a layer's configuration.
+
+        Args:
+            layer_index: Target layer index.
+            region: Region name to remove.
+
+        Returns:
+            True if region was successfully removed, False otherwise.
+
+        Note:
+            Uses `trim_list()` to remove empty layers after deletion.
+            Logs removal success and chain deletion if applicable.
+            Logs error if region not found in layer.
+        """
         region_deleted = False
         chain_deleted = ''
 
@@ -235,6 +401,16 @@ class Orchestrator:
             return False
 
     def save(self, output_path: str):
+        """
+        Serialize configuration to JSON file.
+
+        Args:
+            output_path: Path to save configuration (e.g., 'orchestrator.json').
+
+        Note:
+            Saves layer_config, execution_config, and execution_order as JSON.
+            Overwrites existing files without confirmation.
+        """
         with open(output_path, "w") as f:
             json.dump({
                 "layer_config": self.layer_config,
@@ -243,7 +419,20 @@ class Orchestrator:
             }, f)
 
     def load(self, path: str) -> bool:
+        """
+        Deserialize configuration from JSON file.
 
+        Args:
+            path: Path to configuration file.
+
+        Returns:
+            True if loading succeeded, False if file invalid or missing keys.
+
+        Note:
+            Uses `pathlib` for path handling. Logs detailed loading status.
+            Resets configurations to empty lists if keys missing.
+            Validates all three required keys (layer_config, execution_config, execution_order).
+        """
         posix_path = pathlib.PurePosixPath(path)
 
         with open(str(posix_path), "r") as f:
@@ -273,6 +462,25 @@ class Orchestrator:
         return True
 
     def verify(self) -> bool:
+        """
+        Validate configuration consistency and integrity.
+
+        Returns:
+            True if configuration passes all critical checks, False otherwise.
+
+        Validation checks include:
+            - Layer/execution configuration length mismatches
+            - Silent layers (empty layer config but non-empty execution)
+            - Missing layers (non-empty execution but empty layer config)
+            - Invalid execution_order indices
+            - Regions with no execution methods
+            - Duplicate regions within layers
+            - Invalid execution entries (via `check_execution_entry`)
+
+        Note:
+            Logs warnings/errors for all inconsistencies. Does not modify configuration.
+            Returns False if critical errors found (e.g., duplicate regions).
+        """
         valid = True
 
         # Check layer_config and execution_config lengths
@@ -363,7 +571,6 @@ class Orchestrator:
                     check_execution_entry(entry)
                 except AssertionError as e:
                     logging.warning(f"Invalid execution entry will be ignored: {entry}. {e}")
-
 
         return valid
 
