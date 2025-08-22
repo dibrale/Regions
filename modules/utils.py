@@ -4,6 +4,8 @@ from typing import Any
 import os.path
 import re
 
+from networkx.classes import is_empty
+
 
 # Check for None and return an empty string in its place. Otherwise, pass the input to output as string.
 def assure_string(txt) -> str:
@@ -78,6 +80,14 @@ def parse_host_port(s: str) -> tuple[str | Any, int] | tuple[str | Any, None] | 
 
     return None
 
+# Verify that all tuple elements are truthy. Return list of falsy indices
+def falsy_elements(tuple_to_check: tuple) -> list[int]:
+    empty_indices = []
+    for index, element in enumerate(tuple_to_check):
+        if not element:
+            empty_indices.append(index)
+    return empty_indices
+
 # Initialize a list
 def set_list(list_input: list) -> list:
     if not list_input: return []
@@ -93,3 +103,13 @@ def trim_list(list_input: list) -> int:
         else:
             break
     return num_popped
+
+# Check execution configuration entry. Returns input if valid.
+def check_execution_entry(entry: tuple):
+    assert type(entry) is tuple, f"Expected tuple, got {type(entry)}"
+    assert len(entry) == 2, f"Expected tuple of length 2, got {len(entry)}"
+    assert isinstance(entry[0], str), f"Expected string for region name, got {type(entry[0])}"
+    assert isinstance(entry[1], str), f"Expected string for method name, got {type(entry[1])}"
+    assert bool(entry[0]), "Expected non-empty region name"
+    assert bool(entry[1]), "Expected non-empty method name"
+    return entry

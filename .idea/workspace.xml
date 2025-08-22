@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Explicitly defined additional container functions for RegionRegistry&#10;- 'llamacpp_api' renamed to 'llmlink' to follow module conventions">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="First pass of Orchestrator class code">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/llmlink.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/llmlink.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/orchestrator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/region_registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_registry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/stringutils.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -278,7 +276,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="19924000" />
+      <workItem from="1755807881103" duration="27121000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -544,7 +542,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755794245161</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="First pass of Orchestrator class code">
+      <option name="closed" value="true" />
+      <created>1755852455579</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1755852455579</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -562,7 +568,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added 'RAGRegion' class" />
     <MESSAGE value="- Added 'RAGRegion' class&#10;- Added search by actor to RAG" />
     <MESSAGE value="Docstrings for RAGRegion" />
     <MESSAGE value="Refactored Region and RAGRegion to use BaseRegion base class." />
@@ -587,7 +592,8 @@
     <MESSAGE value="Orchestrator technical description added." />
     <MESSAGE value="Functional description of the Orchestrator class." />
     <MESSAGE value="- Explicitly defined additional container functions for RegionRegistry&#10;- 'llamacpp_api' renamed to 'llmlink' to follow module conventions" />
-    <option name="LAST_COMMIT_MESSAGE" value="- Explicitly defined additional container functions for RegionRegistry&#10;- 'llamacpp_api' renamed to 'llmlink' to follow module conventions" />
+    <MESSAGE value="First pass of Orchestrator class code" />
+    <option name="LAST_COMMIT_MESSAGE" value="First pass of Orchestrator class code" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

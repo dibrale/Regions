@@ -3,15 +3,8 @@ import json
 import logging
 import pathlib
 
-from dataclasses import dataclass
-from typing import List
+from utils import set_list, trim_list, check_execution_entry
 
-from dynamic_rag import DynamicRAGSystem
-from llmlink import LLMLink
-from utils import set_list, trim_list
-from region import BaseRegion, RAGRegion, Region
-from region_registry import RegionRegistry, RegionEntry
-from postmaster import Postmaster
 
 class Orchestrator:
     """
@@ -83,12 +76,12 @@ class Orchestrator:
         for n in range(len(self.layer_config), length):
             self.layer_config.append({})
         for n in range(len(self.execution_config), length):
-            self.execution_config.append(())
+            self.execution_config.append([])
 
     def region_layers(self, region: str) -> list[int]:
         associated_layers = []
         for index, layer_plan in enumerate(self.layer_config):
-            if region in sum(layer_plan.values(),[]):
+            if any(region in chain for chain in layer_plan.values()):
                 associated_layers.append(index)
         return associated_layers
 
@@ -107,6 +100,7 @@ class Orchestrator:
         if layer >= len(self.execution_config):
             logging.error(f"Layer {layer} out of range")
             return False
+
         for exec_tuple in self.execution_config[layer]:
             if region == exec_tuple[0] and method == exec_tuple[1]:
                 self.execution_config[layer].remove(exec_tuple)
@@ -118,21 +112,30 @@ class Orchestrator:
         if layer >= len(self.execution_config):
             logging.error(f"Layer {layer} out of range")
             return 0
-        methods_removed = 0
+
+        # Collect items to remove first
+        to_remove = []
         for exec_tuple in self.execution_config[layer]:
             if region == exec_tuple[0]:
-                self.execution_config[layer].remove(exec_tuple)
-                methods_removed += 1
+                to_remove.append(exec_tuple)
+
+        # Remove all at once
+        for item in to_remove:
+            self.execution_config[layer].remove(item)
+
+        methods_removed = len(to_remove)
+
         if not methods_removed:
             logging.error(f"No methods found for region '{region}' in layer {layer}")
         return methods_removed
 
     def append_method(self, layer: int, region: str, method: str) -> bool:
+        new_tuple = check_execution_entry((region, method))
         if layer >= len(self.execution_config):
             self.pad(layer + 1)
         original_methods = self.methods_in_layer(layer, region)
         if not original_methods or method not in original_methods:
-            self.execution_config[layer].append((region, method))
+            self.execution_config[layer].append(new_tuple)
             logging.info(f"Method '{method}' added for region '{region}' in layer {layer}")
             return True
         else:
@@ -141,6 +144,9 @@ class Orchestrator:
 
     def replace_method(self, layer: int, region: str, method_to_replace: str, new_method: str) -> bool:
         original_methods = self.methods_in_layer(layer, region)
+        old_tuple = (region, method_to_replace)     # This is getting replaced anyway, so no need to check
+        new_tuple = check_execution_entry((region, new_method))
+
         if not original_methods:
             logging.error(f"Region '{region}' not found in execution configuration for layer {layer}")
             return False
@@ -159,8 +165,8 @@ class Orchestrator:
 
         else:
             for idx, exec_tuple in enumerate(self.execution_config[layer]):
-                if exec_tuple[0] == region and exec_tuple[1] == method_to_replace:
-                    self.execution_config[layer][idx] = (region, new_method)
+                if exec_tuple == old_tuple:
+                    self.execution_config[layer][idx] = new_tuple
                     logging.info(f"Replaced '{method_to_replace}' with '{new_method}' for region '{region}' in layer {layer}")
                     return True
             raise RuntimeError("Method should have been replaced but was not")
@@ -168,10 +174,10 @@ class Orchestrator:
     # Returns a dictionary mapping region names to associated layer indices, as well as the methods they run in that layer
     def region_profile(self, region: str) -> dict:
         profile = {}
-        for layer in self.execution_config:
-            layer_profile = self.methods_in_layer(layer, region)
+        for index, layer in enumerate(self.execution_config):
+            layer_profile = self.methods_in_layer(index, region)
             if layer_profile:
-                profile.update({layer: layer_profile})
+                profile[index] = layer_profile
         if not profile:
             logging.error(f"'{region}' not found in execution configuration")
         return profile
@@ -198,16 +204,25 @@ class Orchestrator:
         region_deleted = False
         chain_deleted = ''
 
-        for chain in self.layer_config[layer_index]:
+        # Get the layer dictionary
+        work_layer = self.layer_config[layer_index]
+
+        # Iterate through chains (keys) and their values
+        for chain_name, chain in work_layer.items():
             if region in chain:
-                self.layer_config[layer_index][chain].remove(region)    # remove the region from the chain
-                if not self.layer_config[layer_index][chain]:           # if chain is thereby empty, remove chain
-                    del self.layer_config[layer_index][chain]
-                    chain_deleted = chain
+                chain.remove(region)  # remove region from the chain list
+
+                # If chain becomes empty, remove the chain
+                if not chain:
+                    del work_layer[chain_name]
+                    chain_deleted = chain_name
+
                 region_deleted = True
                 break
 
+        # Update layer config if changes were made
         if region_deleted:
+            self.layer_config[layer_index] = work_layer
             logging.info(f"Region '{region}' removed from layer {layer_index}")
             if chain_deleted:
                 logging.info(f"Empty chain '{chain_deleted}' removed from layer {layer_index}")
@@ -224,7 +239,7 @@ class Orchestrator:
             json.dump({
                 "layer_config": self.layer_config,
                 "execution_config": self.execution_config,
-                "self.execution_order": self.execution_order
+                "execution_order": self.execution_order
             }, f)
 
     def load(self, path: str) -> bool:
@@ -341,8 +356,19 @@ class Orchestrator:
                 if not self.methods_in_layer(layer_idx, region):
                     logging.warning(f"Region '{region}' in layer {layer_idx} has no execution methods")
 
+        # Validate each entry for each layer in execution_config
+        for layer_executions in self.execution_config:
+            for entry in layer_executions:
+                try:
+                    check_execution_entry(entry)
+                except AssertionError as e:
+                    logging.warning(f"Invalid execution entry will be ignored: {entry}. {e}")
+
+
         return valid
-        # TODO: ideally has same number of layers in layer_config and execution_config
+
+        # === Validation pseudocode ===
+        # ideally has same number of layers in layer_config and execution_config
             # len(layer_config) > len(execution_config)
                 # warn about trailing silent layers (ie, not listed in execution config but present in layer config)
             # len(layer_config) < len(execution_config)
@@ -351,27 +377,28 @@ class Orchestrator:
                 # warn about silent layers (ie empty layer, but nonempty execution entry)
                 # warn about missing layers (ie, nonempty execution entry, but empty layer)
                 # warn about layer indices that are both missing and silent (ie. listed in neither)
-        # TODO: if no execution_order:
+        # if no execution_order:
             # warn that system will default to iterating through layers sequentially
-        # TODO: if execution_order is nonempty:
+        # if execution_order is nonempty:
             # all execution_order items must be >0 and < len(layer_config)
                 # fail the verify if this is not the case
             # every layer index can be found in execution_order
                 # warn which layers are missing from execution order, and that they will be silent
-        # TODO: for each unique region:
+        # for each unique region:
             # warn if any regions runs no methods
-        # TODO: for each layer in layer_config:
+        # for each layer in layer_config:
             # each chain is associated with at least one region - warn for any empty chains
             # no duplicate regions are allowed to be present in a given single layer
                 # fail the verify if this is not the case
             # no duplicate chains within a layer
                 # fail the verify if this is not the case
             # each region runs at least one method for same layer in execution_config - warn for silent regions
+        # Validate each entry for each layer in execution_config using check_execution_entry
+
+    # SUGGEST: Add options to clean silent elements and invalid entries from configuration
 
 async def main():
     pass
-    # llm = LLMLink()
-    # getattr(llm,'chat')
     return
 
 if __name__ == "__main__":
