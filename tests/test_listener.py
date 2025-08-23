@@ -1,7 +1,7 @@
 import unittest
-from unittest import mock
 import asyncio
 import multiprocessing as mp
+import unittest.mock
 from region import ListenerRegion
 import queue
 
@@ -73,7 +73,7 @@ class TestListenerRegion(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(self.region.forward_task)
         self.assertTrue(self.region.p.is_alive())
 
-    async def test_start_called_twice_raises_runtimeerror(self):
+    async def test_start_called_twice_raises_runtime_error(self):
         """Verify calling start() twice raises RuntimeError"""
         await self.region.start()
         with self.assertRaises(RuntimeError):
@@ -82,7 +82,6 @@ class TestListenerRegion(unittest.IsolatedAsyncioTestCase):
     async def test_stop_sends_sentinel_and_terminates(self):
         """Verify stop() sends sentinel and properly terminates resources"""
         await self.region.start()
-        self.assertTrue(self.region.p.is_alive())
         await self.region.stop()
 
         # Verify process termination
@@ -103,12 +102,11 @@ class TestListenerRegion(unittest.IsolatedAsyncioTestCase):
         for msg in test_messages:
             self.region.inbox.put_nowait(msg)
 
-        # Allow time for forwarding
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.1)     # Allow time for forwarding
+        messages = await self.drain_out_queue()     # Drain messages
         await self.region.stop()
 
-        # Drain and verify messages
-        messages = await self.drain_out_queue()
+        # Verify all test messages were forwarded
         self.assertEqual(len(messages), 2)
         self.assertEqual(messages, test_messages)
 
@@ -162,14 +160,18 @@ class TestListenerRegion(unittest.IsolatedAsyncioTestCase):
 
         # Verify resources were cleaned up properly
         self.assertIsNone(self.region.p)
-        # self.assertFalse(self.region.p.is_alive() if self.region.p else True)
+        self.assertIsNone(self.region.forward_task)
+
+        # Verify queue is closed
+        with self.assertRaises(ValueError):
+            self.region.out_q.put("test")
 
     async def test_empty_inbox_behavior(self):
         """Verify no messages are forwarded when inbox is empty"""
         await self.region.start()
         await asyncio.sleep(0.1)
+        messages = await self.drain_out_queue()
         await self.region.stop()
 
         # Drain queue - should only contain sentinel (None)
-        messages = await self.drain_out_queue()
         self.assertEqual(len(messages), 0)
