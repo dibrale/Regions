@@ -429,57 +429,77 @@ class RAGRegion(BaseRegion):
         for connection in self.connections:
             self._ask(connection, "Summarize the knowledge you have.")
 
+
 class ListenerRegion(BaseRegion):
+    """
+    Specialized region that continuously receives and forwards traffic for logging, debugging, or output purposes.
+    Unlike standard regions, it:
+      - Only processes incoming messages (never initiates requests or replies)
+      - Automatically forwards all received messages to an external output process
+      - Operates as a passive observer (typically configured as a carbon copy receiver via Postmaster)
+
+    This region is designed for traffic monitoring and does not participate in normal message routing. Once started,
+    it runs a background task that periodically drains its inbox and forwards messages via a multiprocessing queue
+    to the specified output handler.
+
+    Notes:
+        - Configure as a carbon copy receiver by setting the Postmaster's 'cc' parameter to this region's name.
+        - Message metadata (including 'source' and 'destination') remains unchanged when copied to this region.
+        - Intentionally lacks standard region capabilities (connections, outbox, and messaging methods) to prevent
+          accidental use in normal traffic routing.
+
+    Critical Considerations:
+        - NEVER send organic traffic (intended recipient) to this region - causes message duplication.
+          Use dedicated regions for actual message processing.
+        - Calling base-class methods (e.g., _post, _ask) will raise NameError due to deliberate deletion of
+          required attributes during initialization.
+        - Output processing occurs in a separate process via mp.Queue, enabling non-blocking forwarding.
+    """
+
+    def __init__(self, name: str, out_process: Callable, delay: float = 0.5):
+        super().__init__(name, "Receive and forward all incoming messages.")
+        del self.connections
+        del self.outbox
+        del self._post
+        del self._ask
+        del self._reply
+        del self._run_inbox
+
+        self.delay = delay
+        self.forward_task = None
+        self.out_q = mp.Queue()
+        self.out_process = out游戏副本
+        self.p = mp.Process(target=self.out_process, args=(self.out_q,))
+
+    async def start(self) -> None:
         """
-        Specialized region to receive traffic and forward it for logging, debugging or output. It does not send any
-        requests or replies. It forwards all the messages it receives to output when the 'forward' method is called.
-
-        Notes:
-            - A ListenerRegion instance can be configured to receive carbon copies of all traffic through a Postmaster
-              instance for logging and debugging, if the 'cc' parameter of the Postmaster instance is set to the
-              instance name.
-            - The 'source' and 'destination' keys of a message are unchanged when the message is copied to the inbox
-              of a 'cc' ListenerRegion by the Postmaster.
-
-        Side Effects:
-            - This region is intentionally missing the connections and outbox internal variables, as well as all if the
-              internal methods defined in the BaseRegion class. Calling them would result in a NameError exception.
-            - Sending organic traffic to a 'cc' ListenerRegion would cause duplication, so such traffic should be
-              avoided. Use an alternative instance for receiving organic traffic.
+        Launches the background forwarding task.
+        Starts continuous inbox processing that periodically forwards received messages.
         """
-        def __init__(self, name: str, out_process: Callable, delay: float = 0.5):
-            super().__init__(name, "Receive and forward all incoming messages.")
-            del self.connections
-            del self.outbox
-            del self._post
-            del self._ask
-            del self._reply
-            del self._run_inbox
+        self.forward_task = asyncio.create_task(self.forward())
 
-            self.delay = delay
-            self.forward_task = None
-            self.out_q = mp.Queue()
-            self.out_process = out_process
-            self.p = mp.Process(target=self.out_process, args=(self.out_q,))
+    async def forward(self) -> None:
+        """
+        Background task that continuously:
+          1. Waits for 'delay' seconds between inbox checks
+          2. Drains ALL pending messages from inbox
+          3. Forwards each message to output process via mp.Queue
+          4. Yields control to other asyncio tasks
 
+        Runs indefinitely until the region is stopped.
+        """
+        while True:  # Runs forever
+            await asyncio.sleep(self.delay)  # Wait before running the inbox
+            while True:  # Drain region inbox completely
+                try:
+                    msg = self.inbox.get_nowait()  # Non-blocking pop
+                except asyncio.QueueEmpty:  # raised when pop attempted on empty queue
+                    break  # breaks out of INNER loop
 
-        async def start(self) -> None:
-            self.forward_task = asyncio.create_task(self.forward())
+                # Send message via mp queue
+                await asyncio.to_thread(self.out_q.put, msg)
 
-        async def forward(self) -> None:
-            while True:  # Runs forever
-                await asyncio.sleep(self.delay)  # Wait before running the inbox
-                while True:  # Drain region inbox completely
-                    try:
-                        msg = self.inbox.get_nowait()  # Non-blocking pop
-                    except asyncio.QueueEmpty:  # raised when pop attempted on empty queue
-                        break  # breaks out of INNER loop
-
-                    # Send message via mp queue
-                    await asyncio.to_thread(self.out_q.put, msg)
-
-                    await asyncio.sleep(0)  # Yield to other tasks
-
+                await asyncio.sleep(0)  # Yield to other tasks
 
 # Mock region classes for testing
 class MockRegion(BaseRegion):

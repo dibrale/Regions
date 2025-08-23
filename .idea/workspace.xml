@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Added the Injector context manager&#10;- Fixed behaviors surrounding message type in Postmaster">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/postmaster.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="First pass of ListenerRegion code">
       <change beforePath="$PROJECT_DIR$/modules/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/region_registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_registry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/region_types.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_types.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -282,7 +278,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="52821000" />
+      <workItem from="1755807881103" duration="53874000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -588,7 +584,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755927030852</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="First pass of ListenerRegion code">
+      <option name="closed" value="true" />
+      <created>1755934117046</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1755934117046</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -606,7 +610,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Working demo system added" />
     <MESSAGE value="Edge case fixes and minor structured syntax cleanup." />
     <MESSAGE value="Added more parameters to RAGRegion initialization." />
     <MESSAGE value="Partially documented the RAG system" />
@@ -631,7 +634,8 @@
     <MESSAGE value="Orchestrator class docstrings" />
     <MESSAGE value="- Added unit tests for Orchestrator class&#10;- Orchestrator class passes unit tests" />
     <MESSAGE value="- Added the Injector context manager&#10;- Fixed behaviors surrounding message type in Postmaster" />
-    <option name="LAST_COMMIT_MESSAGE" value="- Added the Injector context manager&#10;- Fixed behaviors surrounding message type in Postmaster" />
+    <MESSAGE value="First pass of ListenerRegion code" />
+    <option name="LAST_COMMIT_MESSAGE" value="First pass of ListenerRegion code" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
