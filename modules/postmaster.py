@@ -165,6 +165,11 @@ class Postmaster:
                         * Content prepend (rts_prepend)
                     - 'error': Raises RuntimeError
 
+        Side Effects:
+
+            - Message role is set to 'reply' in the course of return-to-sender behavior to avoid feedback loops
+            - The 'retry' behavior runs a new asyncio task for each resend attempt. While these tasks terminate after the message is resent, a buildup of undelivered messages can easily result if new messages along the same route also remain undeliverable.
+
         Notes:
             - Processes messages in batches rather than individual items
             - Retry delay is intentionally shorter than collection interval to:
@@ -225,6 +230,7 @@ class Postmaster:
                                 continue
                             else:
                                 original = message
+                                message['role'] = 'reply'       # Role is now reply, not request, to avoid feedback effects
                                 if self.rts_prepend:
                                     message['content'] = \
                                         f"Could not deliver message to '{message['destination']}'. Content: {original['content']}"

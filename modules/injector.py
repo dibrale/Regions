@@ -1,0 +1,67 @@
+from contextlib import contextmanager
+from dataclasses import dataclass
+from functools import partial
+
+from postmaster import Postmaster
+
+
+def inject(postmaster: Postmaster, source: str, destination: str, role: str, content: str) -> None:
+    """Inject a message into the distributed system using the postmaster.
+
+    Args:
+        postmaster (Postmaster): The postmaster instance to use for sending messages.
+        source (str): The source identifier for the message (e.g., "region-a").
+        destination (str): The destination identifier for the message (e.g., "region-b").
+        role(str): The role of the message ('request' or 'reply').
+        content (str): The message content to be sent.
+
+    This function places the message dictionary into the postmaster's message queue.
+    """
+    msg = dict(source=source, destination=destination, role=role, content=content)
+    postmaster.messages.put_nowait(msg)
+
+@dataclass
+class Injector:
+    """Context manager for injecting messages with a fixed role and source identifier using a fixed postmaster instance.
+
+    The Injector class provides a convenient way to send multiple messages with the same source
+    using a context manager. It pre-configures the source address and default role so that only destination and
+    content need to be specified when sending messages.
+
+    The `send` method uses the default role (set at initialization), while `request` and `reply` methods override
+    the role to 'request' and 'reply' respectively.
+
+    Example:
+        >>> from postmaster import Postmaster
+        >>> postmaster = Postmaster()
+        >>> with Injector(postmaster, "user") as injector:
+        ...     injector.send("region-b", "Hello from user")  # Uses default role='reply'
+        ...     injector.request("region-c", "Request message")  # Explicitly sets role='request'
+        ...     injector.reply("region-d", "Reply message")  # Explicitly sets role='reply'
+
+    Attributes:
+        postmaster (Postmaster): The postmaster instance used for message delivery.
+        source (str): The fixed source identifier for all messages sent through this injector.
+        role (str): The default role used by the `send` method (default: 'reply').
+
+    Note:
+        - It may be convenient to set the name of the injector (e.g., "user", "admin") as the injector's name. For example: with Injector(postmaster, "user") as user: ...
+        - Injector objects can be nested. For example: with Injector(postmaster, "user") as user: with userInjector(postmaster, "admin"): ...
+
+    Side Effects:
+        - Injectors can be used to prime the system with persistent replies that will be stored in the internal _incoming_replies dictionary of a receiving 'Region' instance.
+        - Instances of the 'Region' class only retain one content string per source at any given time, with any new reply replacing the previous one.
+        - Injecting an empty reply using the same source identifier effectively deletes an original reply retained by a 'Region' instance, though an empty string keyed to the source will remain in its _incoming_replies dictionary.
+    """
+    postmaster: Postmaster
+    source: str
+    role: str = 'reply'
+
+    def __enter__(self):
+        self.send = partial(inject, postmaster=self.postmaster, source=self.source, role=self.role)
+        self.request = partial(inject, postmaster=self.postmaster, source=self.source, role='request')
+        self.reply = partial(inject, postmaster=self.postmaster, source=self.source, role='reply')
+        return self
+
+    def __exit__(self, *exc):
+        pass        # nothing special to clean up

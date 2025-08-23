@@ -164,7 +164,8 @@ class Region(BaseRegion):
             - Uses delimiters to structure system/user/assistant sections
             - Includes thinking trace if provided
         """
-        schema = {'focus': self.task, 'knowledge': [*self._incoming_replies.values()]}
+        raw_incoming_replies = [*self._incoming_replies.values()]
+        schema = {'focus': self.task, 'knowledge': [reply for reply in raw_incoming_replies if reply]}
         prefix = f"{bom}system\nReply to the user, given your focus and knowledge per the given schema:"
         prompt = f"{prefix}\n{schema}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
         if think: prompt += f"{think}\n"
@@ -433,7 +434,6 @@ class MockRegion(BaseRegion):
     def __init__(self, name, task, connections=None, **kwargs):
         super().__init__(name, task, connections)
         self.kwargs = kwargs
-
 
 class MockRAGRegion(BaseRegion):
     def __init__(self, name, task, rag=None, connections=None, **kwargs):

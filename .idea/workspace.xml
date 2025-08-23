@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Orchestrator class docstrings">
-      <change afterPath="$PROJECT_DIR$/tests/test_orchestrator.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Added unit tests for Orchestrator class&#10;- Orchestrator class passes unit tests">
+      <change afterPath="$PROJECT_DIR$/modules/injector.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/orchestrator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/postmaster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +120,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.externalTools",
+    "settings.editor.selected.configurable": "preferences.keymap",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   },
@@ -280,7 +281,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="33159000" />
+      <workItem from="1755807881103" duration="45943000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -570,7 +571,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755893152891</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="- Added unit tests for Orchestrator class&#10;- Orchestrator class passes unit tests">
+      <option name="closed" value="true" />
+      <created>1755901626658</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1755901626658</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -588,7 +597,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Refactored Region and RAGRegion to use BaseRegion base class." />
     <MESSAGE value="Added unit tests for RAGRegion and cleaned up a few bugs" />
     <MESSAGE value="Working demo system added" />
     <MESSAGE value="Edge case fixes and minor structured syntax cleanup." />
@@ -613,7 +621,8 @@
     <MESSAGE value="First pass of Orchestrator class code" />
     <MESSAGE value="- Orchestrator class debugging and validation method&#10;- Additional utility functions for Orchestrator class" />
     <MESSAGE value="Orchestrator class docstrings" />
-    <option name="LAST_COMMIT_MESSAGE" value="Orchestrator class docstrings" />
+    <MESSAGE value="- Added unit tests for Orchestrator class&#10;- Orchestrator class passes unit tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Added unit tests for Orchestrator class&#10;- Orchestrator class passes unit tests" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
