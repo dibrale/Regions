@@ -447,13 +447,29 @@ class ListenerRegion(BaseRegion):
         - Message metadata (including 'source' and 'destination') remains unchanged when copied to this region.
         - Intentionally lacks standard region capabilities (connections, outbox, and messaging methods) to prevent
           accidental use in normal traffic routing.
+        - The `out_process` function MUST handle a sentinel value (None) to gracefully terminate. It should run in a
+          loop that breaks when receiving None.
+
+    Example:
+        Example out_process implementation:
+
+        >>> def handle_output(q: mp.Queue):
+        >>>    while True:
+        >>>        msg = q.get()
+        >>>        if msg is None: break   # Sentinel check
+
+        Processing of message follows.
+
 
     Critical Considerations:
-        - NEVER send organic traffic (intended recipient) to this region - causes message duplication.
+        - Do not send organic traffic (intended recipient) to this region - causes message duplication.
           Use dedicated regions for actual message processing.
         - Calling base-class methods (e.g., _post, _ask) will raise NameError due to deliberate deletion of
           required attributes during initialization.
         - Output processing occurs in a separate process via mp.Queue, enabling non-blocking forwarding.
+        - out_process MUST handle sentinel (None) for graceful shutdown
+        - Do not call start() multiple times without stop() in between
+        - Always call stop() to prevent resource leaks
     """
 
     def __init__(self, name: str, out_process: Callable, delay: float = 0.5):
@@ -468,14 +484,18 @@ class ListenerRegion(BaseRegion):
         self.delay = delay
         self.forward_task = None
         self.out_q = mp.Queue()
-        self.out_process = out游戏副本
-        self.p = mp.Process(target=self.out_process, args=(self.out_q,))
+        self.out_process = out_process
+        self.p = None
 
     async def start(self) -> None:
         """
         Launches the background forwarding task.
         Starts continuous inbox processing that periodically forwards received messages.
         """
+        if self.p is not None:
+            raise RuntimeError("Region already started")
+        self.p = mp.Process(target=self.out_process, args=(self.out_q,))
+        self.p.start()  # Start process HERE
         self.forward_task = asyncio.create_task(self.forward())
 
     async def forward(self) -> None:
@@ -488,18 +508,52 @@ class ListenerRegion(BaseRegion):
 
         Runs indefinitely until the region is stopped.
         """
-        while True:  # Runs forever
-            await asyncio.sleep(self.delay)  # Wait before running the inbox
-            while True:  # Drain region inbox completely
-                try:
-                    msg = self.inbox.get_nowait()  # Non-blocking pop
-                except asyncio.QueueEmpty:  # raised when pop attempted on empty queue
-                    break  # breaks out of INNER loop
+        try:
+            while True:
+                await asyncio.sleep(self.delay)
+                while True:
+                    try:
+                        msg = self.inbox.get_nowait()
+                        await asyncio.to_thread(self.out_q.put, msg)
+                        await asyncio.sleep(0)
+                    except asyncio.QueueEmpty:
+                        break
+        except asyncio.CancelledError:
+            # Drain inbox during cancellation
+            while not self.inbox.empty():
+                msg = await self.inbox.get()
+                self.out_q.put(msg)
+            raise  # Propagate cancellation
 
-                # Send message via mp queue
-                await asyncio.to_thread(self.out_q.put, msg)
+    async def stop(self) -> None:
+        """Cleanly stops forwarding and terminates output process."""
+        # 1. Cancel forwarding task
+        if self.forward_task:
+            self.forward_task.cancel()
+            try:
+                await self.forward_task
+            except asyncio.CancelledError:
+                pass
+            self.forward_task = None
 
-                await asyncio.sleep(0)  # Yield to other tasks
+        # 2. Drain inbox one last time
+        while not self.inbox.empty():
+            msg = await self.inbox.get()
+            self.out_q.put(msg)  # Blocking put (safe during shutdown)
+
+        # 3. Signal output process to stop
+        self.out_q.put(None)  # Sentinel value
+
+        # 4. Clean up process
+        if self.p:
+            self.p.join(timeout=2.0)
+            if self.p.is_alive():
+                self.p.terminate()  # Force cleanup if unresponsive
+            self.p.close()
+            self.p = None
+
+        # 5. Close queue
+        self.out_q.close()
 
 # Mock region classes for testing
 class MockRegion(BaseRegion):
