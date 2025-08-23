@@ -474,18 +474,25 @@ class ListenerRegion(BaseRegion):
 
     def __init__(self, name: str, out_process: Callable, delay: float = 0.5):
         super().__init__(name, "Receive and forward all incoming messages.")
-        del self.connections
-        del self.outbox
-        del self._post
-        del self._ask
-        del self._reply
-        del self._run_inbox
+        del self.connections, self.outbox
 
         self.delay = delay
         self.forward_task = None
         self.out_q = mp.Queue()
         self.out_process = out_process
         self.p = None
+
+    def _post(self, destination: str, content: str, role: str) -> None:
+        raise NotImplementedError("ListenerRegion does not support outgoing messages.")
+
+    def _ask(self, destination: str, message: str) -> None:
+        raise NotImplementedError("ListenerRegion does not support sending requests.")
+
+    def _reply(self, source: str, content: str) -> None:
+        raise NotImplementedError("ListenerRegion does not support sending replies.")
+
+    def _run_inbox(self):
+        raise NotImplementedError("ListenerRegion does not need to sort messages.")
 
     async def start(self) -> None:
         """
