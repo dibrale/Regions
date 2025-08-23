@@ -533,8 +533,14 @@ class ListenerRegion(BaseRegion):
             raise  # Propagate cancellation
 
     async def stop(self) -> None:
+
+        # 1. Drain inbox one last time
+        while not self.inbox.empty():
+            msg = await self.inbox.get()
+            self.out_q.put(msg)  # Blocking put (safe during shutdown)
+
         """Cleanly stops forwarding and terminates output process."""
-        # 1. Cancel forwarding task
+        # 2. Cancel forwarding task
         if self.forward_task:
             self.forward_task.cancel()
             try:
@@ -543,13 +549,9 @@ class ListenerRegion(BaseRegion):
                 pass
             self.forward_task = None
 
-        # 2. Drain inbox one last time
-        while not self.inbox.empty():
-            msg = await self.inbox.get()
-            self.out_q.put(msg)  # Blocking put (safe during shutdown)
-
         # 3. Signal output process to stop
-        self.out_q.put(None)  # Sentinel value
+        if self.p and self.p.is_alive():
+            self.out_q.put(None)  # Sentinel value
 
         # 4. Clean up process
         if self.p:
