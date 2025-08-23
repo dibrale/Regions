@@ -31,6 +31,7 @@ class Postmaster:
         rts_source: str = '',
         rts_prepend: bool = None,
         reroute_destination: str = '',
+        cc: str = None
     ) -> None:
         """Initializes the Postmaster with routing configuration.
 
@@ -47,18 +48,21 @@ class Postmaster:
             rts_prepend: Whether to prepend undeliverable notice to message content.
                          If None (default), no prepend occurs.
             reroute_destination: Target region name for rerouted messages
+            cc: Name of a "CC" region (for debugging/logging purposes)
 
         Raises:
             RuntimeError: If undeliverable='reroute' but reroute_destination is empty
 
         Notes:
             - Return-to-sender parameters (rts_source, rts_prepend) are only active when
-              undeliverable='return'. Otherwise they're ignored with a warning.
+              undeliverable='return'. Otherwise, they are ignored with a warning.
             - Reroute destination must be specified when undeliverable='reroute'.
             - Configured undeliverable policy is logged at initialization.
             - default_resend_delay is automatically set to delay-0.01 to reduce retry priority
         """
         self.registry = registry
+        self.cc = cc
+
         self.delay = delay
         self.default_resend_delay = delay-0.01  # Should optimistically be long enough for other messages to arrive first
                                                 # This reduces priority of resends compared to new arrivals
@@ -147,7 +151,6 @@ class Postmaster:
             await asyncio.sleep(0.01)
 
         await self.messages.put(msg)
-        print("resent")
 
     async def emitter(self):
         """Background task that processes messages in batches after fixed intervals.
@@ -193,6 +196,8 @@ class Postmaster:
                 for region in self.registry:
                     if message['destination'] == region.name:
                         region.inbox.put_nowait(message)
+                        if self.cc:
+                            self.registry[self.cc].inbox.put_nowait(message)
                         sent = True
                         logging.info(f"Message sent from '{message['source']}' to '{message['destination']}'")
                         break   # Exit region loop after delivery

@@ -17,7 +17,7 @@ class RegionEntry:
     """Configuration and state container for region instances in a distributed system.
 
     Represents a serialized blueprint for a region (a specialized component in a multi-agent system).
-    Contains both metadata (name, type, task) and runtime dependencies (RAG systems, LLMs, connections).
+    Contains both metadata (name, type, task) and runtime dependencies (RAG systems, LLMs, connections, delay).
     Used to:
     - Persist region configurations
     - Recreate regions from stored state
@@ -46,6 +46,7 @@ class RegionEntry:
     llm: LLMLink = None
     region: BaseRegion = None
     reply_with_actors: bool = None
+    delay: float = None
 
     def __repr__(self):
         """Return debug-friendly representation showing region name.
@@ -67,17 +68,19 @@ class RegionEntry:
         """Populate entry attributes from a live region instance.
 
         Copies critical metadata and optional dependencies from a BaseRegion object.
-        Handles optional attributes (rag, llm, reply_with_actors) safely via hasattr checks.
+        Handles optional attributes (connections, rag, llm, reply_with_actors) safely via hasattr checks.
 
         Args:
             region (BaseRegion): Source region instance to serialize
 
         Side Effects:
             Sets all attributes on self:
-            - name, type (from class name), task, connections
+            - name, type (from class name), task
+            - connections (if present on region)
             - rag (if present on region)
             - llm (if present on region)
             - reply_with_actors (if present on region)
+            - delay (if present on region)
             - region (direct reference to source object)
 
         Example:
@@ -92,13 +95,16 @@ class RegionEntry:
         # self.type = type(region).__name__
 
         self.task = region.task
-        self.connections = region.connections
+        if hasattr(region, "connections"):
+            self.connections = region.connections
         if hasattr(region, "rag"):
             self.rag = region.rag
         if hasattr(region, "llm"):
             self.llm = region.llm
         if hasattr(region, "reply_with_actors"):
             self.reply_with_actors = region.reply_with_actors
+        if hasattr(region, "delay"):
+            self.delay = region.delay
         self.region = region
 
     def make_region(self):
@@ -133,15 +139,18 @@ class RegionEntry:
             class_from_str(self.type),
             name=self.name,
             task=self.task,
-            connections={}
         )
 
+        if self.connections:
+            f = partial(f, connections=self.connections)
         if self.rag:
             f = partial(f, rag=self.rag)
         if self.llm:
             f = partial(f, llm=self.llm)
         if self.reply_with_actors:
             f = partial(f, reply_with_actors=self.reply_with_actors)
+        if self.delay:
+            f = partial(f, delay=self.delay)
 
         try:
             self.region = f()

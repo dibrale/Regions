@@ -2,8 +2,8 @@ import asyncio
 import json
 import logging
 import re
-
-# from typing import override
+import multiprocessing as mp
+from typing import Callable
 
 from modules.llmlink import LLMLink
 from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
@@ -428,6 +428,58 @@ class RAGRegion(BaseRegion):
             raise ValueError(f"{self.name}: No valid connections for summarization.")
         for connection in self.connections:
             self._ask(connection, "Summarize the knowledge you have.")
+
+class ListenerRegion(BaseRegion):
+        """
+        Specialized region to receive traffic and forward it for logging, debugging or output. It does not send any
+        requests or replies. It forwards all the messages it receives to output when the 'forward' method is called.
+
+        Notes:
+            - A ListenerRegion instance can be configured to receive carbon copies of all traffic through a Postmaster
+              instance for logging and debugging, if the 'cc' parameter of the Postmaster instance is set to the
+              instance name.
+            - The 'source' and 'destination' keys of a message are unchanged when the message is copied to the inbox
+              of a 'cc' ListenerRegion by the Postmaster.
+
+        Side Effects:
+            - This region is intentionally missing the connections and outbox internal variables, as well as all if the
+              internal methods defined in the BaseRegion class. Calling them would result in a NameError exception.
+            - Sending organic traffic to a 'cc' ListenerRegion would cause duplication, so such traffic should be
+              avoided. Use an alternative instance for receiving organic traffic.
+        """
+        def __init__(self, name: str, out_process: Callable, delay: float = 0.5):
+            super().__init__(name, "Receive and forward all incoming messages.")
+            del self.connections
+            del self.outbox
+            del self._post
+            del self._ask
+            del self._reply
+            del self._run_inbox
+
+            self.delay = delay
+            self.forward_task = None
+            self.out_q = mp.Queue()
+            self.out_process = out_process
+            self.p = mp.Process(target=self.out_process, args=(self.out_q,))
+
+
+        async def start(self) -> None:
+            self.forward_task = asyncio.create_task(self.forward())
+
+        async def forward(self) -> None:
+            while True:  # Runs forever
+                await asyncio.sleep(self.delay)  # Wait before running the inbox
+                while True:  # Drain region inbox completely
+                    try:
+                        msg = self.inbox.get_nowait()  # Non-blocking pop
+                    except asyncio.QueueEmpty:  # raised when pop attempted on empty queue
+                        break  # breaks out of INNER loop
+
+                    # Send message via mp queue
+                    await asyncio.to_thread(self.out_q.put, msg)
+
+                    await asyncio.sleep(0)  # Yield to other tasks
+
 
 # Mock region classes for testing
 class MockRegion(BaseRegion):

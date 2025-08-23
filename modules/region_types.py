@@ -1,8 +1,9 @@
-from region import BaseRegion, Region, RAGRegion, MockRegion, MockRAGRegion
+from region import *
 
 region_types = [
     {"name": "Region", "class": Region},
     {"name": "RAGRegion", "class": RAGRegion},
+    {"name": "ListenerRegion", "class": ListenerRegion},
     {"name": "MockRegion", "class": MockRegion},
     {"name": "MockRAGRegion", "class": MockRAGRegion},
 ]
