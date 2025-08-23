@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import partial
+from typing import Callable, Any
 
 from postmaster import Postmaster
 
@@ -46,7 +47,7 @@ class Injector:
 
     Note:
         - It may be convenient to set the name of the injector (e.g., "user", "admin") as the injector's name. For example: with Injector(postmaster, "user") as user: ...
-        - Injector objects can be nested. For example: with Injector(postmaster, "user") as user: with userInjector(postmaster, "admin"): ...
+        - Injector objects can be nested. For example: with Injector(postmaster, "user") as user: with user = Injector(postmaster, "admin"): ...
 
     Side Effects:
         - Injectors can be used to prime the system with persistent replies that will be stored in the internal _incoming_replies dictionary of a receiving 'Region' instance.
@@ -65,3 +66,46 @@ class Injector:
 
     def __exit__(self, *exc):
         pass        # nothing special to clean up
+
+class Addressograph:
+    """
+    Decorator that injects a pre-configured Injector instance into a function.
+
+    Note:
+        - The decorated function must accept a parameter named exactly like `injector_name`.
+        - Multiple injectors can be added with different `injector_name` values.
+
+    Example:
+        Using a single decorator:
+
+        >>> @Addressograph(postmaster, "user", role="request", injector_name="user")
+        >>> def my_func(user):
+        >>>     user.send("region-b", "Hello")
+
+        Using multiple decorators:
+
+        >>> @Addressograph(postmaster, "user", role="request", injector_name="user")
+        >>> @Addressograph(postmaster, "admin", role="reply", injector_name="admin")
+        >>> def process_messages(user, admin):
+        >>>     user.send("region-b", "User request")
+        >>>     admin.send("region-c", "Admin reply")
+    """
+
+    def __init__(self, postmaster: Postmaster, source: str, role: str = 'reply', injector_name: str = 'injector'):
+        self.postmaster = postmaster
+        self.source = source
+        self.role = role
+        self.injector_name = injector_name  # Name of the function parameter
+
+    def __call__(self, func: Callable) -> Callable:
+        def wrapper(*args, **kwargs) -> Any:
+            # Create the injector
+            injector = Injector(self.postmaster, self.source, self.role)
+
+            # Add injector to kwargs under the specified name
+            kwargs[self.injector_name] = injector
+
+            # Call the function with the injector
+            return func(*args, **kwargs)
+
+        return wrapper
