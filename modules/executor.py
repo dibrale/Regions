@@ -1,5 +1,10 @@
 import logging
+from dataclasses import dataclass
+from typing import Any
 
+from asyncstdlib.functools import partial
+
+import orchestrator
 from region_types import *
 from region import *
 from tests.mock_regions import *
@@ -7,8 +12,6 @@ from postmaster import Postmaster
 from injector import Injector
 from orchestrator import Orchestrator
 from region_registry import RegionRegistry
-
-
 
 def cross_verify(
         registry: RegionRegistry,
@@ -207,5 +210,68 @@ def cross_verify(
     else: logging.error("Run configuration is invalid.")
     return valid
 
+async def execute_layer(
+        registry: RegionRegistry,
+        orchestrator: Orchestrator,
+        postmaster: Postmaster,
+        layer: int,
+) -> bool:
+    """Run a one layer of a distributed region execution plan"""
+
+async def execute_plan(
+        registry: RegionRegistry,
+        orchestrator: Orchestrator,
+        postmaster: Postmaster,
+) -> bool:
+    """Run a verified distributed region execution plan"""
+
+
+@dataclass
 class Executor:
-    """Coordinates the execution of regions within a distributed system."""
+    """Context for the execution of regions within a distributed system."""
+    registry: RegionRegistry = None
+    orchestrator: Orchestrator = None,
+    postmaster: Postmaster = None
+
+    def __enter__(self):
+        self.run_layer = partial(execute_layer, self.registry, self.orchestrator, self.postmaster)
+        self.run_plan = partial(execute_plan, self.registry, self.orchestrator, self.postmaster)
+        return self
+
+    def __exit__(self, *exc):
+        pass        # nothing special to clean up
+
+@dataclass
+class Execute:
+    registry: RegionRegistry = None
+    orchestrator: Orchestrator = None,
+    postmaster: Postmaster = None
+    executor_name: str = 'ex'
+
+    def __call__(self, func: Callable) -> Callable:
+        def wrapper(*args, **kwargs) -> Any:
+            # Create the executor
+            executor = Executor(self.registry, self.orchestrator, self.postmaster)
+
+            # Add executor to kwargs under the specified name
+            kwargs[self.executor_name] = executor
+
+            # Call the function with the injector
+            return func(*args, **kwargs)
+
+        return wrapper
+
+registry = RegionRegistry()
+orch = Orchestrator()
+postmaster = Postmaster(registry)
+
+@Execute(registry, orch, postmaster)
+async def bar(ex):
+    ex.run_layer(0)
+
+with Executor() as e:
+    ...
+
+
+
+
