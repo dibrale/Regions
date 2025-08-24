@@ -430,7 +430,6 @@ class RAGRegion(BaseRegion):
         for connection in self.connections:
             self._ask(connection, "Summarize the knowledge you have.")
 
-
 class ListenerRegion(BaseRegion):
     """
     Specialized region that continuously receives and forwards traffic for logging, debugging, or output purposes.
@@ -643,15 +642,3 @@ class ListenerRegion(BaseRegion):
             faultless = False
 
         return faultless
-
-# Mock region classes for testing
-class MockRegion(BaseRegion):
-    def __init__(self, name, task, connections=None, **kwargs):
-        super().__init__(name, task, connections)
-        self.kwargs = kwargs
-
-class MockRAGRegion(BaseRegion):
-    def __init__(self, name, task, rag=None, connections=None, **kwargs):
-        super().__init__(name, task, connections)
-        self.rag = rag
-        self.kwargs = kwargs

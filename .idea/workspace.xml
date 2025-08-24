@@ -4,10 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Utility function in orchestrator&#10;- Verification function for ListenerRegion behavior in orchestrator via ListenerRegion instances">
-      <change afterPath="$PROJECT_DIR$/modules/executor.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Verify docstrings for ListenerRegion&#10;- Cross-validation method for an entire run configuration">
+      <change afterPath="$PROJECT_DIR$/tests/cross_verify_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/mock_regions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/executor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/orchestrator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/region_registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_registry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/region_types.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_types.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +45,15 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python tests.Doctests in llamacpp_api.executor": "Run",
+    "Python tests.Python tests for cross_verify_test.test_cross_verify_cc_not_in_orchestrator.executor": "Run",
+    "Python tests.Python tests for cross_verify_test.test_cross_verify_cc_not_in_registry.executor": "Run",
+    "Python tests.Python tests for cross_verify_test.test_cross_verify_flag_combinations.executor": "Run",
+    "Python tests.Python tests for cross_verify_test.test_cross_verify_listener_region_failure.executor": "Run",
+    "Python tests.Python tests for cross_verify_test.test_cross_verify_non_callable_method.executor": "Run",
+    "Python tests.Python tests for cross_verify_test.test_cross_verify_orchestrator_failure.executor": "Run",
+    "Python tests.Python tests for cross_verify_test.test_cross_verify_region_type_fallback.executor": "Run",
+    "Python tests.Python tests for cross_verify_test.test_cross_verify_registry_build_failure.executor": "Run",
+    "Python tests.Python tests for cross_verify_test.test_cross_verify_success.executor": "Run",
     "Python tests.Python tests for test_listener.TestListenerRegion.executor": "Run",
     "Python tests.Python tests for test_listener.TestListenerRegion.test_cancellation_drains_inbox.executor": "Run",
     "Python tests.Python tests for test_listener.TestListenerRegion.test_empty_inbox_behavior.executor": "Run",
@@ -88,6 +102,7 @@
     "Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success.executor": "Run",
     "Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success_sync.executor": "Run",
     "Python tests.Python tests in async_test.py.executor": "Run",
+    "Python tests.Python tests in cross_verify_test.py.executor": "Run",
     "Python tests.Python tests in test_postmaster.py.executor": "Run",
     "Python tests.Python tests in test_ragregion.py.executor": "Run",
     "Python tests.Python tests in test_region.py.executor": "Run",
@@ -152,8 +167,8 @@
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\modules" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Python tests for test_listener.TestListenerRegion.test_empty_inbox_behavior">
-    <configuration name="Python tests for test_listener.TestListenerRegion" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.Python tests in cross_verify_test.py">
+    <configuration name="Python tests for cross_verify_test.test_cross_verify_cc_not_in_registry" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -165,11 +180,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_listener.TestListenerRegion&quot;" />
+      <option name="_new_target" value="&quot;cross_verify_test.test_cross_verify_cc_not_in_registry&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test_listener.TestListenerRegion.test_cancellation_drains_inbox" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for cross_verify_test.test_cross_verify_flag_combinations" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -181,11 +196,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_listener.TestListenerRegion.test_cancellation_drains_inbox&quot;" />
+      <option name="_new_target" value="&quot;cross_verify_test.test_cross_verify_flag_combinations&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test_listener.TestListenerRegion.test_empty_inbox_behavior" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for cross_verify_test.test_cross_verify_listener_region_failure" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -197,11 +212,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_listener.TestListenerRegion.test_empty_inbox_behavior&quot;" />
+      <option name="_new_target" value="&quot;cross_verify_test.test_cross_verify_listener_region_failure&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test_listener.TestListenerRegion.test_message_forwarding" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for cross_verify_test.test_cross_verify_non_callable_method" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -213,11 +228,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_listener.TestListenerRegion.test_message_forwarding&quot;" />
+      <option name="_new_target" value="&quot;cross_verify_test.test_cross_verify_non_callable_method&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test_listener.TestListenerRegion.test_stop_sends_sentinel_and_terminates" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests in cross_verify_test.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -229,17 +244,17 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_listener.TestListenerRegion.test_stop_sends_sentinel_and_terminates&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/cross_verify_test.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.Python tests for test_listener.TestListenerRegion.test_empty_inbox_behavior" />
-        <item itemvalue="Python tests.Python tests for test_listener.TestListenerRegion.test_cancellation_drains_inbox" />
-        <item itemvalue="Python tests.Python tests for test_listener.TestListenerRegion.test_message_forwarding" />
-        <item itemvalue="Python tests.Python tests for test_listener.TestListenerRegion" />
-        <item itemvalue="Python tests.Python tests for test_listener.TestListenerRegion.test_stop_sends_sentinel_and_terminates" />
+        <item itemvalue="Python tests.Python tests in cross_verify_test.py" />
+        <item itemvalue="Python tests.Python tests for cross_verify_test.test_cross_verify_flag_combinations" />
+        <item itemvalue="Python tests.Python tests for cross_verify_test.test_cross_verify_non_callable_method" />
+        <item itemvalue="Python tests.Python tests for cross_verify_test.test_cross_verify_listener_region_failure" />
+        <item itemvalue="Python tests.Python tests for cross_verify_test.test_cross_verify_cc_not_in_registry" />
       </list>
     </recent_temporary>
   </component>
@@ -287,7 +302,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="81434000" />
+      <workItem from="1755807881103" duration="97601000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -665,7 +680,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755998900282</updated>
     </task>
-    <option name="localTasksCounter" value="48" />
+    <task id="LOCAL-00048" summary="- Verify docstrings for ListenerRegion&#10;- Cross-validation method for an entire run configuration">
+      <option name="closed" value="true" />
+      <created>1756002979981</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1756002979981</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -683,7 +706,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Documentation pass on RegionEntry." />
     <MESSAGE value="- Added unit tests for RegionRegistry&#10;- Added mock region definitions&#10;- RegionRegistry now passing unit tests" />
     <MESSAGE value="Added Postmaster class" />
     <MESSAGE value="Documentation pass on Postmaster" />
@@ -708,14 +730,15 @@
     <MESSAGE value="ListenerRegion all passing 9/10 tests, except 'test_cancellation_drains_inbox'" />
     <MESSAGE value="ListenerRegion passing all unit tests" />
     <MESSAGE value="- Utility function in orchestrator&#10;- Verification function for ListenerRegion behavior in orchestrator via ListenerRegion instances" />
-    <option name="LAST_COMMIT_MESSAGE" value="- Utility function in orchestrator&#10;- Verification function for ListenerRegion behavior in orchestrator via ListenerRegion instances" />
+    <MESSAGE value="- Verify docstrings for ListenerRegion&#10;- Cross-validation method for an entire run configuration" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Verify docstrings for ListenerRegion&#10;- Cross-validation method for an entire run configuration" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$self_indulgent_demo.coverage" NAME="self_indulgent_demo Coverage Results" MODIFIED="1755414074076" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$test_rag_system.coverage" NAME="test_rag_system Coverage Results" MODIFIED="1754960037443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation__1_.coverage" NAME="system_validation (1) Coverage Results" MODIFIED="1754953956081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1755994143330" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1756025776343" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_error_handling.coverage" NAME="test_error_handling Coverage Results" MODIFIED="1755024022292" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$example_usage.coverage" NAME="example_usage Coverage Results" MODIFIED="1754960592061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_embedding_client.coverage" NAME="test_embedding_client Coverage Results" MODIFIED="1754960121608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

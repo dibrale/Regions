@@ -1,10 +1,13 @@
 import logging
 
+from region_types import *
+from region import *
+from tests.mock_regions import *
 from postmaster import Postmaster
 from injector import Injector
 from orchestrator import Orchestrator
 from region_registry import RegionRegistry
-from region_types import class_from_str, str_from_class
+
 
 
 def cross_verify(
@@ -104,13 +107,14 @@ def cross_verify(
             valid = False
         if not verified:
             logging.error("Failed to verify orchestrator")
+            valid = False
     else:
         logging.info("Skipping orchestrator verification")
 
     # Check for region discrepancies between orchestrator and registry
     logging.info("Beginning cross-verification")
     try:
-        assert orchestrator_regions == registry_regions, "Orchestrator and registry have different region sets"
+        assert set(orchestrator_regions) == set(registry_regions), "Orchestrator and registry have different region sets"
     except AssertionError as e:
         logging.error(str(e))
         orchestrator_only = list(set(orchestrator_regions) - set(registry_regions))
@@ -127,12 +131,21 @@ def cross_verify(
     if cc_region:
         logging.info(f"CC region in postmaster: '{cc_region}'")
         if cc_region not in registry_regions:
-            logging.error(f"CC region '{cc_region}' is not defined in the registry")
+            logging.error(f"CC region '{cc_region}' is not defined in the registry name list")
             valid = False
         if cc_region not in orchestrator_regions:
-            logging.warning(f"CC region '{cc_region}' is not included in the layer configuration, and will not run.")
+            logging.error(f"CC region '{cc_region}' is not included in the execution configuration.")
         else:
-            if str_from_class(type(registry[cc_region])) == 'ListenerRegion':
+            cc_exists = True
+            try:
+                logging.info("Trying to access CC region directly")
+                registry[cc_region]
+            except ValueError or AttributeError as e:
+                logging.error(f"{e}")
+                cc_exists = False
+                valid = False
+
+            if cc_exists and class_str_from_instance(registry[cc_region]) == 'ListenerRegion':
                 try:
                     listener_valid = registry[cc_region].verify(orchestrator)
                 except Exception as e:
@@ -148,28 +161,39 @@ def cross_verify(
     for region in registry.regions:
 
         # Ensure there's a non-empty region type
-        if region.type:
-            determined_type = region.type
+        registry_type = None
+
+        try:
+            registry_index = registry.names.index(region.name)
+            registry_type = registry.regions[registry_index].type
+        except ValueError:
+            logging.warning(f"'{region}' not found in RegionRegistry")
+
+        if registry_type:
+            determined_type = registry_type
         else:
             logging.warning(f"Region '{region.name}' has no type specified in registry. Looking up in dictionary instead.")
             try:
-                determined_type = str_from_class(type(region))
-            except NameError:
-                logging.error(f"Could not determine type for region '{region.name}'")
+                determined_type = class_str_from_instance(registry[region.name])
+            except NameError as e:
+                logging.error(f"Could not determine type for region '{region.name}': {e}")
                 valid = False
                 continue
 
-        # Check if all methods in region profile are callable
+        # Check if all references in region profile are methods or functions
         profile = orchestrator.region_profile(region.name)
-        for func_name in set([x for xs in [*profile.values()] for x in xs]):
+        methods_good = True
+        for method_name in set([x for xs in [*profile.values()] for x in xs]):
             try:
-                is_callable = callable(getattr(class_from_str(determined_type), func_name))
-                if not is_callable:
-                    logging.error(f"'{func_name}' called for {determined_type} '{region}', but is not callable.")
-                    valid = False
+                ref = getattr(registry[region.name], method_name).__qualname__
+
             except AttributeError:
-                logging.error(f"Nonexistent method '{func_name}' called for {determined_type} '{region}'")
-                valid = False
+                logging.error(f"Nonexistent method '{method_name}' called for {determined_type} '{region}'")
+                methods_good = False
+        if methods_good:
+            logging.info(f"Planned calls to '{region.name}' are valid for class {determined_type}.")
+        else:
+            valid = False
 
         # Extra steps for ListenerRegions
         if determined_type == 'ListenerRegion':
@@ -179,7 +203,8 @@ def cross_verify(
                 logging.error(f"Verification raised an exception: {e}")
                 valid = False
 
-    logging.info("Run configuration is valid.")
+    if valid: logging.info("Run configuration is valid.")
+    else: logging.error("Run configuration is invalid.")
     return valid
 
 class Executor:

@@ -2,8 +2,6 @@ import asyncio
 import json
 import logging
 import pathlib
-
-from region_types import class_from_str
 from utils import set_list, trim_list, check_execution_entry
 
 
