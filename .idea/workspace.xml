@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Skeleton of Executor context manager and Execute decorator">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="First pass of possibly working versions of 'execute_layer', 'execute_plan', the 'Executor' context manager and the 'Execute' decorator">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/executor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/postmaster.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -296,23 +297,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="102466000" />
-    </task>
-    <task id="LOCAL-00002" summary="First working version of the LLMLink class.">
-      <option name="closed" value="true" />
-      <created>1754804516435</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1754804516435</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Working synchronous wrapper for llama.cpp">
-      <option name="closed" value="true" />
-      <created>1754883324276</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1754883324276</updated>
+      <workItem from="1755807881103" duration="105251000" />
     </task>
     <task id="LOCAL-00004" summary="- Switched to aiohttp and async for llama.cpp.&#10;- Added unit test for API&#10;- Refactored directory structure">
       <option name="closed" value="true" />
@@ -690,7 +675,23 @@
       <option name="project" value="LOCAL" />
       <updated>1756028031499</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary=" Non-working outlines for 'execute_layer', 'execute_plan', the 'Executor' context manager and the 'Execute' decorator">
+      <option name="closed" value="true" />
+      <created>1756057182495</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1756057182495</updated>
+    </task>
+    <task id="LOCAL-00052" summary="First pass of possibly working versions of 'execute_layer', 'execute_plan', the 'Executor' context manager and the 'Execute' decorator">
+      <option name="closed" value="true" />
+      <created>1756057614179</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1756057614179</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -708,8 +709,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Documentation pass on Postmaster" />
-    <MESSAGE value="Start of work on unit tests for Postmaster" />
     <MESSAGE value="- Postmaster passing unit tests, except edge cases.&#10;- Better behavior for emitter function" />
     <MESSAGE value="Postmaster passing all tests" />
     <MESSAGE value="Second Postmaster documentation pass." />
@@ -733,7 +732,9 @@
     <MESSAGE value="- Verify docstrings for ListenerRegion&#10;- Cross-validation method for an entire run configuration" />
     <MESSAGE value="- cross_verify is now passing unit tests&#10;- mock regions separated into own file" />
     <MESSAGE value="Skeleton of Executor context manager and Execute decorator" />
-    <option name="LAST_COMMIT_MESSAGE" value="Skeleton of Executor context manager and Execute decorator" />
+    <MESSAGE value=" Non-working outlines for 'execute_layer', 'execute_plan', the 'Executor' context manager and the 'Execute' decorator" />
+    <MESSAGE value="First pass of possibly working versions of 'execute_layer', 'execute_plan', the 'Executor' context manager and the 'Execute' decorator" />
+    <option name="LAST_COMMIT_MESSAGE" value="First pass of possibly working versions of 'execute_layer', 'execute_plan', the 'Executor' context manager and the 'Execute' decorator" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

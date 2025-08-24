@@ -102,6 +102,60 @@ class Postmaster:
         self.collect = asyncio.create_task(self.collector())
         self.emit = asyncio.create_task(self.emitter())
 
+    async def stop(self) -> bool:
+        """Stops background message processing tasks."""
+        # Check if tasks are already running and stop them
+
+        if not self.collect and not self.emit:
+            logging.info("Postmaster tasks were not running, nothing to stop")
+            await asyncio.sleep(0)
+            return True
+
+        success = True
+
+        if self.emit:
+            logging.info("Stopping emitter task")
+            try:
+                await self.emit.cancel()
+                logging.info("Emitter task stopped successfully")
+            except Exception as e:
+                logging.error(f"Emitter task raised an exception on cancellation: {e}")
+                success = False
+        else:
+            logging.info("Emitter task was not running")
+
+        # Allow the emitter to stop and collect any last messages
+        total_delay = 0
+        sleep_tick = 0.1
+        max_delay = self.delay * 2 # twice the collector polling interval
+        logging.info(f"Waiting for message queue to drain")
+        while True:
+            await asyncio.sleep(sleep_tick)
+            total_delay += sleep_tick
+
+            if self.messages.empty():
+                logging.info("Messages queue empty")
+                break
+
+            if total_delay >= max_delay:
+                logging.error(f"Queue did not empty after {max_delay} seconds")
+                success = False
+                break
+
+        if self.collect:
+            logging.info("Stopping collector task")
+            try:
+                await self.collect.cancel()
+                logging.info("Collector task stopped successfully")
+            except Exception as e:
+                logging.error(f"Collector task raised an exception on cancellation: {e}")
+                success = False
+        else:
+            logging.info("Collector task was not running")
+
+        return success
+
+
     async def collector(self):
         """Background task that collects messages from region outboxes.
 
