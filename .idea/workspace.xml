@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="ListenerRegion passing all unit tests">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Utility function in orchestrator&#10;- Verification function for ListenerRegion behavior in orchestrator via ListenerRegion instances">
       <change afterPath="$PROJECT_DIR$/modules/executor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/orchestrator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -288,7 +287,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="77347000" />
+      <workItem from="1755807881103" duration="81434000" />
     </task>
     <task id="LOCAL-00001" summary="Testing the LLM API">
       <option name="closed" value="true" />
@@ -658,7 +657,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755994195660</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="- Utility function in orchestrator&#10;- Verification function for ListenerRegion behavior in orchestrator via ListenerRegion instances">
+      <option name="closed" value="true" />
+      <created>1755998900282</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1755998900282</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -676,7 +683,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Documentation pass on RegionEntry datatype." />
     <MESSAGE value="Documentation pass on RegionEntry." />
     <MESSAGE value="- Added unit tests for RegionRegistry&#10;- Added mock region definitions&#10;- RegionRegistry now passing unit tests" />
     <MESSAGE value="Added Postmaster class" />
@@ -701,7 +707,8 @@
     <MESSAGE value="Decorator-based context manager '@Addressograph' that uses the Injector class and can be applied recursively." />
     <MESSAGE value="ListenerRegion all passing 9/10 tests, except 'test_cancellation_drains_inbox'" />
     <MESSAGE value="ListenerRegion passing all unit tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="ListenerRegion passing all unit tests" />
+    <MESSAGE value="- Utility function in orchestrator&#10;- Verification function for ListenerRegion behavior in orchestrator via ListenerRegion instances" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Utility function in orchestrator&#10;- Verification function for ListenerRegion behavior in orchestrator via ListenerRegion instances" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

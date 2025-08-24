@@ -572,6 +572,29 @@ class ListenerRegion(BaseRegion):
         self.out_q.close()
 
     def verify(self, orchestrator: Orchestrator) -> bool:
+        """
+        Verify correct configuration of ListenerRegion in the orchestrator via the region profile.
+
+        Ensures the ListenerRegion is properly configured for its intended role as a traffic monitor:
+          1. Appears only in layer 0 (initialization) and the terminal layer (shutdown)
+          2. Executes 'start()' in layer 0
+          3. Executes 'stop()' in the terminal layer
+
+        Args:
+            orchestrator (Orchestrator): The orchestrator instance to validate
+
+        Returns:
+            bool: True if configuration is correct, False otherwise
+
+        Note:
+            - Logs detailed error messages for each misconfiguration
+            - Returns False if any validation check fails
+
+        Side Effects:
+            - Does not check whether the instance is present in the orchestrator's layer configuration. While this is
+              done to allow the region to remain silent if desired, relying on this method without external checks
+              such as the 'cross_verify' method may lead to undesired silent behavior.
+        """
         profile = orchestrator.region_profile(self.name)
         faultless = True
 
@@ -620,7 +643,6 @@ class ListenerRegion(BaseRegion):
             faultless = False
 
         return faultless
-
 
 # Mock region classes for testing
 class MockRegion(BaseRegion):
