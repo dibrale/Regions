@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 import asyncio
 from functools import partial
 
@@ -16,7 +16,29 @@ async def execute_layer(
         orchestrator: Orchestrator,
         layer: int,
 ) -> bool:
-    """Run one layer of a distributed region execution plan"""
+    """
+    Execute a single layer of the distributed region execution plan.
+
+    This function runs all chains within a specific execution layer concurrently,
+    with each chain executing its region methods sequentially. Handles both
+    synchronous and asynchronous region methods through proper coroutine wrapping.
+
+    Parameters:
+        registry: Region registry containing all registered regions
+        orchestrator: Orchestrator defining the execution plan structure
+        layer: Index of the layer to execute (0-based)
+
+    Returns:
+        True if all chains in the layer executed successfully, False otherwise
+
+    Raises:
+        ValueError: If layer index exceeds orchestrator's configuration
+
+    Notes:
+        - Each chain runs concurrently but methods within a chain run serially
+        - Logs detailed errors for failed method executions
+        - Returns False immediately upon any chain failure
+    """
     # Validate layer index
     if layer >= len(orchestrator.layer_config):
         logging.error(
@@ -40,7 +62,7 @@ async def execute_layer(
                         # Get method to be executed
                         method = getattr(registry[region_name], method_name)
 
-                        #Determine whether method is sync or async
+                        # Determine whether method is sync or async
                         is_async_method = asyncio.iscoroutinefunction(method)
 
                         if is_async_method:
@@ -85,7 +107,27 @@ async def execute_plan(
         orchestrator: Orchestrator,
         postmaster: Postmaster,
 ) -> bool:
-    """Run a verified distributed region execution plan"""
+    """
+    Execute a verified distributed region execution plan across all layers.
+
+    Manages the full execution lifecycle including postmaster startup/shutdown,
+    layer-by-layer execution, and failure handling. Executes layers according
+    to the orchestrator's specified execution order.
+
+    Parameters:
+        registry: Region registry containing all registered regions
+        orchestrator: Orchestrator defining the execution plan structure
+        postmaster: Postmaster instance handling inter-region communication
+
+    Returns:
+        True if the entire execution plan completed successfully, False otherwise
+
+    Notes:
+        - Starts the postmaster before execution begins
+        - Stops the postmaster regardless of execution success/failure
+        - Aborts immediately upon first layer failure
+        - Logs detailed error information at each failure point
+    """
     # Determine execution order
     execution_order = orchestrator.execution_order or range(len(orchestrator.layer_config))
     success = True
@@ -128,28 +170,86 @@ async def execute_plan(
 
 @dataclass
 class Executor:
-    """Context for the execution of regions within a distributed system."""
+    """
+    Context manager for executing distributed region operations.
+
+    Provides a structured interface for executing region execution plans,
+    encapsulating the necessary components (registry, orchestrator, postmaster)
+    and exposing execution methods through context management.
+
+    Attributes:
+        registry: Region registry containing all registered regions
+        orchestrator: Orchestrator defining the execution plan structure
+        postmaster: Postmaster instance handling inter-region communication
+
+    Usage:
+        with Executor(registry, orchestrator, postmaster) as executor:
+            executor.run_layer(0)
+            executor.run_plan()
+    """
     registry: RegionRegistry = None
     orchestrator: Orchestrator = None
     postmaster: Postmaster = None
 
     def __enter__(self):
+        """Initialize execution context by binding partial execution functions."""
         self.run_layer = partial(execute_layer, self.registry, self.orchestrator)
         self.run_plan = partial(execute_plan, self.registry, self.orchestrator, self.postmaster)
         return self
 
     def __exit__(self, *exc):
+        """Clean up execution context (no-op in this implementation)."""
         pass  # nothing special to clean up
 
 
 @dataclass
 class Execute:
+    """
+    Decorator for injecting executor context into functions.
+
+    Creates and injects an Executor instance into decorated functions,
+    allowing them to execute region operations without direct dependency
+    on execution infrastructure components.
+
+    Attributes:
+        registry: Region registry to be used in execution
+        orchestrator: Orchestrator defining the execution plan
+        postmaster: Postmaster handling communication
+        executor_name: Keyword argument name for injected executor (default: 'ex')
+
+    Usage:
+        @Execute(registry, orchestrator, postmaster)
+        async def my_function(ex):
+            await ex.run_layer(0)
+
+        @Execute(registry, orchestrator, postmaster, executor_name='executor')
+        def sync_function(executor):
+            executor.run_layer(0)
+    """
     registry: RegionRegistry = None
     orchestrator: Orchestrator = None
     postmaster: Postmaster = None
     executor_name: str = 'ex'
 
     def __call__(self, func: Callable) -> Callable:
+        """
+        Wrap a function to inject executor context.
+
+        Creates an Executor instance and injects it into the function's
+        keyword arguments under the specified name.
+
+        Parameters:
+            func: The function to decorate (can be sync or async)
+
+        Returns:
+            Wrapped function with executor injection
+
+        Notes:
+            - Maintains original function signature
+            - Handles both synchronous and asynchronous functions
+            - Executor is created fresh for each function call
+        """
+
         async def async_wrapper(*args, **kwargs) -> Any:
             # Create the executor
             executor = Executor(self.registry, self.orchestrator, self.postmaster)
