@@ -116,7 +116,7 @@ class Postmaster:
         if self.emit:
             logging.info("Stopping emitter task")
             try:
-                await self.emit.cancel()
+                self.emit.cancel()
                 logging.info("Emitter task stopped successfully")
             except Exception as e:
                 logging.error(f"Emitter task raised an exception on cancellation: {e}")
@@ -145,7 +145,7 @@ class Postmaster:
         if self.collect:
             logging.info("Stopping collector task")
             try:
-                await self.collect.cancel()
+                self.collect.cancel()
                 logging.info("Collector task stopped successfully")
             except Exception as e:
                 logging.error(f"Collector task raised an exception on cancellation: {e}")

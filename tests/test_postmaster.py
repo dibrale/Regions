@@ -415,3 +415,21 @@ class TestPostmasterEdgeCases:
             await pm.collect
         with pytest.raises(asyncio.CancelledError):
             await pm.emit
+
+    @pytest.mark.asyncio
+    async def test_stop(self):
+        registry = MagicMock()
+        pm = Postmaster(registry)
+        await pm.start()
+
+        # Stop postmaster
+        success = await pm.stop()
+
+        # Verify tasks are cancelled
+        with pytest.raises(asyncio.CancelledError):
+            await pm.collect
+        with pytest.raises(asyncio.CancelledError):
+            await pm.emit
+
+        # Ensure stop returns True
+        assert success
