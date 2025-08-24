@@ -6,7 +6,6 @@ from region import ListenerRegion
 import queue
 
 
-# MODULE-LEVEL FUNCTION (pickleable)
 def real_out_process(q):
     """Real out_process implementation that records messages to a controlled queue"""
     while True:
@@ -126,12 +125,19 @@ class TestListenerRegion(unittest.IsolatedAsyncioTestCase):
         # Add message and cancel task
         test_msg = {"source": "X", "content": "urgent", "destination": "Y", "role": "request"}
         self.region.inbox.put_nowait(test_msg)
+
+        # Wait for the forward task to process the message
+        await asyncio.sleep(0.01)
+
+        # Cancel the task
         self.region.forward_task.cancel()
 
-        await self.region.stop()
+        # Give extra time for messages to propagate
+        await asyncio.sleep(0.01)
 
         # Drain and verify message was forwarded
         messages = await self.drain_out_queue()
+        await self.region.stop()
         self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0], test_msg)
 
@@ -169,7 +175,7 @@ class TestListenerRegion(unittest.IsolatedAsyncioTestCase):
     async def test_empty_inbox_behavior(self):
         """Verify no messages are forwarded when inbox is empty"""
         await self.region.start()
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.01)
         messages = await self.drain_out_queue()
         await self.region.stop()
 
