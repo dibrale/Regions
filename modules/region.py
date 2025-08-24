@@ -7,6 +7,7 @@ from typing import Callable
 
 from modules.llmlink import LLMLink
 from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
+from orchestrator import Orchestrator
 
 
 class BaseRegion:
@@ -450,6 +451,13 @@ class ListenerRegion(BaseRegion):
         - The `out_process` function MUST handle a sentinel value (None) to gracefully terminate. It should run in a
           loop that breaks when receiving None.
 
+    Usage:
+        Ensure that the ListenerRegion is registered and configured to run 'start' in layer 0. Multiple
+        ListenerRegions can be started in the same chain for organizational purposes, especially if longer
+        initialization methods are being called concurrently. Run 'stop' for ListenerRegions in the final layer of the
+        execution configuration to cleanly terminate the forwarding process. The 'verify' method checks that these
+        practices are followed for a ListenerRegion instance in a given orchestrator.
+
     Example:
         Example out_process implementation:
 
@@ -460,10 +468,9 @@ class ListenerRegion(BaseRegion):
 
         Processing of message follows.
 
-
     Critical Considerations:
-        - Do not send organic traffic (intended recipient) to this region - causes message duplication.
-          Use dedicated regions for actual message processing.
+        - Do not send organic traffic (intended recipient) to a ListenerRegion if it is designated as the CC region
+          for the postmaster. Doing causes message duplication. Use dedicated regions for receiving organic traffic.
         - Calling base-class methods (e.g., _post, _ask) will raise NameError due to deliberate deletion of
           required attributes during initialization.
         - Output processing occurs in a separate process via mp.Queue, enabling non-blocking forwarding.
@@ -502,7 +509,7 @@ class ListenerRegion(BaseRegion):
         if self.p is not None:
             raise RuntimeError("Region already started")
         self.p = mp.Process(target=self.out_process, args=(self.out_q,))
-        self.p.start()  # Start process HERE
+        self.p.start()  # Start mp process
         self.forward_task = asyncio.create_task(self.forward())
 
     async def forward(self) -> None:
@@ -563,6 +570,57 @@ class ListenerRegion(BaseRegion):
 
         # 5. Close queue
         self.out_q.close()
+
+    def verify(self, orchestrator: Orchestrator) -> bool:
+        profile = orchestrator.region_profile(self.name)
+        faultless = True
+
+        # Get the region profile
+        if not profile:
+            logging.error(f"{self.name}: No region profile found in orchestrator.")
+            return False
+
+        layers = list(profile.keys())
+        last_layer = len(orchestrator.execution_config)-1
+        expected_layers = [0, len(orchestrator.execution_config)-1]
+
+        # Ensure that only the initial and final layers are configured for this region
+        try:
+            assert layers == expected_layers
+        except AssertionError:
+            unexpected_layers = list(set(layers) - set(expected_layers))
+            if not 0 in layers:
+                logging.error(f"{self.name}: Missing from layer 0 execution configuration")
+                faultless = False
+            if not last_layer in layers:
+                logging.error(f"{self.name}: Missing from terminal layer execution configuration")
+                faultless = False
+            if unexpected_layers:
+                logging.error(
+                    f"{self.name}: Unexpectedly found in execution configuration at layers: " +
+                    f"{', '.join(str(x) for x in unexpected_layers)}"
+                )
+
+        # Ensure that 'start' is called in layer 0
+        try:
+            assert profile[0] == 'start'
+        except AssertionError:
+            logging.error(
+                f"{self.name} Expected start method in layer 0 of execution configuration. Found {', '.join(profile[0])} instead."
+            )
+            faultless = False
+
+        # Ensure that 'stop' is called on the final layer
+        try:
+            assert profile[last_layer] == 'stop'
+        except AssertionError:
+            logging.error(
+                f"{self.name} Expected stop method in terminal layer of execution configuration. Found {', '.join(profile[last_layer])} instead."
+            )
+            faultless = False
+
+        return faultless
+
 
 # Mock region classes for testing
 class MockRegion(BaseRegion):

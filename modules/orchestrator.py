@@ -470,6 +470,20 @@ class Orchestrator:
             self.execution_order = []
         return True
 
+    def regions(self) -> list:
+        """
+        Returns a list of all unique regions defined in the layer configuration.
+
+        Side Effects:
+            - If a region is present in the execution configuration, but not in the layer configuration, it will
+              be omitted from this output.
+        """
+        all_regions = set()
+        for layer in self.layer_config:
+            for chain in layer.values():
+                all_regions.update(chain)
+        return list(all_regions)
+
     def verify(self) -> bool:
         """
         Validate configuration consistency and integrity.
@@ -535,13 +549,8 @@ class Orchestrator:
             if missing_layers:
                 logging.warning(f"Layers {missing_layers} are missing from execution_order and will be silent")
 
-        # Collect all regions from layer_config
-        all_regions = set()
-        for layer in self.layer_config:
-            for chain in layer.values():
-                all_regions.update(chain)
-
         # Check regions with no methods
+        all_regions = self.regions()
         for region in all_regions:
             has_methods = False
             for layer_idx in range(execution_count):
