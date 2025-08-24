@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from typing import Any
-import asyncio  # Critical addition for async operations
+import asyncio
 from functools import partial
 
 from region_types import *
@@ -90,6 +90,7 @@ async def execute_plan(
     execution_order = orchestrator.execution_order or range(len(orchestrator.layer_config))
     success = True
 
+    # Start the postmaster
     try:
         await postmaster.start()
     except Exception as e:
@@ -113,6 +114,7 @@ async def execute_plan(
             logging.info(f"Aborting execution.")
             break
 
+    # Stop the postmaster
     try:
         stop_success = await postmaster.stop()
         if not stop_success:
@@ -132,7 +134,7 @@ class Executor:
     postmaster: Postmaster = None
 
     def __enter__(self):
-        self.run_layer = partial(execute_layer, self.registry, self.orchestrator, self.postmaster)
+        self.run_layer = partial(execute_layer, self.registry, self.orchestrator)
         self.run_plan = partial(execute_plan, self.registry, self.orchestrator, self.postmaster)
         return self
 

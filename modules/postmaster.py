@@ -103,7 +103,31 @@ class Postmaster:
         self.emit = asyncio.create_task(self.emitter())
 
     async def stop(self) -> bool:
-        """Stops background message processing tasks."""
+        """
+        Stops both the collector and emitter tasks (if running) and waits for the message
+        queue to empty before returning. Returns True if all tasks were stopped successfully
+        or were not running, and False if any task cancellation encountered an exception
+        or the message queue failed to drain within the timeout period.
+
+        Steps:
+          1. Checks if tasks are running (collector/emit)
+          2. Stops emitter task (if running) and logs result
+          3. Waits for message queue to drain (with timeout = 2 * delay)
+          4. Stops collector task (if running) and logs result
+          5. Returns True only if all tasks were stopped without error
+
+        Returns:
+            bool: True if shutdown completed successfully (tasks stopped or not running,
+                  and queue drained), False if any task cancellation failed or queue didn't
+                  drain within timeout.
+
+        Note:
+            - If tasks weren't running, returns True immediately
+            - Queue drain failure results in an error log but doesn't prevent shutdown
+
+        Side Effects:
+            - May shut down only one of collector/emitter, or both.
+        """
         # Check if tasks are already running and stop them
 
         if not self.collect and not self.emit:
