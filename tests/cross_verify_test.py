@@ -8,7 +8,7 @@ from postmaster import Postmaster
 from region import BaseRegion
 from region_registry import RegionRegistry, RegionEntry
 from orchestrator import Orchestrator
-from executor import cross_verify
+from cross_verify import cross_verify
 from region_types import class_str_from_instance, region_dictionary
 
 
