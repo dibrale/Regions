@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from asyncstdlib.functools import partial
+from functools import partial
 
 import orchestrator
 from region_types import *
@@ -216,7 +216,7 @@ async def execute_layer(
         postmaster: Postmaster,
         layer: int,
 ) -> bool:
-    """Run a one layer of a distributed region execution plan"""
+    """Run one layer of a distributed region execution plan"""
 
 async def execute_plan(
         registry: RegionRegistry,
@@ -234,7 +234,7 @@ class Executor:
     postmaster: Postmaster = None
 
     def __enter__(self):
-        self.run_layer = partial(execute_layer, self.registry, self.orchestrator, self.postmaster)
+        self.run_layer = partial(execute_layer, self.registry, self.orchestrator, self.postmaster) # Does partial even work for async?
         self.run_plan = partial(execute_plan, self.registry, self.orchestrator, self.postmaster)
         return self
 
@@ -260,6 +260,8 @@ class Execute:
             return func(*args, **kwargs)
 
         return wrapper
+
+# Some usage musings below
 
 registry = RegionRegistry()
 orch = Orchestrator()

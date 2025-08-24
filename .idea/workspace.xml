@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- cross_verify is now passing unit tests&#10;- mock regions separated into own file">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Skeleton of Executor context manager and Execute decorator">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/executor.py" afterDir="false" />
     </list>
@@ -296,15 +296,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="99801000" />
-    </task>
-    <task id="LOCAL-00001" summary="Testing the LLM API">
-      <option name="closed" value="true" />
-      <created>1754786957031</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1754786957031</updated>
+      <workItem from="1755807881103" duration="102466000" />
     </task>
     <task id="LOCAL-00002" summary="First working version of the LLMLink class.">
       <option name="closed" value="true" />
@@ -690,7 +682,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756025868070</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="Skeleton of Executor context manager and Execute decorator">
+      <option name="closed" value="true" />
+      <created>1756028031499</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1756028031499</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -708,7 +708,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added Postmaster class" />
     <MESSAGE value="Documentation pass on Postmaster" />
     <MESSAGE value="Start of work on unit tests for Postmaster" />
     <MESSAGE value="- Postmaster passing unit tests, except edge cases.&#10;- Better behavior for emitter function" />
@@ -733,7 +732,8 @@
     <MESSAGE value="- Utility function in orchestrator&#10;- Verification function for ListenerRegion behavior in orchestrator via ListenerRegion instances" />
     <MESSAGE value="- Verify docstrings for ListenerRegion&#10;- Cross-validation method for an entire run configuration" />
     <MESSAGE value="- cross_verify is now passing unit tests&#10;- mock regions separated into own file" />
-    <option name="LAST_COMMIT_MESSAGE" value="- cross_verify is now passing unit tests&#10;- mock regions separated into own file" />
+    <MESSAGE value="Skeleton of Executor context manager and Execute decorator" />
+    <option name="LAST_COMMIT_MESSAGE" value="Skeleton of Executor context manager and Execute decorator" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
