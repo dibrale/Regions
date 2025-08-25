@@ -77,7 +77,6 @@ class RAGRegion(BaseRegion):
             matches = None
             reply = ''
             try:
-                await asyncio.sleep(0.5)
                 matches = await self.rag.retrieve_similar(question, 0.5)
             except Exception as e:
                 print(f"\n{self.name}: Processing failed. {e}")

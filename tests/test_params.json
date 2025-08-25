@@ -2,5 +2,11 @@
   "llm_host": "192.168.1.232",
   "llm_port": "5000",
   "rag_host": "localhost",
-  "rag_port": "10000"
+  "rag_port": "10000",
+  "rag_model": "nomic-embed-text:latest",
+  "rag_similarity_threshold": 0.5,
+  "rag_max_results": 3,
+  "rag_test_precision": 0.5,
+  "rag_test_recall": 0.8,
+  "rag_max_hallucinate_rate": 0.1
 }

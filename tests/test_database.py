@@ -39,9 +39,6 @@ async def test_database_operations(db_manager):
     # Test storing chunk
     assert await db_manager.store_chunk(chunk)
     
-    # Wait for rate limit
-    await asyncio.sleep(0.6)
-    
     # Test retrieving chunks
     chunks = await db_manager.get_all_chunks()
     assert len(chunks) == 1, "Failed to retrieve chunks"
@@ -51,9 +48,6 @@ async def test_database_operations(db_manager):
     assert retrieved_chunk.content == chunk.content
     assert retrieved_chunk.metadata.actors == chunk.metadata.actors
     assert retrieved_chunk.embedding == chunk.embedding
-    
-    # Wait for rate limit
-    await asyncio.sleep(0.6)
     
     # Test deleting chunk
     assert chunk.chunk_hash is not None
