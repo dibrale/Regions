@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Unit test format updated to match standards&#10;- Began deprecating ServiceUnavailableError for DB&#10;- Renaming for consistency&#10;- Retired 'testutils.py'">
-      <change beforePath="$PROJECT_DIR$/tests/test_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_rag.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Corrected import error in test_rag.py&#10;- All tests passing">
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -323,15 +323,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="135538000" />
-    </task>
-    <task id="LOCAL-00015" summary="Working demo system added">
-      <option name="closed" value="true" />
-      <created>1755389363033</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1755389363033</updated>
+      <workItem from="1755807881103" duration="136121000" />
     </task>
     <task id="LOCAL-00016" summary="Edge case fixes and minor structured syntax cleanup.">
       <option name="closed" value="true" />
@@ -717,7 +709,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756106985637</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="- Corrected import error in test_rag.py&#10;- All tests passing">
+      <option name="closed" value="true" />
+      <created>1756107205473</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1756107205473</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -735,7 +735,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="- Added the Injector context manager&#10;- Fixed behaviors surrounding message type in Postmaster" />
     <MESSAGE value="First pass of ListenerRegion code" />
     <MESSAGE value="Updated ListenerRegion docstrings" />
     <MESSAGE value="ListenerRegion bugfixes" />
@@ -760,7 +759,8 @@
     <MESSAGE value="DynamicRAGSystem passing all tests again" />
     <MESSAGE value="Refactoring directory structure" />
     <MESSAGE value="- Unit test format updated to match standards&#10;- Began deprecating ServiceUnavailableError for DB&#10;- Renaming for consistency&#10;- Retired 'testutils.py'" />
-    <option name="LAST_COMMIT_MESSAGE" value="- Unit test format updated to match standards&#10;- Began deprecating ServiceUnavailableError for DB&#10;- Renaming for consistency&#10;- Retired 'testutils.py'" />
+    <MESSAGE value="- Corrected import error in test_rag.py&#10;- All tests passing" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Corrected import error in test_rag.py&#10;- All tests passing" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
