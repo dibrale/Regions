@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="DynamicRAGSystem passing all tests again">
-      <change beforePath="$PROJECT_DIR$/demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/demo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Dynamic RAG Storage, Indexing and Retrieval System.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/regions.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/regions.json" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Refactoring directory structure">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/cross_verify_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_cross_verify.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_database.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_error.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_error.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -176,14 +178,14 @@
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\scratch" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\scratch" />
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\scratch" />
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\tests" />
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Morphea\modules" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.demo">
+  <component name="RunManager" selected="Python tests.Python tests in test_error.py">
     <configuration name="demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
@@ -273,9 +275,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.demo" />
         <item itemvalue="Python tests.Python tests in test_error.py" />
         <item itemvalue="Python tests.Python tests in test_database.py" />
+        <item itemvalue="Python.demo" />
         <item itemvalue="Python tests.Python tests in test_rag.py" />
         <item itemvalue="Python tests.Python tests for test_rag.test_update_chunk" />
       </list>
@@ -325,15 +327,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="132444000" />
-    </task>
-    <task id="LOCAL-00012" summary="Docstrings for RAGRegion">
-      <option name="closed" value="true" />
-      <created>1755290150894</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1755290150894</updated>
+      <workItem from="1755807881103" duration="135223000" />
     </task>
     <task id="LOCAL-00013" summary="Refactored Region and RAGRegion to use BaseRegion base class.">
       <option name="closed" value="true" />
@@ -719,7 +713,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756103822192</updated>
     </task>
-    <option name="localTasksCounter" value="61" />
+    <task id="LOCAL-00061" summary="Refactoring directory structure">
+      <option name="closed" value="true" />
+      <created>1756104088196</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1756104088196</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -737,7 +739,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Orchestrator class docstrings" />
     <MESSAGE value="- Added unit tests for Orchestrator class&#10;- Orchestrator class passes unit tests" />
     <MESSAGE value="- Added the Injector context manager&#10;- Fixed behaviors surrounding message type in Postmaster" />
     <MESSAGE value="First pass of ListenerRegion code" />
@@ -762,14 +763,15 @@
     <MESSAGE value="Executor passes unit tests" />
     <MESSAGE value="Pass of DynamicRAGSystem with unit test revisions, passing 6/11" />
     <MESSAGE value="DynamicRAGSystem passing all tests again" />
-    <option name="LAST_COMMIT_MESSAGE" value="DynamicRAGSystem passing all tests again" />
+    <MESSAGE value="Refactoring directory structure" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactoring directory structure" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$self_indulgent_demo.coverage" NAME="self_indulgent_demo Coverage Results" MODIFIED="1755414074076" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$test_rag_system.coverage" NAME="test_rag_system Coverage Results" MODIFIED="1754960037443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation__1_.coverage" NAME="system_validation (1) Coverage Results" MODIFIED="1754953956081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1756103629776" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1756106773804" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_error_handling.coverage" NAME="test_error_handling Coverage Results" MODIFIED="1755024022292" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$example_usage.coverage" NAME="example_usage Coverage Results" MODIFIED="1754960592061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_embedding_client.coverage" NAME="test_embedding_client Coverage Results" MODIFIED="1754960121608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

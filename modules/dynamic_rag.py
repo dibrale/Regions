@@ -58,6 +58,7 @@ class DatabaseNotAccessibleError(RAGException):
         super().__init__(ErrorCodes.DATABASE_NOT_ACCESSIBLE, 
                         f"Database not accessible: {details}")
 
+# ServiceUnavailableError is deprecated and may be removed
 class ServiceUnavailableError(RAGException):
     def __init__(self, details: str = "Rate limit exceeded"):
         super().__init__(ErrorCodes.SERVICE_UNAVAILABLE, 
