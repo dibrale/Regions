@@ -17,7 +17,6 @@ from dynamic_rag import (
     HTTPError,
     cosine_similarity
 )
-from testutils import remove_db
 
 
 class TestDataGenerator:
