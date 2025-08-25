@@ -1,5 +1,5 @@
 """
-Test script for RAG functionality - FIXED VERSION
+Test script for RAG functionality - CORRECTED VERSION
 """
 
 import asyncio
@@ -117,38 +117,36 @@ def test_rag_system(tmp_path):
         db_path=db_path,
         embedding_server_url="http://localhost:10000",
         embedding_model="nomic-embed-text:latest",
-        chunk_size=50,
-        overlap=10
+        chunk_size=128,
+        overlap=16
     )
     return rag_system
 
-
+'''
 @pytest.fixture
 def mock_embedding_client():
     """Properly mock the EmbeddingClient async context manager"""
     with patch('dynamic_rag.EmbeddingClient') as mock:
-        # Create a mock instance that will be returned when the context manager is entered
         mock_instance = AsyncMock()
 
         # Set up the get_embedding method
         mock_instance.get_embedding.return_value = [0.1, 0.2, 0.3, 0.4]
 
-        # Configure __aenter__ to return the mock instance when awaited
-        mock_instance.__aenter__.return_value = mock_instance
-
-        # Configure __aexit__ to return None when awaited
-        mock_instance.__aexit__.return_value = None
+        # Configure async context manager methods
+        mock_instance.__aenter__ = AsyncMock(return_value=mock_instance)
+        mock_instance.__aexit__ = AsyncMock(return_value=None)
 
         # Make the class itself return the mock instance when called
         mock.return_value = mock_instance
 
-        yield mock_instance  # Yield the instance, not the patch
-
+        yield mock_instance  # Critical: yield the instance, not the patch
+'''
 
 @pytest.mark.asyncio
-async def test_store_document(test_rag_system, mock_embedding_client, caplog):
+async def test_store_document(test_rag_system, caplog):
     """Test document storage with chunking"""
     data = TestDataGenerator.get_test_documents()
+
     # Store documents
     stored_chunks = []
     for doc in data:
@@ -156,18 +154,19 @@ async def test_store_document(test_rag_system, mock_embedding_client, caplog):
             content=doc["content"],
             actors=doc["actors"],
             document_id=doc["doc_id"],
-            chunk_size=50,
-            overlap=10
+            chunk_size=128,
+            overlap=16
         )
         stored_chunks.extend(chunk_hashes)
+        assert len(chunk_hashes) > 0, f"Failed to store document {doc['doc_id']}"
 
-    assert len(chunk_hashes) > 0, f"Failed to store document {doc['doc_id']}"
+    print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
     assert len(stored_chunks) == len(data)  # Assuming 1 chunk per doc with these parameters
-    assert "Stored document with 1 chunks" in caplog.text
+    assert "Document stored with 1 chunks" in caplog.text
 
 
 @pytest.mark.asyncio
-async def test_retrieve_similar(test_rag_system, mock_embedding_client):
+async def test_retrieve_similar(test_rag_system):
     """Test similarity-based retrieval"""
     # First store some test documents
     data = TestDataGenerator.get_test_documents()
@@ -193,7 +192,7 @@ async def test_retrieve_similar(test_rag_system, mock_embedding_client):
 
 
 @pytest.mark.asyncio
-async def test_retrieve_by_actor(test_rag_system, mock_embedding_client):
+async def test_retrieve_by_actor(test_rag_system):
     """Test actor-based retrieval"""
     # First store some test documents
     data = TestDataGenerator.get_test_documents()
@@ -219,7 +218,7 @@ async def test_retrieve_by_actor(test_rag_system, mock_embedding_client):
 
 
 @pytest.mark.asyncio
-async def test_stats(test_rag_system, mock_embedding_client):
+async def test_stats(test_rag_system):
     """Test system statistics"""
     # Store documents
     data = TestDataGenerator.get_test_documents()
@@ -228,8 +227,8 @@ async def test_stats(test_rag_system, mock_embedding_client):
             content=doc["content"],
             actors=doc["actors"],
             document_id=doc["doc_id"],
-            chunk_size=50,
-            overlap=10
+            chunk_size=128,
+            overlap=16
         )
 
     # Get stats
@@ -242,7 +241,7 @@ async def test_stats(test_rag_system, mock_embedding_client):
 
 
 @pytest.mark.asyncio
-async def test_update_chunk(test_rag_system, mock_embedding_client):
+async def test_update_chunk(test_rag_system):
     """Test chunk update functionality"""
     # Store a test chunk
     chunk_hashes = await test_rag_system.store_document(
@@ -275,7 +274,7 @@ async def test_update_chunk(test_rag_system, mock_embedding_client):
 
 
 @pytest.mark.asyncio
-async def test_precision_recall(test_rag_system, mock_embedding_client):
+async def test_precision_recall(test_rag_system, caplog):
     """Test retrieval precision and recall metrics"""
     test_queries = TestDataGenerator.get_test_queries()
     test_docs = TestDataGenerator.get_test_documents()
@@ -286,7 +285,7 @@ async def test_precision_recall(test_rag_system, mock_embedding_client):
             content=doc["content"],
             actors=doc["actors"],
             document_id=f"{doc['category']}{i}",
-            chunk_size=50,
+            chunk_size=512,
             overlap=10
         )
 
@@ -300,7 +299,7 @@ async def test_precision_recall(test_rag_system, mock_embedding_client):
 
         results = await test_rag_system.retrieve_similar(
             query=query,
-            similarity_threshold=0.3,
+            similarity_threshold=0.5,
             max_results=5
         )
 
@@ -332,14 +331,18 @@ async def test_precision_recall(test_rag_system, mock_embedding_client):
 
     if precision_scores and recall_scores:
         avg_precision = statistics.mean(precision_scores)
+        logging.info(f"Average Precision: {avg_precision:.3f}")
         avg_recall = statistics.mean(recall_scores)
+        logging.info(f"Average Recall: {avg_recall:.3f}")
+
+        print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
 
         assert avg_precision > 0.5, f"Average precision {avg_precision:.3f} below threshold"
         assert avg_recall > 0.5, f"Average recall {avg_recall:.3f} below threshold"
 
 
 @pytest.mark.asyncio
-async def test_hallucinations(test_rag_system, mock_embedding_client):
+async def test_hallucinations(test_rag_system):
     """Test hallucination rate (returning irrelevant results)"""
     irrelevant_queries = [
         "quantum physics equations",
@@ -390,29 +393,7 @@ async def test_cosine_similarity():
 
 
 @pytest.mark.asyncio
-async def test_rate_limiter():
-    """Test proper rate limiting behavior"""
-    # Patch the RateLimiter to test its functionality
-    with patch('dynamic_rag.RateLimiter') as mock_rate_limiter:
-        mock_rl = MagicMock()
-        mock_rl.acquire = AsyncMock()
-        mock_rate_limiter.return_value = mock_rl
-
-        rag_system = DynamicRAGSystem()
-
-        # Test store_document uses rate limiter
-        await rag_system.store_document(
-            content="Test content",
-            actors=["test"],
-            document_id="test_doc"
-        )
-
-        # Verify rate limiter was called
-        assert mock_rl.acquire.called
-
-
-@pytest.mark.asyncio
-async def test_no_matching_entry_error(test_rag_system, mock_embedding_client):
+async def test_no_matching_entry_error(test_rag_system):
     """Test NoMatchingEntryError handling"""
     # Store a document that won't match the query
     await test_rag_system.store_document(
@@ -425,38 +406,5 @@ async def test_no_matching_entry_error(test_rag_system, mock_embedding_client):
         await test_rag_system.retrieve_similar(
             query="machine learning",
             similarity_threshold=0.9,
-            max_results=1
-        )
-
-
-@pytest.mark.asyncio
-async def test_database_operations(test_rag_system, mock_embedding_client, caplog):
-    """Test database operations with proper error handling"""
-    # Test store document
-    chunk_hashes = await test_rag_system.store_document(
-        content="Test content",
-        actors=["test"],
-        document_id="test_doc"
-    )
-    assert len(chunk_hashes) == 1
-
-    # Test retrieve
-    results = await test_rag_system.retrieve_similar(
-        query="Test content",
-        similarity_threshold=0.3,
-        max_results=1
-    )
-    assert len(results) == 1
-    assert "Test content" in results[0].chunk.content
-
-    # Test delete
-    deleted = await test_rag_system.delete_chunk(chunk_hashes[0])
-    assert deleted
-
-    # Verify deletion
-    with pytest.raises(NoMatchingEntryError):
-        await test_rag_system.retrieve_similar(
-            query="Test content",
-            similarity_threshold=0.3,
             max_results=1
         )

@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Executor passes unit tests">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Pass of DynamicRAGSystem with unit test revisions, passing 6/11">
       <change beforePath="$PROJECT_DIR$/tests/test_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_rag.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_region_registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_region_registry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,8 +84,11 @@
     "Python tests.Python tests for test_postmaster.TestPostmasterInitialization.executor": "Run",
     "Python tests.Python tests for test_postmaster.TestPostmasterInitialization.test_reroute_destination_set.executor": "Run",
     "Python tests.Python tests for test_postmaster.TestPostmasterInitialization.test_rts_parameters_used_with_return_policy.executor": "Run",
+    "Python tests.Python tests for test_rag.test_precision_recall.executor": "Run",
+    "Python tests.Python tests for test_rag.test_stats.executor": "Run",
     "Python tests.Python tests for test_rag.test_store.executor": "Run",
     "Python tests.Python tests for test_rag.test_store_document.executor": "Run",
+    "Python tests.Python tests for test_rag.test_update_chunk.executor": "Run",
     "Python tests.Python tests for test_ragregion.TestRAGRegion.test_make_replies_success.executor": "Run",
     "Python tests.Python tests for test_ragregion.TestRAGRegion.test_make_updates_consolidation_threshold.executor": "Run",
     "Python tests.Python tests for test_ragregion.TestRAGRegion.test_request_summaries_no_connections_sync.executor": "Run",
@@ -111,6 +111,8 @@
     "Python tests.Python tests for tests.test_region.TestRegion.test_make_replies_success_sync.executor": "Run",
     "Python tests.Python tests in async_test.py.executor": "Run",
     "Python tests.Python tests in cross_verify_test.py.executor": "Run",
+    "Python tests.Python tests in test_database.py.executor": "Run",
+    "Python tests.Python tests in test_error.py.executor": "Run",
     "Python tests.Python tests in test_executor.py.executor": "Run",
     "Python tests.Python tests in test_postmaster.py.executor": "Run",
     "Python tests.Python tests in test_rag.py.executor": "Run",
@@ -179,31 +181,8 @@
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\modules" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Python tests in test_rag.py">
-    <configuration name="dynamic_rag" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Regions" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/modules" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/modules/dynamic_rag.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Python tests for test_rag.test_store" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.Python tests in test_error.py">
+    <configuration name="Python tests for test_rag.test_precision_recall" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -215,11 +194,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_rag.test_store&quot;" />
+      <option name="_new_target" value="&quot;test_rag.test_precision_recall&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test_rag.test_store_document" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for test_rag.test_update_chunk" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -231,8 +210,40 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_rag.test_store_document&quot;" />
+      <option name="_new_target" value="&quot;test_rag.test_update_chunk&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests in test_database.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Regions" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_database.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests in test_error.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Regions" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_error.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <configuration name="Python tests in test_rag.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
@@ -251,29 +262,13 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests in test_ragregion.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
-      <module name="Regions" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_ragregion.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.Python tests in test_error.py" />
+        <item itemvalue="Python tests.Python tests in test_database.py" />
         <item itemvalue="Python tests.Python tests in test_rag.py" />
-        <item itemvalue="Python tests.Python tests for test_rag.test_store_document" />
-        <item itemvalue="Python tests.Python tests in test_ragregion.py" />
-        <item itemvalue="Python tests.Python tests for test_rag.test_store" />
-        <item itemvalue="Python.dynamic_rag" />
+        <item itemvalue="Python tests.Python tests for test_rag.test_update_chunk" />
+        <item itemvalue="Python tests.Python tests for test_rag.test_precision_recall" />
       </list>
     </recent_temporary>
   </component>
@@ -321,15 +316,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="129748000" />
-    </task>
-    <task id="LOCAL-00010" summary="Added 'RAGRegion' class">
-      <option name="closed" value="true" />
-      <created>1755288219659</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1755288219659</updated>
+      <workItem from="1755807881103" duration="132037000" />
     </task>
     <task id="LOCAL-00011" summary="- Added 'RAGRegion' class&#10;- Added search by actor to RAG">
       <option name="closed" value="true" />
@@ -715,7 +702,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756083876463</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="Pass of DynamicRAGSystem with unit test revisions, passing 6/11">
+      <option name="closed" value="true" />
+      <created>1756101407300</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1756101407300</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -733,7 +728,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="First pass of Orchestrator class code" />
     <MESSAGE value="- Orchestrator class debugging and validation method&#10;- Additional utility functions for Orchestrator class" />
     <MESSAGE value="Orchestrator class docstrings" />
     <MESSAGE value="- Added unit tests for Orchestrator class&#10;- Orchestrator class passes unit tests" />
@@ -758,14 +752,15 @@
     <MESSAGE value="Re-added 'cross_verify' as separate module" />
     <MESSAGE value="Docstrings for classes and methods in 'executor.py'" />
     <MESSAGE value="Executor passes unit tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Executor passes unit tests" />
+    <MESSAGE value="Pass of DynamicRAGSystem with unit test revisions, passing 6/11" />
+    <option name="LAST_COMMIT_MESSAGE" value="Pass of DynamicRAGSystem with unit test revisions, passing 6/11" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$self_indulgent_demo.coverage" NAME="self_indulgent_demo Coverage Results" MODIFIED="1755414074076" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$test_rag_system.coverage" NAME="test_rag_system Coverage Results" MODIFIED="1754960037443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation__1_.coverage" NAME="system_validation (1) Coverage Results" MODIFIED="1754953956081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1756100610527" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1756103629776" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_error_handling.coverage" NAME="test_error_handling Coverage Results" MODIFIED="1755024022292" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$example_usage.coverage" NAME="example_usage Coverage Results" MODIFIED="1754960592061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_embedding_client.coverage" NAME="test_embedding_client Coverage Results" MODIFIED="1754960121608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
