@@ -38,16 +38,6 @@ def mock_postmaster():
     mock.cc = None
     return mock
 
-'''
-# Mock class_str_from_instance implementation
-def mock_str_from_class(type_str):
-    if type_str == 'Region':
-        return MockRegion
-    elif type_str == 'ListenerRegion':
-        return MockListenerRegion
-    return None
-'''
-
 
 # Test successful verification
 def test_cross_verify_success(mock_postmaster, caplog):

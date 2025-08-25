@@ -1,3 +1,6 @@
+import asyncio
+import logging
+
 from region import BaseRegion
 
 # Mock region classes for testing
@@ -7,6 +10,8 @@ class MockRegion(BaseRegion):
         self.kwargs = kwargs
 
     async def mock_method(self):
+        await asyncio.sleep(0)
+        logging.info("MockRegion method called")
         pass
 
 class MockRAGRegion(BaseRegion):

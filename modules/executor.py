@@ -4,6 +4,8 @@ from typing import Any, Callable
 import asyncio
 from functools import partial
 
+from attr.validators import is_callable
+
 from region_types import *
 from region import *
 from postmaster import Postmaster
@@ -53,6 +55,7 @@ async def execute_layer(
         # Create async task for this chain (executing regions serially)
         async def run_chain(regs=regions.copy()):  # Use copy to avoid late binding issues
             methods_in_chain = []
+            loop = asyncio.get_running_loop()
 
             # Populate a list of futures for all method calls in this chain
             for region_name in regs:
@@ -67,9 +70,15 @@ async def execute_layer(
 
                         if is_async_method:
                             methods_in_chain.append((method_name, region_name, method))
+                            # logging.info(
+                            #     f"Scheduling '{method_name}' of region '{region_name}' for chain '{chain_name}' as async.")
                         else:
-                            loop = asyncio.get_running_loop()
-                            methods_in_chain.append(loop.run_in_executor(None, method))
+
+                            methods_in_chain.append((
+                                method_name, region_name, loop.run_in_executor(None, method)
+                            ))
+                            # logging.info(
+                            #     f"Scheduling '{method_name}' of region '{region_name}' for chain '{chain_name}' as sync in executor.")
 
                     except Exception as e:
                         logging.error(
@@ -77,12 +86,20 @@ async def execute_layer(
                         return False
 
             # Execute chain methods sequentially
+            logging.info(f"Starting chain '{chain_name}' with {len(methods_in_chain)} methods.")
             for method_name, region_name, method in methods_in_chain:
                 try:
-                    await method
+                    logging.info(f"Executing '{method_name}' of region '{region_name}'.")
+
+                    if asyncio.isfuture(method):
+                        await method
+                    else:
+                        task = asyncio.create_task(method())
+                        await task
+
                 except Exception as e:
                     logging.error(
-                        f"Error awaiting '{method_name}' of region '{region_name} in chain '{chain_name}': {str(e)}")
+                        f"Error awaiting '{method_name}' of region '{region_name}' in chain '{chain_name}': {str(e)}")
                     return False
 
             return True
@@ -164,6 +181,7 @@ async def execute_plan(
             success = False
     except Exception as e:
         logging.error(f"Failed to stop Postmaster during cleanup: {e}")
+        success = False
 
     return success
 
@@ -252,7 +270,7 @@ class Execute:
 
         async def async_wrapper(*args, **kwargs) -> Any:
             # Create the executor
-            executor = Executor(self.registry, self.orchestrator, self.postmaster)
+            executor = Executor(self.registry, self.orchestrator, self.postmaster).__enter__()
 
             # Add executor to kwargs under the specified name
             kwargs[self.executor_name] = executor
@@ -262,7 +280,7 @@ class Execute:
 
         def sync_wrapper(*args, **kwargs) -> Any:
             # Create the executor
-            executor = Executor(self.registry, self.orchestrator, self.postmaster)
+            executor = Executor(self.registry, self.orchestrator, self.postmaster).__enter__()
 
             # Add executor to kwargs under the specified name
             kwargs[self.executor_name] = executor
