@@ -1,4 +1,6 @@
-from region import *
+from regions.listener_region import ListenerRegion
+from regions.rag_region import RAGRegion
+from regions.region import *
 from tests.mock_regions import *
 
 region_dictionary = [

@@ -5,7 +5,7 @@ import os
 from unittest.mock import MagicMock, patch
 
 from region_registry import RegionRegistry, RegionEntry
-from tests.mock_regions import MockRegion, MockRAGRegion
+from mock_regions import MockRegion, MockRAGRegion
 
 
 class TestRegionRegistry(unittest.TestCase):

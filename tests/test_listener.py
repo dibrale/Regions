@@ -1,9 +1,9 @@
 import unittest
 import asyncio
-import multiprocessing as mp
 import unittest.mock
-from region import ListenerRegion
 import queue
+
+from regions.listener_region import ListenerRegion
 
 
 def real_out_process(q):

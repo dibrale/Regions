@@ -1,4 +1,3 @@
-import json
 import aiohttp
 
 from modules.utils import assure_string, parse_host_port

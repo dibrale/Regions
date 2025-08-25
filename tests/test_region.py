@@ -3,8 +3,8 @@ import json
 import unittest
 from unittest.mock import MagicMock, AsyncMock, patch  # Import AsyncMock
 
-from modules.llmlink import LLMLink
-from modules.region import Region
+from llmlink import LLMLink
+from regions.region import Region
 
 llm = LLMLink()
 

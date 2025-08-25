@@ -1,20 +1,14 @@
 """
 Test script for RAG functionality - CORRECTED VERSION
 """
-
-import asyncio
+import json
 import logging
-import os
 import statistics
-from unittest.mock import AsyncMock, MagicMock, patch
-
 import pytest
+
 from dynamic_rag import (
     DynamicRAGSystem,
     NoMatchingEntryError,
-    DatabaseNotAccessibleError,
-    ServiceUnavailableError,
-    HTTPError,
     cosine_similarity
 )
 
@@ -107,14 +101,17 @@ class TestDataGenerator:
             }
         ]
 
-
+# Note that this test uses HTTP only, not HTTPS. For production use, please update the host and port parameters accordingly.
 @pytest.fixture
 def test_rag_system(tmp_path):
     """Create a test RAG system with a temporary database"""
+    logging.info("Loading parameters from 'test_params.json'")
+    test_params = json.load(open('test_params.json', 'r'))
+
     db_path = str(tmp_path / "test_rag.db")
     rag_system = DynamicRAGSystem(
         db_path=db_path,
-        embedding_server_url="http://localhost:10000",
+        embedding_server_url=f"http://{test_params['rag_host']}:{test_params['rag_port']}",
         embedding_model="nomic-embed-text:latest",
         chunk_size=128,
         overlap=16

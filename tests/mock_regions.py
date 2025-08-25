@@ -1,7 +1,8 @@
 import asyncio
 import logging
 
-from region import BaseRegion
+from regions.base_region import BaseRegion
+
 
 # Mock region classes for testing
 class MockRegion(BaseRegion):

@@ -1,7 +1,8 @@
 import asyncio
 
 from modules.llmlink import LLMLink
-from modules.region import Region, RAGRegion
+from modules.region import Region
+from rag_region import RAGRegion
 from modules.dynamic_rag import DynamicRAGSystem
 
 async def store(rag: DynamicRAGSystem, data: list[dict]):

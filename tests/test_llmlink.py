@@ -1,39 +1,44 @@
 import asyncio
+import json
+import logging
 import unittest
+
 from modules.llmlink import LLMLink
 
 class TestLLMLink(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         # Setup happens in the event loop
+        logging.info("Loading parameters from 'test_params.json'")
+        test_params = json.load(open('test_params.json', 'r'))
 
-        self.obj = LLMLink()
-        print("Initialized LLMLink object for testing")
+        self.obj = LLMLink(host=f"{test_params['llm_host']}:{test_params['llm_port']}")
+        logging.info("Initialized LLMLink object for testing")
         await asyncio.sleep(0)
 
     async def test_chat(self):
-        print(f"=== Chat Method ===\n")
         test_string = 'Hello!'
-        print("> "+test_string)
+        print("> " + test_string)
         result = await self.obj.chat(test_string)
-        print("\n"+result+"\n")
+        print(f"=== MODEL OUTPUT ===\n{result}\n=== END MODEL OUTPUT ===\n")
+        assert isinstance(result, str)
 
     async def test_text(self):
-        print(f"=== Text Method ===\n")
         test_string = 'Twinkle, Twinkle little '
-        max_tokens = 100
+        max_tokens = 32
         print("> " + test_string)
         result = await self.obj.text(test_string,max_tokens)
-        print("\n"+result+"\n")
+        print(f"=== MODEL OUTPUT ===\n{result}\n=== END MODEL OUTPUT ===\n")
+        assert isinstance(result, str)
 
     async def test_model(self):
-        print(f"=== Model Method ===\n")
         result = await self.obj.model()
         print("\n"+result+"\n")
+        assert result
 
     async def test_health(self):
-        print(f"=== Health Method ===\n")
         result = await self.obj.health()
-        print("\n" + result[1] + "\n")
+        assert result[1] == 'ok'
+
 
 if __name__ == "__main__":
     unittest.main()

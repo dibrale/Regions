@@ -1,10 +1,5 @@
-import json
 from typing import Any
-
-import os.path
 import re
-
-from networkx.classes import is_empty
 
 
 # Check for None and return an empty string in its place. Otherwise, pass the input to output as string.
@@ -12,7 +7,6 @@ def assure_string(txt) -> str:
     if not txt:
         return ''
     return str(txt)
-
 
 # Handle strings and string lists equally, assuring a string as output
 def list_or_str_to_str(txt: str | list[str], join_string='\n', if_blank='') -> str:
@@ -25,7 +19,6 @@ def list_or_str_to_str(txt: str | list[str], join_string='\n', if_blank='') -> s
     else:
         out = str(txt)
     return out
-
 
 # Parse a string for boolean output, returning None for inconsistent replies
 def bool_from_str(text_in: str, true_str='true', false_str='false', case_sensitive=False) -> bool | None:
@@ -50,7 +43,6 @@ def bool_from_str(text_in: str, true_str='true', false_str='false', case_sensiti
     else:
         return None
 
-
 # Extract question from an arbitrary string
 async def parse_question(input_string: str):
     result = re.search(r"Question\s*\d*\s*:\s*\d*\s*(?P<QUESTION>(.*?)[.?])", input_string)
@@ -61,7 +53,6 @@ async def parse_question(input_string: str):
         return question
     except AttributeError:
         return None
-
 
 #Get host and port from string
 def parse_host_port(s: str) -> tuple[str | Any, int] | tuple[str | Any, None] | None:

@@ -1,16 +1,10 @@
-import logging
-from dataclasses import dataclass
-from typing import Any
-import asyncio
-from functools import partial
-
 from region_types import *
-from region import *
 from postmaster import Postmaster
 from orchestrator import Orchestrator
 from region_registry import RegionRegistry
 
-def cross_verify(
+
+def verify(
         registry: RegionRegistry,
         orchestrator: Orchestrator,
         postmaster: Postmaster,

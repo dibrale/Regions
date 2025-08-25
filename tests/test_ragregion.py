@@ -1,10 +1,10 @@
 import asyncio
 import unittest
 import time
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import AsyncMock, patch
 
-from modules.region import RAGRegion
-from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult, DocumentChunk, ChunkMetadata
+from regions.rag_region import RAGRegion
+from dynamic_rag import RetrievalResult, DocumentChunk, ChunkMetadata
 
 
 class TestRAGRegion(unittest.TestCase):

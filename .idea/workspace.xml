@@ -4,8 +4,38 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Corrected import error in test_rag.py&#10;- All tests passing">
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Updated requirements.txt">
+      <change afterPath="$PROJECT_DIR$/modules/exceptions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/regions/base_region.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/regions/listener_region.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/regions/rag_region.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_params.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/demo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/cross_verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/verify.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/executor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/injector.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/injector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/llmlink.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/llmlink.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/orchestrator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/postmaster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/regions/region.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/region_registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_registry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/region_types.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_types.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/mock_regions.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/mock_regions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_cross_verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_verify.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_database.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_error.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_error.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_executor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_listener.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_listener.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_llmlink.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_llmlink.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_orchestrator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_postmaster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_rag.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_ragregion.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_ragregion.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_region.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_region.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_region_registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_region_registry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +88,9 @@
     "Python tests.Python tests for test_listener.TestListenerRegion.test_multiple_stops_are_safe.executor": "Run",
     "Python tests.Python tests for test_listener.TestListenerRegion.test_process_termination_timeout.executor": "Run",
     "Python tests.Python tests for test_listener.TestListenerRegion.test_stop_sends_sentinel_and_terminates.executor": "Run",
+    "Python tests.Python tests for test_llmlink.TestLLMLink.executor": "Run",
+    "Python tests.Python tests for test_llmlink.TestLLMLink.test_health.executor": "Run",
+    "Python tests.Python tests for test_llmlink.TestLLMLink.test_model.executor": "Run",
     "Python tests.Python tests for test_orchestrator.TestOrchestrator.executor": "Run",
     "Python tests.Python tests for test_orchestrator.TestOrchestrator.test_save_load.executor": "Run",
     "Python tests.Python tests for test_orchestrator.TestOrchestrator.test_silent_layer_verification.executor": "Run",
@@ -121,6 +154,7 @@
     "Python tests.Python tests in test_region_registry.py.executor": "Run",
     "Python tests.Python tests in tests.executor": "Run",
     "Python tests.pytest for test_executor.test_execute_plan_postmaster_stop_failure.executor": "Run",
+    "Python tests.pytest for test_executor.top_level_collect.executor": "Run",
     "Python.comprehensive_unit_tests.executor": "Run",
     "Python.config.executor": "Run",
     "Python.demo.executor": "Run",
@@ -174,38 +208,15 @@
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\scratch" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\modules\regions" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\scratch" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples" />
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\scratch" />
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea\tests" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Morphea" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Python tests in tests">
-    <configuration name="demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Regions" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="C:\Users\adibrov\PycharmProjects\Regions\examples\demo.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Python tests in test_database.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.Python tests in test_rag.py">
+    <configuration name="Python tests for test_llmlink.TestLLMLink" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -217,11 +228,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_database.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <option name="_new_target" value="&quot;test_llmlink.TestLLMLink&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests in test_error.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for test_llmlink.TestLLMLink.test_health" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -233,8 +244,24 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_error.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <option name="_new_target" value="&quot;test_llmlink.TestLLMLink.test_health&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for test_llmlink.TestLLMLink.test_model" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Regions" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_llmlink.TestLLMLink.test_model&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <configuration name="Python tests in test_rag.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
@@ -271,11 +298,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.Python tests in tests" />
-        <item itemvalue="Python tests.Python tests in test_error.py" />
-        <item itemvalue="Python tests.Python tests in test_database.py" />
-        <item itemvalue="Python.demo" />
         <item itemvalue="Python tests.Python tests in test_rag.py" />
+        <item itemvalue="Python tests.Python tests for test_llmlink.TestLLMLink" />
+        <item itemvalue="Python tests.Python tests for test_llmlink.TestLLMLink.test_model" />
+        <item itemvalue="Python tests.Python tests for test_llmlink.TestLLMLink.test_health" />
+        <item itemvalue="Python tests.Python tests in tests" />
       </list>
     </recent_temporary>
   </component>
@@ -323,15 +350,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="136121000" />
-    </task>
-    <task id="LOCAL-00016" summary="Edge case fixes and minor structured syntax cleanup.">
-      <option name="closed" value="true" />
-      <created>1755393286881</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1755393286881</updated>
+      <workItem from="1755807881103" duration="143360000" />
     </task>
     <task id="LOCAL-00017" summary="Added more parameters to RAGRegion initialization.">
       <option name="closed" value="true" />
@@ -717,7 +736,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756107205473</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="Updated requirements.txt">
+      <option name="closed" value="true" />
+      <created>1756107985615</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1756107985615</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -735,7 +762,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="First pass of ListenerRegion code" />
     <MESSAGE value="Updated ListenerRegion docstrings" />
     <MESSAGE value="ListenerRegion bugfixes" />
     <MESSAGE value="First pass on unit tests for ListenerRegion - not working yet." />
@@ -760,14 +786,15 @@
     <MESSAGE value="Refactoring directory structure" />
     <MESSAGE value="- Unit test format updated to match standards&#10;- Began deprecating ServiceUnavailableError for DB&#10;- Renaming for consistency&#10;- Retired 'testutils.py'" />
     <MESSAGE value="- Corrected import error in test_rag.py&#10;- All tests passing" />
-    <option name="LAST_COMMIT_MESSAGE" value="- Corrected import error in test_rag.py&#10;- All tests passing" />
+    <MESSAGE value="Updated requirements.txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated requirements.txt" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$self_indulgent_demo.coverage" NAME="self_indulgent_demo Coverage Results" MODIFIED="1755414074076" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$test_rag_system.coverage" NAME="test_rag_system Coverage Results" MODIFIED="1754960037443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation__1_.coverage" NAME="system_validation (1) Coverage Results" MODIFIED="1754953956081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1756107070337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1756163654250" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_error_handling.coverage" NAME="test_error_handling Coverage Results" MODIFIED="1755024022292" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$example_usage.coverage" NAME="example_usage Coverage Results" MODIFIED="1754960592061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_embedding_client.coverage" NAME="test_embedding_client Coverage Results" MODIFIED="1754960121608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -786,6 +813,7 @@
     <SUITE FILE_PATH="coverage/Morphea$config.coverage" NAME="config Coverage Results" MODIFIED="1754783507497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$test_database.coverage" NAME="test_database Coverage Results" MODIFIED="1755067054258" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$comprehensive_unit_tests.coverage" NAME="comprehensive_unit_tests Coverage Results" MODIFIED="1754957816626" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Regions$pytest_for_test_executor_top_level_collect.coverage" NAME="pytest for test_executor.top_level_collect Coverage Results" MODIFIED="1756161779185" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation.coverage" NAME="system_validation Coverage Results" MODIFIED="1754952625432" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scratch" />
     <SUITE FILE_PATH="coverage/Regions$orchestrator.coverage" NAME="orchestrator Coverage Results" MODIFIED="1755457792261" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$tools_test.coverage" NAME="tools_test Coverage Results" MODIFIED="1753822899523" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

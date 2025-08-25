@@ -1,10 +1,10 @@
 import logging
-
 import pytest
 import asyncio
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
+
 from postmaster import Postmaster
-from region import Region
+from regions.region import Region
 
 
 class TestPostmasterInitialization:

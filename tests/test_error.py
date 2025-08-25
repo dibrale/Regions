@@ -1,21 +1,18 @@
 """
 Test script for comprehensive error handling using pytest
 """
-
-import os
-import sqlite3
 import pytest
 from unittest.mock import AsyncMock, patch
+
 from modules.dynamic_rag import (
     DynamicRAGSystem,
     ErrorCodes,
     NoMatchingEntryError,
     DatabaseNotAccessibleError,
-    ServiceUnavailableError,
     SchemaMismatchError,
     HTTPError,
-    RateLimiter,
-    EmbeddingClient, DatabaseManager
+    EmbeddingClient,
+    DatabaseManager
 )
 
 @pytest.fixture

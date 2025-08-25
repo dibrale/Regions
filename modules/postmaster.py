@@ -1,6 +1,8 @@
 import asyncio
 import logging
+
 from region_registry import RegionRegistry
+
 
 class Postmaster:
     """Manages message routing between regions with configurable undeliverable handling.

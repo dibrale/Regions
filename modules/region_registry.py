@@ -1,15 +1,12 @@
-import json
-import logging
 import pathlib
+from functools import partial
+import inspect
+from dataclasses import dataclass
+from typing import List
 
 from dynamic_rag import DynamicRAGSystem
 from llmlink import LLMLink
 from region_types import *
-from dataclasses import dataclass
-from typing import List
-
-from functools import partial
-import inspect
 
 
 @dataclass
@@ -30,7 +27,7 @@ class RegionEntry:
         connections (list[str]): Names of regions this region interacts with. Default: None
         rag (DynamicRAGSystem): Optional retrieval-augmented generation system for knowledge access. Default: None
         llm (LLMLink): Optional language model interface for generating responses. Default: None
-        region (BaseRegion): Live instance of the region (populated when active). Default: None
+        region (base_region.BaseRegion): Live instance of the region (populated when active). Default: None
         reply_with_actors (bool): Whether responses should include actor references. Default: None
 
     Example:
@@ -71,7 +68,7 @@ class RegionEntry:
         Handles optional attributes (connections, rag, llm, reply_with_actors) safely via hasattr checks.
 
         Args:
-            region (BaseRegion): Source region instance to serialize
+            region (base_region.BaseRegion): Source region instance to serialize
 
         Side Effects:
             Sets all attributes on self:
@@ -122,7 +119,7 @@ class RegionEntry:
             Sets self.region to new instance (or retains old instance on failure)
 
         Returns:
-            BaseRegion: Created region instance (also stored in self.region)
+            base_region.BaseRegion: Created region instance (also stored in self.region)
 
         Raises:
             Exception: If region construction fails (logged internally)
@@ -285,7 +282,7 @@ class RegionRegistry:
             item (str): Name of the region to retrieve
 
         Returns:
-            BaseRegion: Live instance of the requested region
+            base_region.BaseRegion: Live instance of the requested region
 
         Raises:
             ValueError: If the region name is not found in the registry
@@ -302,7 +299,7 @@ class RegionRegistry:
 
         Args:
             key (str): Name to register the region under
-            value (BaseRegion): Live region instance to register
+            value (base_region.BaseRegion): Live region instance to register
 
         Side Effects:
             - Creates a RegionEntry from the region instance
