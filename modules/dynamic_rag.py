@@ -26,6 +26,8 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 import logging
 
+from _pytest.logging import caplog
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -100,17 +102,18 @@ class RateLimiter:
         self.min_interval = min_interval
         self.last_request_time = 0.0
         self._lock = asyncio.Lock()
-    
+
     async def acquire(self):
-        """Acquire rate limit permission"""
         async with self._lock:
             current_time = time.time()
             time_since_last = current_time - self.last_request_time
-            
+
+            # Wait if needed instead of raising error
             if time_since_last < self.min_interval:
-                raise ServiceUnavailableError("Rate limit exceeded - concurrent requests not allowed")
-            
-            self.last_request_time = current_time
+                wait_time = self.min_interval - time_since_last
+                await asyncio.sleep(wait_time)
+
+            self.last_request_time = time.time()
 
 class EmbeddingClient:
     """Async client for llama.cpp embedding server with OpenAI-compatible API"""
@@ -482,6 +485,7 @@ class DynamicRAGSystem:
                 if i < len(chunks) - 1:  # Don't wait after the last chunk
                     await asyncio.sleep(0.5)
 
+        logging.info(f"Document stored with {len(chunk_hashes)} chunks")
         return chunk_hashes
 
     async def retrieve_similar(self,
@@ -527,6 +531,7 @@ class DynamicRAGSystem:
         results = results[:max_results]
 
         if not results:
+            logging.error(f"No chunks found with similarity threshold {similarity_threshold}")
             raise NoMatchingEntryError(similarity_threshold)
 
         return results
@@ -568,11 +573,12 @@ class DynamicRAGSystem:
         results = results[:max_results]
 
         if not results:
+            logging.error(f"No chunks found with actor search - similarity threshold {similarity_threshold}")
             raise NoMatchingEntryError(similarity_threshold)
 
         return results
 
-    async def delete_chunk(self, chunk: Union[DocumentChunk, str]) -> bool:
+    async def delete_chunk(self, chunk: Union[DocumentChunk, str] | str) -> bool:
         """Deletes a chunk by hash.
 
         Accepts either DocumentChunk object or SHA-256 hash string.
@@ -586,8 +592,12 @@ class DynamicRAGSystem:
         Raises:
             TypeError: If unsupported chunk type provided
         """
-        chunk_hash = chunk.chunk_hash if isinstance(chunk, DocumentChunk) else chunk
+        if chunk is str:
+            chunk_hash = chunk
+        else:
+            chunk_hash = chunk.chunk_hash if isinstance(chunk, DocumentChunk) else chunk
 
+        logging.info(f"Deleting chunk with hash {chunk_hash}")
         deleted = await self.db_manager.delete_chunk(chunk_hash)
         if not deleted:
             logger.warning(f"Chunk {chunk_hash} could not be deleted")
@@ -614,7 +624,7 @@ class DynamicRAGSystem:
             HTTPError: If embedding generation fails
         """
         # Delete old chunk
-        deleted = await self.db_manager.delete_chunk(chunk_hash)
+        deleted = await self.delete_chunk(chunk_hash)
         if not deleted:
             return False
 
@@ -622,6 +632,7 @@ class DynamicRAGSystem:
         await asyncio.sleep(0.5)
 
         # Generate new embedding
+        logging.info(f"Generating new embedding for updated chunk")
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
             embedding = await embedding_client.get_embedding(new_content)
 
@@ -640,6 +651,7 @@ class DynamicRAGSystem:
 
         # Store updated chunk
         await self.db_manager.store_chunk(chunk)
+        logging.info(f"Updated chunk with hash {chunk_hash}")
         return True
 
     def _chunk_text(self, text: str, chunk_size: int, overlap: int) -> List[str]:
@@ -713,7 +725,7 @@ def handle_rag_error(func):
 if __name__ == "__main__":
     # Example usage
     async def main():
-        rag_system = DynamicRAGSystem()
+        rag_system = DynamicRAGSystem(embedding_server_url="http://localhost:10000", embedding_model="nomic-embed-text:latest")
 
         try:
             # Store a document
@@ -723,6 +735,7 @@ if __name__ == "__main__":
                 document_id="doc_001"
             )
             print(f"Stored document with {len(chunk_hashes)} chunks")
+            await asyncio.sleep(0.5)
 
             # Retrieve similar content
             results = await rag_system.retrieve_similar(
@@ -739,6 +752,7 @@ if __name__ == "__main__":
                 print()
 
             # Get system stats
+            await asyncio.sleep(0.5)
             stats = await rag_system.get_stats()
             print("System stats:", stats)
 
@@ -747,5 +761,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Unexpected error: {e}")
 
+        # print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
+
     # Run example
-    # asyncio.run(main())
+    asyncio.run(main())

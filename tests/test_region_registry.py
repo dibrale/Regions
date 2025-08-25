@@ -1,4 +1,3 @@
-import asyncio
 import json
 import unittest
 import tempfile
@@ -6,8 +5,7 @@ import os
 from unittest.mock import MagicMock, patch
 
 from region_registry import RegionRegistry, RegionEntry
-from region_types import class_from_str
-from region import BaseRegion, MockRegion, MockRAGRegion
+from tests.mock_regions import MockRegion, MockRAGRegion
 
 
 class TestRegionRegistry(unittest.TestCase):
@@ -188,8 +186,9 @@ class TestRegionRegistry(unittest.TestCase):
 
         # Build regions
         success = self.registry.build_regions()
-        self.assertTrue(success)
         region = self.registry["customer_support"]
+
+        self.assertTrue(success)
         self.assertEqual(region.rag, self.mock_rag)
 
         dir_path = os.path.dirname(__file__)
@@ -216,46 +215,6 @@ class TestRegionRegistry(unittest.TestCase):
         self.registry.update(updated_entry)
 
         self.assertEqual(self.registry["sales"].task, "handle updated sales inquiries")
-
-    def run_async_test(self, test_coroutine):
-        """Helper to run async tests"""
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(self.asyncSetUp())
-        loop.run_until_complete(test_coroutine())
-        loop.close()
-
-    # Synchronous test wrappers
-    def test_initialization_sync(self):
-        self.run_async_test(self.test_initialization)
-
-    def test_register_region_sync(self):
-        self.run_async_test(self.test_register_region)
-
-    def test_deregister_region_sync(self):
-        self.run_async_test(self.test_deregister_region)
-
-    def test_load_json_sync(self):
-        self.run_async_test(self.test_load_json)
-
-    def test_load_invalid_json_sync(self):
-        self.run_async_test(self.test_load_invalid_json)
-
-    def test_verify_valid_sync(self):
-        self.run_async_test(self.test_verify_valid)
-
-    def test_verify_invalid_connections_sync(self):
-        self.run_async_test(self.test_verify_invalid_connections)
-
-    def test_build_regions_success_sync(self):
-        self.run_async_test(self.test_build_regions_success)
-
-    def test_build_regions_with_defaults_sync(self):
-        self.run_async_test(self.test_build_regions_with_defaults)
-
-    def test_update_region_sync(self):
-        self.run_async_test(self.test_update_region)
-
 
 if __name__ == '__main__':
     unittest.main()

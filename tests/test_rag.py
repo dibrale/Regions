@@ -1,32 +1,23 @@
 """
-Test script for RAG functionality
+Test script for RAG functionality - FIXED VERSION
 """
 
 import asyncio
+import logging
 import os
 import statistics
-import unittest
+from unittest.mock import AsyncMock, MagicMock, patch
 
-import modules.testutils
-from modules.dynamic_rag import (
+import pytest
+from dynamic_rag import (
     DynamicRAGSystem,
     NoMatchingEntryError,
     DatabaseNotAccessibleError,
     ServiceUnavailableError,
-    HTTPError
+    HTTPError,
+    cosine_similarity
 )
-from modules.testutils import remove_db
-from tests.test_error import (
-    access,
-    unavailable,
-    mismatch,
-    transport
-)
-from tests.test_database import (
-    rate,
-    operations,
-    concurrent
-)
+from testutils import remove_db
 
 
 class TestDataGenerator:
@@ -39,42 +30,50 @@ class TestDataGenerator:
             {
                 "content": "Machine learning algorithms can learn patterns from data automatically.",
                 "category": "machine_learning",
-                "actors": ["researcher", "data_scientist"]
+                "actors": ["researcher", "data_scientist"],
+                "doc_id": "ml_doc_1"
             },
             {
                 "content": "Deep neural networks are a powerful machine learning technique.",
                 "category": "machine_learning",
-                "actors": ["ai_engineer", "researcher"]
+                "actors": ["ai_engineer", "researcher"],
+                "doc_id": "ml_doc_2"
             },
             {
                 "content": "Artificial intelligence systems can perform complex reasoning tasks.",
                 "category": "artificial_intelligence",
-                "actors": ["ai_researcher", "engineer"]
+                "actors": ["ai_researcher", "engineer"],
+                "doc_id": "ai_doc_1"
             },
             {
                 "content": "AI models require large amounts of training data to perform well.",
                 "category": "artificial_intelligence",
-                "actors": ["data_scientist", "ml_engineer"]
+                "actors": ["data_scientist", "ml_engineer"],
+                "doc_id": "ai_doc_2"
             },
             {
                 "content": "SQL databases provide structured storage for relational data.",
                 "category": "database",
-                "actors": ["database_admin", "developer"]
+                "actors": ["database_admin", "developer"],
+                "doc_id": "db_doc_1"
             },
             {
                 "content": "Database indexing improves query performance significantly.",
                 "category": "database",
-                "actors": ["dba", "backend_developer"]
+                "actors": ["dba", "backend_developer"],
+                "doc_id": "db_doc_2"
             },
             {
                 "content": "The weather is sunny today with clear blue skies.",
                 "category": "weather",
-                "actors": ["meteorologist", "observer"]
+                "actors": ["meteorologist", "observer"],
+                "doc_id": "weather_doc_1"
             },
             {
                 "content": "Cooking pasta requires boiling water and adding salt.",
                 "category": "cooking",
-                "actors": ["chef", "home_cook"]
+                "actors": ["chef", "home_cook"],
+                "doc_id": "cooking_doc_1"
             }
         ]
 
@@ -109,372 +108,239 @@ class TestDataGenerator:
             }
         ]
 
-async def store(rag_system: DynamicRAGSystem, data: list[dict]):
+
+@pytest.fixture
+def test_rag_system(tmp_path):
+    """Create a test RAG system with a temporary database"""
+    db_path = str(tmp_path / "test_rag.db")
+    rag_system = DynamicRAGSystem(
+        db_path=db_path,
+        embedding_server_url="http://localhost:10000",
+        embedding_model="nomic-embed-text:latest",
+        chunk_size=50,
+        overlap=10
+    )
+    return rag_system
+
+
+@pytest.fixture
+def mock_embedding_client():
+    """Properly mock the EmbeddingClient async context manager"""
+    with patch('dynamic_rag.EmbeddingClient') as mock:
+        # Create a mock instance that will be returned when the context manager is entered
+        mock_instance = AsyncMock()
+
+        # Set up the get_embedding method
+        mock_instance.get_embedding.return_value = [0.1, 0.2, 0.3, 0.4]
+
+        # Configure __aenter__ to return the mock instance when awaited
+        mock_instance.__aenter__.return_value = mock_instance
+
+        # Configure __aexit__ to return None when awaited
+        mock_instance.__aexit__.return_value = None
+
+        # Make the class itself return the mock instance when called
+        mock.return_value = mock_instance
+
+        yield mock_instance  # Yield the instance, not the patch
+
+
+@pytest.mark.asyncio
+async def test_store_document(test_rag_system, mock_embedding_client, caplog):
     """Test document storage with chunking"""
-    print("=== Document Storage ===")
-
-    try:
-        # Test document storage with smaller chunks to reduce embedding calls
-
-        stored_chunks = []
-        for doc in data:
-            await asyncio.sleep(0.5)    # Rate limiting delay
-            chunk_hashes = await rag_system.store_document(
-                content=doc["content"],
-                actors=doc["actors"],
-                document_id=doc["doc_id"],
-                chunk_size=50,
-                overlap=10
-            )
-            stored_chunks.extend(chunk_hashes)
-            print(f" ✓ Stored '{doc['doc_id']}' with {len(chunk_hashes)} chunks")
-
-
-        print(f"\nTotal chunks stored: {len(stored_chunks)}")
-        print(f"\n✓ Document storage test succeeded\n")
-        return True
-
-    except Exception as e:
-        print(f"✗ Document storage test failed: {e}\n")
-        return False
-
-async def retrieve(rag_system: DynamicRAGSystem, queries: list[str]):
-
-    print("=== Document Retrieval ===")
-
-    success = []
-
-    try:
-
-        for query in queries:
-            # Rate limiting delay
-            await asyncio.sleep(0.5)
-
-            try:
-                print(f"\nQuery: '{query}'")
-                results = await rag_system.retrieve_similar(
-                    query=query,
-                    similarity_threshold=0.3,
-                    max_results=2
-                )
-
-                if results:
-                    for j, result in enumerate(results, 1):
-                        print(f"  Result {j} (similarity: {result.similarity_score:.3f}):")
-                        print(f"    Content: {result.chunk.content[:100]}...")
-                        print(f"    Actors: {result.chunk.metadata.actors}")
-                        print(f"    Timestamp: {result.chunk.metadata.timestamp}")
-                else:
-                    print("  No results found")
-
-            except NoMatchingEntryError:
-                print("  No matching entries found")
-                success.append(False)
-
-            success.append(True)
-
-        # Rate limiting delay
-        await asyncio.sleep(0.5)
-        print(f"\n✓ Document retrieval test succeeded\n")
-        return True
-
-    except Exception as e:
-        print(f"✗ Document retrieval test failed: {e}\n")
-        return False
-
-    finally:
-        print(f"  Matching entries: {sum(success)}/{len(queries)}\n")
-
-async def stats(rag_system: DynamicRAGSystem):
-    print("=== System statistics test ===")
-
-    try:
-        await asyncio.sleep(0.5)
-        stats = await rag_system.get_stats()
-        print(f"   Total chunks: {stats['total_chunks']}")
-        print(f"   Unique documents: {stats['unique_documents']}")
-        print(f"   Unique actors: {stats['unique_actors']}")
-        print(f"   All actors: {', '.join(stats['actors'])}")
-        print(f"\n✓ Statistics retrieval test succeeded\n")
-        return True
-
-    except Exception as e:
-        print(f"✗ Statistics retrieval test failed: {e}\n")
-        return False
-
-async def update(rag_system: DynamicRAGSystem, entry: dict):
-
-    print("=== Document Update ===")
-    await asyncio.sleep(0.5)
-    info = await rag_system.get_stats()
-    print(f"   Total chunks: {info['total_chunks']}")
-
-    # Try to update a non-existent chunk
-    try:
-        await asyncio.sleep(0.5)
-        updated = await rag_system.update_chunk(
-            chunk_hash="nonexistent_hash",
-            new_content="Test content",
-            actors=["test"]
-        )
-        if not updated:
-            print("  ✓ Correctly handled non-existent chunk update")
-        else:
-            print("  ✗ Should not have updated non-existent chunk")
-            print(f"\n✗ Document update test failed\n")
-            return False
-
-    except Exception as e:
-        print(f"\n✗ Document update test failed : {e}\n")
-        return False
-
-    # Store a fresh chunk
-    await asyncio.sleep(0.5)
-    print("    Storing test chunk...")
-    try:
-        chunk_hash = await rag_system.store_document(
-            content="foo",
-            actors=["bar"],
-            document_id="test_update",
+    data = TestDataGenerator.get_test_documents()
+    # Store documents
+    stored_chunks = []
+    for doc in data:
+        chunk_hashes = await test_rag_system.store_document(
+            content=doc["content"],
+            actors=doc["actors"],
+            document_id=doc["doc_id"],
             chunk_size=50,
             overlap=10
         )
-    except Exception as e:
-        print("  ✗ Failed to store test chunk")
-        print(f"\n✗ Document update test failed : {e}\n")
-        return False
+        stored_chunks.extend(chunk_hashes)
 
-    # Try updating the test chunk
-    try:
-        # Rate limiting delay
-        await asyncio.sleep(0.5)
+    assert len(chunk_hashes) > 0, f"Failed to store document {doc['doc_id']}"
+    assert len(stored_chunks) == len(data)  # Assuming 1 chunk per doc with these parameters
+    assert "Stored document with 1 chunks" in caplog.text
 
-        updated = await rag_system.update_chunk(
-            chunk_hash=chunk_hash[0],
-            new_content=entry["content"],
-            actors=entry["actors"],
+
+@pytest.mark.asyncio
+async def test_retrieve_similar(test_rag_system, mock_embedding_client):
+    """Test similarity-based retrieval"""
+    # First store some test documents
+    data = TestDataGenerator.get_test_documents()
+    for doc in data:
+        await test_rag_system.store_document(
+            content=doc["content"],
+            actors=doc["actors"],
+            document_id=doc["doc_id"],
+            chunk_size=50,
+            overlap=10
         )
-        if updated:
-            print("  ✓ Update method returned success")
-            print(f"\n✓ Document update test succeeded")
-            return True
-        else:
-            print("   ✗ Update method failed")
-            print(f"\n✗ Document update test failed")
-            return False
-    except Exception as e:
-        print(f"\n✗ Document update test failed : {e}\n")
-        return False
 
-async def dummy_test():
-    print("=== Dummy Test ===")
-    await asyncio.sleep(0)
-    raise AssertionError("Error raised by Dummy Test")
-    try:
-        assert 1==1
-    except AssertionError as e:
-        print(f"\n✗ Dummy test failed : {e}\n")
-        return False
+    # Test retrieval
+    results = await test_rag_system.retrieve_similar(
+        query="machine learning",
+        similarity_threshold=0.3,
+        max_results=2
+    )
 
-async def precision_recall(rag_system: DynamicRAGSystem, similarity: float = 0.55):
+    assert len(results) > 0, "No results found for machine learning query"
+    assert all(result.similarity_score >= 0.3 for result in results)
+    assert any("machine" in result.chunk.content.lower() for result in results)
+
+
+@pytest.mark.asyncio
+async def test_retrieve_by_actor(test_rag_system, mock_embedding_client):
+    """Test actor-based retrieval"""
+    # First store some test documents
+    data = TestDataGenerator.get_test_documents()
+    for doc in data:
+        await test_rag_system.store_document(
+            content=doc["content"],
+            actors=doc["actors"],
+            document_id=doc["doc_id"],
+            chunk_size=50,
+            overlap=10
+        )
+
+    # Test retrieval
+    results = await test_rag_system.retrieve_by_actor(
+        actors=["researcher"],
+        similarity_threshold=0.1,
+        max_results=2
+    )
+
+    assert len(results) > 0, "No results found for researcher actor"
+    assert all(any("researcher" in actor for actor in result.chunk.metadata.actors)
+              for result in results)
+
+
+@pytest.mark.asyncio
+async def test_stats(test_rag_system, mock_embedding_client):
+    """Test system statistics"""
+    # Store documents
+    data = TestDataGenerator.get_test_documents()
+    for doc in data:
+        await test_rag_system.store_document(
+            content=doc["content"],
+            actors=doc["actors"],
+            document_id=doc["doc_id"],
+            chunk_size=50,
+            overlap=10
+        )
+
+    # Get stats
+    stats = await test_rag_system.get_stats()
+
+    assert stats["total_chunks"] == len(data)
+    assert stats["unique_documents"] == len(data)
+    assert stats["unique_actors"] > 0
+    assert "researcher" in stats["actors"]
+
+
+@pytest.mark.asyncio
+async def test_update_chunk(test_rag_system, mock_embedding_client):
+    """Test chunk update functionality"""
+    # Store a test chunk
+    chunk_hashes = await test_rag_system.store_document(
+        content="Original content",
+        actors=["test_actor"],
+        document_id="test_doc",
+        chunk_size=50,
+        overlap=10
+    )
+    original_hash = chunk_hashes[0]
+
+    # Update the chunk
+    updated = await test_rag_system.update_chunk(
+        chunk_hash=original_hash,
+        new_content="Updated content",
+        actors=["updated_actor"]
+    )
+
+    assert updated, "Chunk update failed"
+
+    # Verify update
+    results = await test_rag_system.retrieve_similar(
+        query="Updated content",
+        similarity_threshold=0.3,
+        max_results=1
+    )
+    assert len(results) == 1
+    assert "Updated content" in results[0].chunk.content
+    assert "updated_actor" in results[0].chunk.metadata.actors
+
+
+@pytest.mark.asyncio
+async def test_precision_recall(test_rag_system, mock_embedding_client):
     """Test retrieval precision and recall metrics"""
-
     test_queries = TestDataGenerator.get_test_queries()
     test_docs = TestDataGenerator.get_test_documents()
-    precision_scores = []
-    recall_scores = []
 
-    print("=== Precision/Recall ===")
-    print("\nStoring test chunks...")
-
-    i = 0
-    for doc in test_docs:
-        i+=1
-        await asyncio.sleep(0.5)  # Rate limiting delay
-        chunk_hashes = await rag_system.store_document(
+    # Store test documents
+    for i, doc in enumerate(test_docs):
+        await test_rag_system.store_document(
             content=doc["content"],
             actors=doc["actors"],
             document_id=f"{doc['category']}{i}",
             chunk_size=50,
             overlap=10
         )
-        print(f" ✓ Stored '{doc['category']}{i}' with {len(chunk_hashes)} chunks")
 
-    print("\nTesting retrieval precision/recall...")
+    precision_scores = []
+    recall_scores = []
 
-    try:
+    for query_data in test_queries:
+        query = query_data["query"]
+        expected_categories = query_data["expected_categories"]
+        min_results = query_data["min_results"]
 
-        for query_data in test_queries:
-            query = query_data["query"]
-            expected_categories = query_data["expected_categories"]
-            min_results = query_data["min_results"]
+        results = await test_rag_system.retrieve_similar(
+            query=query,
+            similarity_threshold=0.3,
+            max_results=5
+        )
 
-            try:
-                await asyncio.sleep(0.5)
-                results = await rag_system.retrieve_similar(
-                    query=query,
-                    similarity_threshold=similarity,
-                    max_results=5
-                )
+        # Calculate precision: relevant results / total results
+        relevant_results = 0
+        for result in results:
+            content = result.chunk.content.lower()
+            for category in expected_categories:
+                if category == "machine_learning" and any(
+                        word in content for word in ['machine', 'learning', 'neural']):
+                    relevant_results += 1
+                    break
+                elif category == "artificial_intelligence" and any(
+                        word in content for word in ['artificial', 'intelligence', 'ai']):
+                    relevant_results += 1
+                    break
+                elif category == "database" and any(word in content for word in ['database', 'sql', 'storage']):
+                    relevant_results += 1
+                    break
+                elif category == "cooking" and any(word in content for word in ['cooking', 'pasta']):
+                    relevant_results += 1
+                    break
 
-                if len(results) == 0:
-                    print(f"  ✗ Query '{query}': no results")
-                    continue
+        precision = relevant_results / len(results) if results else 0
+        recall = min(relevant_results / min_results, 1.0)
 
-                # Calculate precision: relevant results / total results
-                relevant_results = 0
-                for result in results:
-                    content = result.chunk.content.lower()
-                    for category in expected_categories:
-                        if category == "machine_learning" and any(
-                                word in content for word in ['machine', 'learning', 'neural']):
-                            relevant_results += 1
-                            break
-                        elif category == "artificial_intelligence" and any(
-                                word in content for word in ['artificial', 'intelligence', 'ai']):
-                            relevant_results += 1
-                            break
-                        elif category == "database" and any(word in content for word in ['database', 'sql', 'storage']):
-                            relevant_results += 1
-                            break
-                        elif category == "cooking" and any(word in content for word in ['cooking', 'pasta']):
-                            relevant_results += 1
-                            break
+        precision_scores.append(precision)
+        recall_scores.append(recall)
 
-                precision = relevant_results / len(results) if results else 0
-                recall = min(relevant_results / min_results, 1.0)  # Simplified recall calculation
+    if precision_scores and recall_scores:
+        avg_precision = statistics.mean(precision_scores)
+        avg_recall = statistics.mean(recall_scores)
 
-                precision_scores.append(precision)
-                recall_scores.append(recall)
+        assert avg_precision > 0.5, f"Average precision {avg_precision:.3f} below threshold"
+        assert avg_recall > 0.5, f"Average recall {avg_recall:.3f} below threshold"
 
-                print(f"  Query '{query}': results={len(results)}, precision={precision:.2f}, recall={recall:.2f}")
 
-                # await asyncio.sleep(0.5)
-
-            except NoMatchingEntryError:
-                print(f"  ✗ Query '{query}': no matching entries")
-
-        if precision_scores and recall_scores:
-            avg_precision = statistics.mean(precision_scores)
-            avg_recall = statistics.mean(recall_scores)
-
-            print(f"✓ Average precision: {avg_precision:.3f}")
-            print(f"✓ Average recall: {avg_recall:.3f}")
-
-            # Consider test passed if precision > 0.5 and recall > 0.5
-            if avg_precision > 0.5 and avg_recall > 0.5:
-                return True
-            else:
-                print("✗ Precision/recall below acceptable thresholds")
-                return False
-        else:
-            print("✗ No precision/recall data collected")
-            return False
-
-    except Exception as e:
-        print(f"✗ Precision/recall test failed: {e}")
-        return False
-
-async def hallucinations(rag_system: DynamicRAGSystem, query: list[str] | str, similarity: float=0.55):
+@pytest.mark.asyncio
+async def test_hallucinations(test_rag_system, mock_embedding_client):
     """Test hallucination rate (returning irrelevant results)"""
-    print("=== Hallucinations ===")
-    print("\nTesting hallucination rate...")
-
-    try:
-
-        if isinstance(query, str):
-            irrelevant_queries = [query]
-        elif isinstance(query, list):
-            irrelevant_queries = query
-        else:
-            raise AssertionError(f"Query type '{query}' not supported")
-
-        # Test queries that should have very few or no relevant results
-
-        hallucination_count = 0
-        total_queries = 0
-
-        for query in irrelevant_queries:
-            try:
-                await asyncio.sleep(0.5)
-                results = await rag_system.retrieve_similar(
-                    query=query,
-                    similarity_threshold=similarity,
-                    max_results=3
-                )
-
-                # Any results for these irrelevant queries could be considered hallucinations
-                if len(results) > 0:
-                    hallucination_count += len(results)
-                    print(f"  Query '{query}': {len(results)} potentially irrelevant results")
-                else:
-                    print(f"  Query '{query}': correctly returned no results")
-
-                total_queries += 1
-
-            except NoMatchingEntryError:
-                print(f"  Query '{query}': correctly returned no results")
-                total_queries += 1
-
-            finally:
-                await asyncio.sleep(0.5)
-
-        # Calculate hallucination rate
-        total_possible_hallucinations = total_queries * 3  # Max results per query
-        hallucination_rate = hallucination_count / total_possible_hallucinations
-        print(
-            f"✓ Hallucination rate: {hallucination_rate:.1f} ({hallucination_count}/{total_possible_hallucinations})")
-
-        # Consider acceptable if hallucination rate < 0.1 (10%)
-        if hallucination_rate < 0.1:
-            print("✓ Hallucination rate within acceptable limits")
-            return True
-        else:
-            print("✗ Hallucination rate too high")
-            return False
-
-    except Exception as e:
-        print(f"✗ Hallucination test failed: {e}")
-        return False
-
-async def main():
-    server_port = 10000
-    server_ip = "localhost"
-    model_name = "nomic-embed-text:latest"
-
-    documents = [
-        {
-            "content": "Machine learning is a method of data analysis that automates analytical model building. It is a branch of artificial intelligence based on the idea that systems can learn from data, identify patterns and make decisions with minimal human intervention.",
-            "actors": ["data_scientist", "ml_engineer"],
-            "doc_id": "ml_overview"
-        },
-        {
-            "content": "Deep learning is part of a broader family of machine learning methods based on artificial neural networks. Learning can be supervised, semi-supervised or unsupervised. Deep learning architectures such as deep neural networks have been applied to fields including computer vision and natural language processing.",
-            "actors": ["ai_researcher", "deep_learning_expert"],
-            "doc_id": "deep_learning_intro"
-        },
-        {
-            "content": "Natural language processing (NLP) is a subfield of linguistics, computer science, and artificial intelligence concerned with the interactions between computers and human language. NLP combines computational linguistics with statistical, machine learning, and deep learning models.",
-            "actors": ["nlp_researcher", "computational_linguist"],
-            "doc_id": "nlp_basics"
-        }
-    ]
-
-    new_document = {
-        "content": "Machine learning has evolved significantly with the advent of big data and powerful computing resources. Modern ML algorithms can process vast amounts of information to discover complex patterns.",
-        "actors": ["updated_researcher", "ai_engineer"],
-        "doc_id": "ml_evolved"
-    }
-
-    # Query examples
-    questions = [
-        "What is machine learning?",
-        "Tell me about deep learning neural networks",
-        "How does natural language processing work?",
-        "AI and machine learning applications"
-    ]
-
-    # Irrelevant Queries
     irrelevant_queries = [
         "quantum physics equations",
         "ancient roman history",
@@ -483,38 +349,114 @@ async def main():
         "medieval castle architecture"
     ]
 
-    # Initialize the system
-    rag = DynamicRAGSystem(
-        db_path="example_rag.db",
-        embedding_server_url=f"http://{server_ip}:{server_port}",
-        embedding_model=model_name,
+    hallucination_count = 0
+
+    for query in irrelevant_queries:
+        try:
+            results = await test_rag_system.retrieve_similar(
+                query=query,
+                similarity_threshold=0.5,
+                max_results=3
+            )
+            # Any results for irrelevant queries could be hallucinations
+            if results:
+                hallucination_count += len(results)
+        except NoMatchingEntryError:
+            # Expected behavior - no results found
+            pass
+
+    # Calculate hallucination rate
+    total_possible_hallucinations = len(irrelevant_queries) * 3
+    hallucination_rate = hallucination_count / total_possible_hallucinations if total_possible_hallucinations > 0 else 0
+
+    assert hallucination_rate < 0.1, f"Hallucination rate {hallucination_rate:.2f} too high"
+
+
+@pytest.mark.asyncio
+async def test_cosine_similarity():
+    """Test cosine similarity calculation"""
+    vec1 = [1.0, 0.0, 0.0]
+    vec2 = [1.0, 0.0, 0.0]
+    assert cosine_similarity(vec1, vec2) == 1.0
+
+    vec3 = [0.0, 1.0, 0.0]
+    assert cosine_similarity(vec1, vec3) == 0.0
+
+    vec4 = [-1.0, 0.0, 0.0]
+    assert cosine_similarity(vec1, vec4) == -1.0
+
+    vec5 = [0.5, 0.5, 0.0]
+    assert abs(cosine_similarity(vec1, vec5) - 0.707) < 0.001
+
+
+@pytest.mark.asyncio
+async def test_rate_limiter():
+    """Test proper rate limiting behavior"""
+    # Patch the RateLimiter to test its functionality
+    with patch('dynamic_rag.RateLimiter') as mock_rate_limiter:
+        mock_rl = MagicMock()
+        mock_rl.acquire = AsyncMock()
+        mock_rate_limiter.return_value = mock_rl
+
+        rag_system = DynamicRAGSystem()
+
+        # Test store_document uses rate limiter
+        await rag_system.store_document(
+            content="Test content",
+            actors=["test"],
+            document_id="test_doc"
+        )
+
+        # Verify rate limiter was called
+        assert mock_rl.acquire.called
+
+
+@pytest.mark.asyncio
+async def test_no_matching_entry_error(test_rag_system, mock_embedding_client):
+    """Test NoMatchingEntryError handling"""
+    # Store a document that won't match the query
+    await test_rag_system.store_document(
+        content="Completely unrelated content",
+        actors=["test"],
+        document_id="test_doc"
     )
 
-    """Run all RAG system tests"""
+    with pytest.raises(NoMatchingEntryError):
+        await test_rag_system.retrieve_similar(
+            query="machine learning",
+            similarity_threshold=0.9,
+            max_results=1
+        )
 
-    suite = modules.testutils.TestSet('=== RAG System Tests ===',
-                                      [
-                                          store(rag, documents),
-                                          retrieve(rag, questions),
-                                          stats(rag),
-                                          update(rag, new_document),
-                                          precision_recall(rag),
-                                          hallucinations(rag, irrelevant_queries)
-                                      ],
-                                      [
-                                          "Document Storage",
-                                          "Similarity Retrieval",
-                                          "System Stats",
-                                          "Chunk Update",
-                                          "Precision and Recall",
-                                          "Hallucinations"
-                                      ]
-                                      )
 
-    await suite.run_sequential()
-    suite.result()
-    remove_db()
+@pytest.mark.asyncio
+async def test_database_operations(test_rag_system, mock_embedding_client, caplog):
+    """Test database operations with proper error handling"""
+    # Test store document
+    chunk_hashes = await test_rag_system.store_document(
+        content="Test content",
+        actors=["test"],
+        document_id="test_doc"
+    )
+    assert len(chunk_hashes) == 1
 
-if __name__ == "__main__":
-    asyncio.run(main())
+    # Test retrieve
+    results = await test_rag_system.retrieve_similar(
+        query="Test content",
+        similarity_threshold=0.3,
+        max_results=1
+    )
+    assert len(results) == 1
+    assert "Test content" in results[0].chunk.content
 
+    # Test delete
+    deleted = await test_rag_system.delete_chunk(chunk_hashes[0])
+    assert deleted
+
+    # Verify deletion
+    with pytest.raises(NoMatchingEntryError):
+        await test_rag_system.retrieve_similar(
+            query="Test content",
+            similarity_threshold=0.3,
+            max_results=1
+        )
