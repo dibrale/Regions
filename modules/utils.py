@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 import re
 
 
@@ -104,3 +104,35 @@ def check_execution_entry(entry: tuple):
     assert bool(entry[0]), "Expected non-empty region name"
     assert bool(entry[1]), "Expected non-empty method name"
     return entry
+
+def _chunk_text(text: str, chunk_size: int, overlap: int) -> List[str]:
+    """Split text into overlapping chunks.
+
+    Example: With chunk_size=100 and overlap=20, each subsequent chunk starts
+    80 characters after previous.
+
+    Args:
+        text (str): Input text to chunk
+        chunk_size (int): Size of each chunk in characters (>0)
+        overlap (int): Overlap between chunks in characters (>=0)
+
+    Returns:
+        List[str]: Generated text chunks
+    """
+    if len(text) <= chunk_size:
+        return [text]
+
+    chunks = []
+    start = 0
+
+    while start < len(text):
+        end = start + chunk_size
+        chunk = text[start:end]
+        chunks.append(chunk)
+
+        if end >= len(text):
+            break
+
+        start = end - overlap
+
+    return chunks

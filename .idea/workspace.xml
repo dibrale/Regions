@@ -4,38 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Updated requirements.txt">
-      <change afterPath="$PROJECT_DIR$/modules/exceptions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/regions/base_region.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/regions/listener_region.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/regions/rag_region.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/test_params.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/demo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cross_verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/verify.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="- Massive refactoring of directory structure for clarity and readability&#10;- 'cross_verify' renamed to 'verify' to avoid conflation between code and scholarship&#10;- Cleaned up imports&#10;- Regions split up into distinct files for each&#10;- Serialized testing connection parameters for 'test_rag' and 'test_llmlink'">
       <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/executor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/injector.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/injector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/llmlink.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/llmlink.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/orchestrator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/postmaster.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/regions/region.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/region_registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_registry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/region_types.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/region_types.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/mock_regions.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/mock_regions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_cross_verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_verify.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_database.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_error.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_error.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_executor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_listener.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_listener.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_llmlink.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_llmlink.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_orchestrator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_postmaster.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_rag.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_ragregion.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_ragregion.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_region.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_region.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_region_registry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_region_registry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -350,15 +321,7 @@
       <workItem from="1755626253223" duration="64000" />
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
-      <workItem from="1755807881103" duration="143360000" />
-    </task>
-    <task id="LOCAL-00017" summary="Added more parameters to RAGRegion initialization.">
-      <option name="closed" value="true" />
-      <created>1755407431492</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1755407431492</updated>
+      <workItem from="1755807881103" duration="143843000" />
     </task>
     <task id="LOCAL-00018" summary="Partially documented the RAG system">
       <option name="closed" value="true" />
@@ -744,7 +707,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756107985615</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="- Massive refactoring of directory structure for clarity and readability&#10;- 'cross_verify' renamed to 'verify' to avoid conflation between code and scholarship&#10;- Cleaned up imports&#10;- Regions split up into distinct files for each&#10;- Serialized testing connection parameters for 'test_rag' and 'test_llmlink'">
+      <option name="closed" value="true" />
+      <created>1756164183016</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1756164183016</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -762,7 +733,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Updated ListenerRegion docstrings" />
     <MESSAGE value="ListenerRegion bugfixes" />
     <MESSAGE value="First pass on unit tests for ListenerRegion - not working yet." />
     <MESSAGE value="Further work on unit tests for ListenerRegion." />
@@ -787,7 +757,8 @@
     <MESSAGE value="- Unit test format updated to match standards&#10;- Began deprecating ServiceUnavailableError for DB&#10;- Renaming for consistency&#10;- Retired 'testutils.py'" />
     <MESSAGE value="- Corrected import error in test_rag.py&#10;- All tests passing" />
     <MESSAGE value="Updated requirements.txt" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated requirements.txt" />
+    <MESSAGE value="- Massive refactoring of directory structure for clarity and readability&#10;- 'cross_verify' renamed to 'verify' to avoid conflation between code and scholarship&#10;- Cleaned up imports&#10;- Regions split up into distinct files for each&#10;- Serialized testing connection parameters for 'test_rag' and 'test_llmlink'" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Massive refactoring of directory structure for clarity and readability&#10;- 'cross_verify' renamed to 'verify' to avoid conflation between code and scholarship&#10;- Cleaned up imports&#10;- Regions split up into distinct files for each&#10;- Serialized testing connection parameters for 'test_rag' and 'test_llmlink'" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

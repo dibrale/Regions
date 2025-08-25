@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import logging
 
 from exceptions import *
-
+from utils import _chunk_text
 
 """
 Dynamic RAG (Retrieval-Augmented Generation) Storage, Indexing, and Retrieval System.
@@ -31,77 +31,126 @@ with configurable parameters for chunk size, overlap, and similarity thresholds.
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class ChunkMetadata:
-    """Metadata for document chunks"""
+    """Metadata associated with document chunks.
+
+    Attributes:
+        timestamp (int): Unix timestamp when the chunk was created
+        actors (List[str]): List of actor identifiers associated with the chunk
+        chunk_id (Optional[str]): Unique identifier for the chunk within a document
+        document_id (Optional[str]): Unique identifier for the source document
+    """
     timestamp: int
     actors: List[str]
     chunk_id: Optional[str] = None
     document_id: Optional[str] = None
 
+
 @dataclass
 class DocumentChunk:
-    """Document chunk with content and metadata"""
+    """Document chunk containing text content and associated metadata.
+
+    Attributes:
+        content (str): The text content of the chunk
+        metadata (ChunkMetadata): Metadata describing the chunk
+        embedding (Optional[List[float]]): Vector embedding of the content
+        chunk_hash (Optional[str]): SHA-256 hash of the content (used as unique identifier)
+    """
     content: str
     metadata: ChunkMetadata
     embedding: Optional[List[float]] = None
     chunk_hash: Optional[str] = None
 
+
 @dataclass
 class RetrievalResult:
-    """Result from similarity search"""
+    """Result from similarity search operations.
+
+    Attributes:
+        chunk (DocumentChunk): The retrieved document chunk
+        similarity_score (float): Score indicating similarity to the query (range: -1 to 1)
+    """
     chunk: DocumentChunk
     similarity_score: float
 
+
 class RateLimiter:
-    """Rate limiter for database operations (500ms between queries)"""
-    
+    """Rate limiter enforcing minimum interval between database operations.
+
+    Ensures at least `min_interval` seconds elapse between consecutive operations
+    by sleeping when necessary (does not raise errors). Uses asyncio lock to prevent
+    concurrent access violations.
+
+    Attributes:
+        min_interval (float): Minimum time interval between operations in seconds
+        last_request_time (float): Timestamp of last operation
+    """
+
     def __init__(self, min_interval: float = 0.5):
         self.min_interval = min_interval
         self.last_request_time = 0.0
         self._lock = asyncio.Lock()
 
     async def acquire(self):
+        """Acquire access to the database with enforced minimum interval.
+
+        If less than `min_interval` seconds have passed since the last operation,
+        sleeps for the remaining time. Safe for concurrent use.
+        """
         async with self._lock:
             current_time = time.time()
             time_since_last = current_time - self.last_request_time
 
-            # Wait if needed instead of raising error
+            # Sleep if needed to enforce minimum interval
             if time_since_last < self.min_interval:
                 wait_time = self.min_interval - time_since_last
                 await asyncio.sleep(wait_time)
 
             self.last_request_time = time.time()
 
+
 class EmbeddingClient:
-    """Async client for llama.cpp embedding server with OpenAI-compatible API"""
-    
+    """Async client for OpenAI-compatible embedding servers (e.g., llama.cpp).
+
+    Must be used as an async context manager to handle session lifecycle.
+
+    Attributes:
+        base_url (str): Base URL of the embedding server
+        model (str): Embedding model name to use
+        session (Optional[aiohttp.ClientSession]): HTTP session (managed automatically)
+    """
+
     def __init__(self, base_url: str = "http://localhost:8080", model: str = "text-embedding-ada-002"):
         self.base_url = base_url.rstrip('/')
         self.model = model
         self.session: Optional[aiohttp.ClientSession] = None
-    
+
     async def __aenter__(self):
         self.session = aiohttp.ClientSession()
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if self.session:
             await self.session.close()
-    
+
     async def get_embedding(self, text: str) -> List[float]:
-        """Get embedding for text using OpenAI-compatible API
+        """Generate embedding vector for input text.
+
+        Requires use as async context manager. Handles server errors and
+        response validation.
 
         Args:
-            text (str): Input text to generate embedding for
+            text (str): Input text to embed
 
         Returns:
             List[float]: Generated embedding vector
 
         Raises:
-            HTTPError: If server returns non-200 status
+            RuntimeError: If not used as context manager
+            HTTPError: For non-200 responses or network issues
             SchemaMismatchError: If response format is invalid
-            RuntimeError: If client not used as context manager
         """
         if not self.session:
             raise RuntimeError("EmbeddingClient must be used as async context manager")
@@ -120,14 +169,13 @@ class EmbeddingClient:
 
                 result = await response.json()
 
-                # Extract embedding from OpenAI-compatible response
+                # Validate response structure
                 if "data" not in result or not result["data"]:
                     raise SchemaMismatchError("Invalid embedding response format")
 
                 return result["data"][0]["embedding"]
 
         except SchemaMismatchError:
-            # Re-raise schema mismatch errors as-is
             raise
         except aiohttp.ClientError as e:
             raise HTTPError(0, f"Connection error: {str(e)}")
@@ -136,8 +184,17 @@ class EmbeddingClient:
         except Exception as e:
             raise HTTPError(0, f"Network error: {str(e)}")
 
+
 class DatabaseManager:
-    """SQLite database manager with rate limiting"""
+    """SQLite database manager with integrated rate limiting.
+
+    Handles storage, retrieval, and deletion of document chunks while enforcing
+    minimum query intervals via RateLimiter.
+
+    Attributes:
+        db_path (str): Path to SQLite database file
+        rate_limiter (RateLimiter): Rate limiting instance
+    """
 
     def __init__(self, db_path: str = "rag_storage.db"):
         self.db_path = db_path
@@ -145,7 +202,14 @@ class DatabaseManager:
         self._init_database()
 
     def _init_database(self):
-        """Initialize database schema"""
+        """Initialize database schema with required tables and indexes.
+
+        Creates 'chunks' table with columns for content, embedding, metadata,
+        and indexes for hash and timestamp.
+
+        Raises:
+            DatabaseNotAccessibleError: If initialization fails
+        """
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -165,14 +229,13 @@ class DatabaseManager:
                 )
             """)
 
-            # Create index for similarity search optimization
+            # Create indexes for efficient queries
             cursor.execute("""
-                CREATE INDEX IF NOT EXISTS idx_chunk_hash ON chunks(chunk_hash)
-            """)
-
+                           CREATE INDEX IF NOT EXISTS idx_chunk_hash ON chunks(chunk_hash)
+                           """)
             cursor.execute("""
-                CREATE INDEX IF NOT EXISTS idx_timestamp ON chunks(timestamp)
-            """)
+                           CREATE INDEX IF NOT EXISTS idx_timestamp ON chunks(timestamp)
+                           """)
 
             conn.commit()
             conn.close()
@@ -181,10 +244,13 @@ class DatabaseManager:
             raise DatabaseNotAccessibleError(f"Failed to initialize database: {str(e)}")
 
     async def store_chunk(self, chunk: DocumentChunk) -> bool:
-        """Store a document chunk with rate limiting
+        """Store a document chunk in the database.
+
+        Handles serialization of embedding and actors. Automatically generates
+        chunk_hash if missing. Enforces rate limiting via RateLimiter.
 
         Args:
-            chunk (DocumentChunk): Chunk object to store
+            chunk (DocumentChunk): Chunk to store
 
         Returns:
             bool: True if storage succeeded
@@ -228,13 +294,15 @@ class DatabaseManager:
             raise DatabaseNotAccessibleError(f"Failed to store chunk: {str(e)}")
 
     async def get_all_chunks(self) -> List[DocumentChunk]:
-        """Retrieve all chunks from database
+        """Retrieve all stored document chunks.
+
+        Handles deserialization of embedding and actors. Enforces rate limiting.
 
         Returns:
             List[DocumentChunk]: All stored chunks
 
         Raises:
-            DatabaseNotAccessibleError: If database operation fails
+            DatabaseNotAccessibleError: If retrieval fails
         """
         await self.rate_limiter.acquire()
 
@@ -243,9 +311,9 @@ class DatabaseManager:
             cursor = conn.cursor()
 
             cursor.execute("""
-                SELECT chunk_hash, content, embedding, timestamp, actors, chunk_id, document_id
-                FROM chunks
-            """)
+                           SELECT chunk_hash, content, embedding, timestamp, actors, chunk_id, document_id
+                           FROM chunks
+                           """)
 
             chunks = []
             for row in cursor.fetchall():
@@ -277,16 +345,18 @@ class DatabaseManager:
             raise DatabaseNotAccessibleError(f"Failed to retrieve chunks: {str(e)}")
 
     async def delete_chunk(self, chunk_hash: str) -> bool:
-        """Delete a chunk by hash
+        """Delete a chunk by its SHA-256 hash.
+
+        Enforces rate limiting before deletion.
 
         Args:
-            chunk_hash (str): SHA-256 hash of chunk to delete
+            chunk_hash (str): SHA-256 hash of the chunk to delete
 
         Returns:
-            bool: True if deletion succeeded
+            bool: True if chunk was deleted (false if not found)
 
         Raises:
-            DatabaseNotAccessibleError: If database operation fails
+            DatabaseNotAccessibleError: If deletion fails
         """
         await self.rate_limiter.acquire()
 
@@ -304,11 +374,12 @@ class DatabaseManager:
         except sqlite3.Error as e:
             raise DatabaseNotAccessibleError(f"Failed to delete chunk: {str(e)}")
 
-def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
-    """Calculate cosine similarity between two vectors
 
-    Cosine similarity measures vector orientation (range: -1 to 1), with 1 indicating
-    identical direction. Commonly used for embedding comparisons in RAG systems.
+def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
+    """Calculate cosine similarity between two vectors.
+
+    Measures vector orientation (range: -1 to 1), with 1 indicating identical direction.
+    Returns 0.0 for zero-magnitude vectors or mismatched dimensions.
 
     Args:
         vec1 (List[float]): First vector
@@ -329,10 +400,11 @@ def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
 
     return dot_product / (magnitude1 * magnitude2)
 
-class DynamicRAGSystem:
-    """Core class managing document storage and retrieval operations.
 
-    Handles the full lifecycle of document chunks including:
+class DynamicRAGSystem:
+    """Core system for document storage, indexing, and retrieval operations.
+
+    Manages full lifecycle of document chunks including:
     - Text chunking with configurable size/overlap
     - Embedding generation via external server
     - Database storage with rate limiting
@@ -340,13 +412,13 @@ class DynamicRAGSystem:
     - System statistics collection
 
     Attributes:
-        db_manager (DatabaseManager): Manages database interactions
-        embedding_server_url (str): URL of embedding server (default: localhost:8080)
-        embedding_model (str): Embedding model name (default: text-embedding-ada-002)
-        name (str): Unique system identifier (UUID if not provided)
-        _default_chunk_size (int): Default chunk size in characters (>0, default: 512)
-        _default_overlap (int): Default chunk overlap in characters (>=0, default: 50)
-        _default_max_results (int): Default max retrieval results (>=1, default: 5)
+        db_manager (DatabaseManager): Database interaction handler
+        embedding_server_url (str): URL of embedding server
+        embedding_model (str): Embedding model name
+        name (str): Unique system identifier
+        _default_chunk_size (int): Default chunk size in characters
+        _default_overlap (int): Default chunk overlap in characters
+        _default_max_results (int): Default maximum retrieval results
     """
 
     def __init__(self,
@@ -358,16 +430,16 @@ class DynamicRAGSystem:
                  overlap: int = 50,
                  max_results: int = 5,
                  ) -> None:
-        """Initializes the Dynamic RAG system with configurable parameters.
+        """Initialize the Dynamic RAG system.
 
         Args:
-            db_path (str): Path to SQLite database file (default: 'rag_storage.db')
-            embedding_server_url (str): URL of embedding server (default: 'http://localhost:8080')
-            embedding_model (str): Embedding model name (default: 'text-embedding-ada-002')
-            name (Optional[str]): Unique system identifier (default: generates UUID)
-            chunk_size (int): Size of text chunks in characters (>0, default: 512)
-            overlap (int): Overlap between chunks in characters (>=0, default: 50)
-            max_results (int): Maximum retrieval results (>=1, default: 5)
+            db_path (str): Path to SQLite database (default: 'rag_storage.db')
+            embedding_server_url (str): Embedding server URL (default: localhost:8080)
+            embedding_model (str): Model name for embeddings (default: text-embedding-ada-002)
+            name (Optional[str]): System identifier (generates UUID if None)
+            chunk_size (int): Default chunk size in characters (>0)
+            overlap (int): Default chunk overlap in characters (>=0)
+            max_results (int): Default maximum retrieval results (>=1)
 
         Raises:
             ValueError: If chunk_size <= 0, overlap < 0, or max_results < 1
@@ -389,31 +461,33 @@ class DynamicRAGSystem:
                              document_id: Optional[str] = None,
                              chunk_size: Optional[int] = None,
                              overlap: Optional[int] = None) -> List[str]:
-        """Stores a document by splitting into chunks and generating embeddings.
+        """Store a document by splitting into chunks and generating embeddings.
+
+        Automatically generates chunk_hash from content. Enforces 0.5s delay between
+        consecutive chunk storage operations to comply with database rate limiting.
 
         Args:
-            content (str): Full document text content
+            content (str): Full document text
             actors (List[str]): Actor identifiers associated with the document
-            document_id (Optional[str]): Unique document identifier (default: None)
-            chunk_size (Optional[int]): Chunk size in characters (default: 512)
-            overlap (Optional[int]): Chunk overlap in characters (default: 50)
+            document_id (Optional[str]): Unique document identifier
+            chunk_size (Optional[int]): Chunk size override (uses default if None)
+            overlap (Optional[int]): Chunk overlap override (uses default if None)
 
         Returns:
-            List[str]: SHA-256 hashes of stored chunks, usable for later retrieval/deletion
+            List[str]: SHA-256 hashes of stored chunks (generated from content)
 
         Raises:
             HTTPError: If embedding server communication fails
             DatabaseNotAccessibleError: If database storage fails
-            ServiceUnavailableError: If rate limiting is exceeded
         """
         chunk_hashes = []
 
-        # Populate size and overlap
+        # Use defaults if overrides not provided
         chunk_size = chunk_size or self._default_chunk_size
         overlap = overlap or self._default_overlap
 
         # Generate chunks
-        chunks = self._chunk_text(content, chunk_size, overlap)
+        chunks = _chunk_text(content, chunk_size, overlap)
 
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
             for i, chunk_content in enumerate(chunks):
@@ -435,33 +509,33 @@ class DynamicRAGSystem:
                     embedding=embedding
                 )
 
-                # Store chunk with rate limiting handled by database manager
+                # Store chunk (chunk_hash auto-generated if missing)
                 await self.db_manager.store_chunk(chunk)
                 chunk_hashes.append(chunk.chunk_hash)
 
-                # Add delay between chunks to respect rate limiting
-                if i < len(chunks) - 1:  # Don't wait after the last chunk
+                # Add delay between chunks to comply with rate limiting
+                if i < len(chunks) - 1:
                     await asyncio.sleep(0.5)
 
         logging.info(f"Document stored with {len(chunk_hashes)} chunks")
         return chunk_hashes
 
     async def retrieve_similar(self,
-                             query: str,
-                             similarity_threshold: float = 0.7,
-                             max_results: Optional[int] = None) -> List[RetrievalResult]:
-        """Retrieves chunks similar to query using cosine similarity.
+                               query: str,
+                               similarity_threshold: float = 0.7,
+                               max_results: Optional[int] = None) -> List[RetrievalResult]:
+        """Retrieve chunks similar to query using cosine similarity.
 
-        Cosine similarity (range: -1 to 1) measures vector orientation in embedding space,
-        with 1 indicating identical direction. Default threshold=0.7 filters weak matches.
+        Cosine similarity (range: -1 to 1) measures vector orientation, with 1
+        indicating identical direction. Filters results below threshold.
 
         Args:
             query (str): Search query text
-            similarity_threshold (float): Minimum similarity score (0.0-1.0, default: 0.7)
-            max_results (Optional[int]): Maximum results to return (default: 5)
+            similarity_threshold (float): Minimum similarity score (0.0-1.0)
+            max_results (Optional[int]): Maximum results to return
 
         Returns:
-            List[RetrievalResult]: Sorted list of matching chunks ordered by similarity score
+            List[RetrievalResult]: Sorted list of matching chunks (highest similarity first)
 
         Raises:
             NoMatchingEntryError: If no chunks meet threshold
@@ -498,18 +572,18 @@ class DynamicRAGSystem:
                                 actors: List[str],
                                 similarity_threshold: float = 0.5,
                                 max_results: int = 5) -> List[RetrievalResult]:
-        """Retrieves chunks based on actor membership similarity.
+        """Retrieve chunks based on actor membership similarity.
 
         Uses metric: similarity = matched_actors / (len(actors) + |len(actors) - len(chunk_actors)|),
-        which penalizes discrepancies in actor list lengths.
+        which penalizes discrepancies in actor list lengths and content.
 
         Args:
             actors (List[str]): Target actor list
-            similarity_threshold (float): Minimum similarity score (default: 0.5)
-            max_results (int): Maximum results to return (default: 5)
+            similarity_threshold (float): Minimum similarity score
+            max_results (int): Maximum results to return
 
         Returns:
-            List[RetrievalResult]: Sorted list of matching chunks with similarity scores
+            List[RetrievalResult]: Sorted list of matching chunks (highest similarity first)
 
         Raises:
             NoMatchingEntryError: If no chunks meet threshold
@@ -521,7 +595,7 @@ class DynamicRAGSystem:
         results = []
         for chunk in all_chunks:
             actors_matched = len(set(actors).intersection(chunk.metadata.actors))
-            similarity = actors_matched/(len(actors) + abs(len(actors) - len(chunk.metadata.actors)))
+            similarity = actors_matched / (len(actors) + abs(len(actors) - len(chunk.metadata.actors)))
 
             if similarity >= similarity_threshold:
                 results.append(RetrievalResult(chunk=chunk, similarity_score=similarity))
@@ -536,8 +610,8 @@ class DynamicRAGSystem:
 
         return results
 
-    async def delete_chunk(self, chunk: Union[DocumentChunk, str] | str) -> bool:
-        """Deletes a chunk by hash.
+    async def delete_chunk(self, chunk: Union[DocumentChunk, str]) -> bool:
+        """Delete a chunk by hash.
 
         Accepts either DocumentChunk object or SHA-256 hash string.
 
@@ -550,10 +624,12 @@ class DynamicRAGSystem:
         Raises:
             TypeError: If unsupported chunk type provided
         """
-        if chunk is str:
+        if isinstance(chunk, DocumentChunk):
+            chunk_hash = chunk.chunk_hash
+        elif isinstance(chunk, str):
             chunk_hash = chunk
         else:
-            chunk_hash = chunk.chunk_hash if isinstance(chunk, DocumentChunk) else chunk
+            raise TypeError("chunk must be DocumentChunk or str")
 
         logging.info(f"Deleting chunk with hash {chunk_hash}")
         deleted = await self.db_manager.delete_chunk(chunk_hash)
@@ -565,7 +641,7 @@ class DynamicRAGSystem:
             return True
 
     async def update_chunk(self, chunk_hash: str, new_content: str, actors: List[str]) -> bool:
-        """Updates chunk content through delete-then-store operation.
+        """Update chunk content through delete-then-store operation.
 
         Includes 0.5s rate limiting delay between operations to comply with database constraints.
 
@@ -575,7 +651,7 @@ class DynamicRAGSystem:
             actors (List[str]): New actor identifiers
 
         Returns:
-            bool: True if update succeeded, False otherwise
+            bool: True if update succeeded
 
         Raises:
             DatabaseNotAccessibleError: If storage fails
@@ -612,42 +688,11 @@ class DynamicRAGSystem:
         logging.info(f"Updated chunk with hash {chunk_hash}")
         return True
 
-    def _chunk_text(self, text: str, chunk_size: int, overlap: int) -> List[str]:
-        """Split text into overlapping chunks.
-
-        Example: With chunk_size=100 and overlap=20, each subsequent chunk starts 80 characters after previous.
-
-        Args:
-            text (str): Input text to chunk
-            chunk_size (int): Size of each chunk in characters (>0)
-            overlap (int): Overlap between chunks in characters (>=0)
-
-        Returns:
-            List[str]: Generated text chunks
-        """
-        if len(text) <= chunk_size:
-            return [text]
-
-        chunks = []
-        start = 0
-
-        while start < len(text):
-            end = start + chunk_size
-            chunk = text[start:end]
-            chunks.append(chunk)
-
-            if end >= len(text):
-                break
-
-            start = end - overlap
-
-        return chunks
-
     async def get_stats(self) -> Dict[str, Any]:
-        """Gets system statistics.
+        """Get system statistics.
 
         Returns:
-            Dict[str, Any]: Contains:
+            Dict[str, Any]: Statistics including:
                 - 'total_chunks': Total stored chunks
                 - 'unique_documents': Count of unique document IDs
                 - 'unique_actors': Count of unique actors
@@ -668,10 +713,12 @@ class DynamicRAGSystem:
             "actors": list(unique_actors)
         }
 
+
 if __name__ == "__main__":
     # Example usage
     async def main():
-        rag_system = DynamicRAGSystem(embedding_server_url="http://localhost:10000", embedding_model="nomic-embed-text:latest")
+        rag_system = DynamicRAGSystem(embedding_server_url="http://localhost:10000",
+                                      embedding_model="nomic-embed-text:latest")
 
         try:
             # Store a document
@@ -708,6 +755,7 @@ if __name__ == "__main__":
             print(f"Unexpected error: {e}")
 
         # print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
+
 
     # Run example
     asyncio.run(main())
