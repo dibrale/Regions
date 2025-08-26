@@ -14,9 +14,43 @@ This repo also provides examples and a comprehensive pytest suite to help you ge
 
 
 ## Features
-- Compose systems from Regions (base, RAG, Listener, and test mocks)
+- Compose systems from Regions (Region, RAGRegion, ListenerRegion)
 - Configure layered execution with Orchestrator (methods per region per layer)
+
+```python
+# Execute agents in coordinated layers
+orchestrator = Orchestrator()
+orchestrator.add_to_layer(0, "preprocessing", ["data_ingestion", "validation"])
+orchestrator.add_to_layer(1, "analysis", ["sentiment_analyzer", "topic_extractor"])
+orchestrator.add_to_layer(2, "response", ["response_generator", "quality_checker"])
+```
+- Understand and optimize your agent coordination patterns.
+
+```python
+# Analyze execution patterns
+profile = orchestrator.region_profile("sentiment_analyzer")
+# Returns: {0: ["preprocess"], 1: ["analyze_sentiment", "extract_entities"]}
+```
+
 - Execute plans with async concurrency where possible (Executor)
+- Layer-by-layer execution for debugging
+```python
+with Executor(registry, orchestrator, postmaster) as executor:
+    await executor.run_layer(0)  # Test individual layers
+    # Analyze results before proceeding
+    await executor.run_layer(1)
+```
+- Full control over agent communication with explicit routing.
+- Message injection for testing and debugging
+```python
+from modules.injector import Addressograph
+
+@Addressograph(postmaster, "test_user", role="request", injector_name="user")
+def test_scenario(user):
+    user.send("customer_service", "I need help with my order")
+    user.send("billing", "What's my current balance?")
+```
+
 - Decouple communication via queues and a Postmaster relay loop
 - Store/retrieve/update document chunks with DynamicRAGSystem
 - Pluggable LLM via LLMLink (text(), chat(), health(), model())
@@ -37,12 +71,12 @@ pip install -r requirements.txt
 ```
 
 Optional runtime services:
-- An embedding server for DynamicRAGSystem (defaults to http://localhost:8080). You can change host/model in your code or in example params.
+- An embedding server for DynamicRAGSystem. You can change host/model in your code or in example params.
 - An LLM HTTP endpoint for LLMLink (configurable via parameters).
 
 
 ## Quickstart
-There is a ready‑to‑run example under examples\demo.py. It initializes two RAG stores, two RAG regions, and one synthesizing Region, then routes messages to produce a final answer.
+There is a basic example under examples\demo.py. It initializes two RAG stores, two RAG regions, and one synthesizing Region, then routes messages to produce a final answer.
 
 Before running examples or tests, add the project’s modules directory to PYTHONPATH so imports like `from regions.region import Region` and `from llmlink import LLMLink` work:
 
@@ -59,7 +93,8 @@ cd examples
 python .\demo.py
 ```
 
-You should see logs about chunk storage, message routing, and a synthesized final answer. The demo also cleans up the sqlite files it created.
+You should see logs about chunk storage, message routing, and a synthesized final answer about the leader of the Zebras. 
+The demo also cleans up the sqlite files it created.
 
 Minimal code sketch (for reference only):
 
@@ -116,7 +151,7 @@ $env:PYTHONPATH = ".;.\modules"
 python -m pytest -q
 ```
 
-Some tests interact with async code; pytest.ini already sets `asyncio_mode = auto`.
+Note that test_params.json may need to be moved to the project directory for some configurations. Some tests interact with async code; pytest.ini already sets `asyncio_mode = auto`.
 
 
 ## Configuration & Examples
@@ -128,9 +163,8 @@ Some tests interact with async code; pytest.ini already sets `asyncio_mode = aut
 ## Project Structure
 - modules\: core framework (orchestrator, executor, postmaster, registry, RAG, LLM link)
 - modules\regions\: Region implementations (base, region, rag_region, listener_region)
-- examples\: runnable demos and params
+- examples\: runnable demo and params
 - tests\: unit tests for core modules
-- scratch\: design notes and experimental scripts
 
 
 ## Notes
@@ -139,9 +173,4 @@ Some tests interact with async code; pytest.ini already sets `asyncio_mode = aut
 
 
 ## Contributing
-Issues and PRs are welcome. Please run the test suite before submitting changes:
-
-```powershell
-$env:PYTHONPATH = ".;.\modules"
-python -m pytest -q
-```
+Issues and PRs are welcome! Consider running the test suite before submitting changes:
