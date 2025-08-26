@@ -25,54 +25,17 @@ async def store(rag: DynamicRAGSystem, data: list[dict]):
         stored_chunks.extend(chunk_hashes)
     print(f"{rag.name}: Total chunks stored: {len(stored_chunks)}\n")
 
-# Historical knowledge base
-historical_knowledge = [
-    {
-        'content': 'The Great Kiwi Massacre occurred on July 21, 2021, marking the Zebra invasion of Kiwia.',
-        'actors': ['Stripes', 'Mane']
-    },
-    {
-        'content': 'Operation Razzle Dazzle was the Zebra code name for The Great Kiwi Massacre.',
-        'actors': ['Zebra Forces']
-    },
-    {
-        'content': 'Despite using a codename, the Zebras had trouble keeping their plans secret, on account of their bright stripes.',
-        'actors': ['Zebra Forces']
-    },
-    {
-        'content': 'The involvement of the Mustangs was what ultimately allowed the Zebra Forces to breach Kiwian defenses.',
-        'actors': ['Zebra Forces','Mustangs']
-    },
-    {
-        'content': 'Doggiestan remains rich in calcium deposits to this day.',
-        'actors': ['Doggiestan']
-    }
-]
-
-biography_knowledge = [
-    {
-        'content': 'Stripes was the leader of the Zebras at the time of the Zebra invasion of Kiwia, and was known for his surprisingly calm temperament and calculated, militaristic policies',
-        'actors': ['Stripes']
-    },
-    {
-        'content': 'Mane was the leader of the Mustangs, who were allied with the Zebras at the time of the Zebra invasion of Kiwia. He was a good friend of Mane and Patches.',
-        'actors': ['Stripes', 'Mane', 'Patches']
-    },
-    {
-        'content': 'Featherball was the leader of Kiwia, whose personal involvement turned the tide of battle and limited Kiwi casualties during the Great Kiwi Massacre.',
-        'actors': ['Featherball']
-    },
-    {
-        'content': 'Patches was a good boy. As the leader of Doggiestan, he brokered friendly relations with both Kiwia and the Zebra nation.',
-        'actors': ['Patches']
-    }
-]
-
-
 async def main():
-    # Load parameters
+    # Load parameters and data
+
     print("Loading parameters from 'demo_params.json'")
     params = json.loads(open('demo_params.json','r').read())
+
+    print("Loading historical facts from 'demo_historical.json'")
+    historical_knowledge = json.loads(open('demo_historical.json','r').read())
+
+    print("Loading biography facts from 'demo_biography.json'")
+    biography_knowledge = json.loads(open('demo_biography.json','r').read())
 
     # initialize the LLM
     llm = LLMLink(

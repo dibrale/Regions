@@ -1,5 +1,7 @@
 import asyncio
+import pathlib
 import uuid
+
 import aiohttp
 import sqlite3
 import json
@@ -88,7 +90,7 @@ class RateLimiter:
         last_request_time (float): Timestamp of last operation
     """
 
-    def __init__(self, min_interval: float = 0.5):
+    def __init__(self, min_interval: float = 0.1):
         self.min_interval = min_interval
         self.last_request_time = 0.0
         self._lock = asyncio.Lock()
@@ -156,6 +158,7 @@ class EmbeddingClient:
             raise RuntimeError("EmbeddingClient must be used as async context manager")
 
         url = f"{self.base_url}/v1/embeddings"
+        logging.info(f"Sending embedding request for text length {len(text)} to '{url}'")
         payload = {
             "model": self.model,
             "input": text
@@ -173,6 +176,7 @@ class EmbeddingClient:
                 if "data" not in result or not result["data"]:
                     raise SchemaMismatchError("Invalid embedding response format")
 
+                logging.info(f"Successfully received embedding for text of length {len(text)}")
                 return result["data"][0]["embedding"]
 
         except SchemaMismatchError:
@@ -198,6 +202,7 @@ class DatabaseManager:
 
     def __init__(self, db_path: str = "rag_storage.db"):
         self.db_path = db_path
+        self.db_name = pathlib.PurePath(db_path).name
         self.rate_limiter = RateLimiter()
         self._init_database()
 
@@ -243,6 +248,8 @@ class DatabaseManager:
         except sqlite3.Error as e:
             raise DatabaseNotAccessibleError(f"Failed to initialize database: {str(e)}")
 
+        logging.info(f"Database initialized successfully at '{self.db_path}'")
+
     async def store_chunk(self, chunk: DocumentChunk) -> bool:
         """Store a document chunk in the database.
 
@@ -265,6 +272,7 @@ class DatabaseManager:
             if not chunk.chunk_hash:
                 chunk.chunk_hash = hashlib.sha256(chunk.content.encode()).hexdigest()
 
+            logging.info(f"{self.db_name}: Storing document chunk with hash: {chunk.chunk_hash}")
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
@@ -291,7 +299,7 @@ class DatabaseManager:
             return True
 
         except sqlite3.Error as e:
-            raise DatabaseNotAccessibleError(f"Failed to store chunk: {str(e)}")
+            raise DatabaseNotAccessibleError(f"{self.db_name}: Failed to store chunk: {str(e)}")
 
     async def get_all_chunks(self) -> List[DocumentChunk]:
         """Retrieve all stored document chunks.
@@ -339,10 +347,11 @@ class DatabaseManager:
                 chunks.append(chunk)
 
             conn.close()
+            logging.info(f"{self.db_name}: Retrieved all stored document chunks")
             return chunks
 
         except sqlite3.Error as e:
-            raise DatabaseNotAccessibleError(f"Failed to retrieve chunks: {str(e)}")
+            raise DatabaseNotAccessibleError(f"{self.db_name}: Failed to retrieve chunks. {str(e)}")
 
     async def delete_chunk(self, chunk_hash: str) -> bool:
         """Delete a chunk by its SHA-256 hash.
@@ -369,10 +378,11 @@ class DatabaseManager:
 
             conn.commit()
             conn.close()
+            logging.info(f"{self.db_name}: Deleted document chunk with hash: {chunk_hash}")
             return deleted
 
         except sqlite3.Error as e:
-            raise DatabaseNotAccessibleError(f"Failed to delete chunk: {str(e)}")
+            raise DatabaseNotAccessibleError(f"{self.db_name}: Failed to delete chunk. {str(e)}")
 
 
 def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
@@ -445,6 +455,7 @@ class DynamicRAGSystem:
             ValueError: If chunk_size <= 0, overlap < 0, or max_results < 1
         """
         self.db_manager = DatabaseManager(db_path)
+        self.db_name = pathlib.PurePath(db_path).name
         self.embedding_server_url = embedding_server_url
         self.embedding_model = embedding_model
         if name is None:
@@ -517,7 +528,7 @@ class DynamicRAGSystem:
                 if i < len(chunks) - 1:
                     await asyncio.sleep(0.5)
 
-        logging.info(f"Document stored with {len(chunk_hashes)} chunks")
+        logging.info(f"{self.db_name}: Document stored with {len(chunk_hashes)} chunks")
         return chunk_hashes
 
     async def retrieve_similar(self,
@@ -559,14 +570,30 @@ class DynamicRAGSystem:
                     results.append(RetrievalResult(chunk=chunk, similarity_score=similarity))
 
         # Sort by similarity and limit results
+        results = await self.sort_results(results, similarity_threshold,'cosine similarity', max_results)
+        if not results:
+            raise NoMatchingEntryError(similarity_threshold)
+        return results
+
+    async def sort_results(self, results: List[RetrievalResult], similarity: float, method_name: str | None, max_results: int = 5) -> List[RetrievalResult]:
+        """Sort retrieved results."""
+        # Sort by similarity and limit results
         results.sort(key=lambda x: x.similarity_score, reverse=True)
         results = results[:max_results]
 
         if not results:
-            logging.error(f"No chunks found with similarity threshold {similarity_threshold}")
-            raise NoMatchingEntryError(similarity_threshold)
+            error_msg = f"{self.db_name}: No chunks found. Similarity threshold: {similarity:.2f}"
+            if method_name:
+                error_msg += f" ({method_name})"
+            logging.error(error_msg)
+            return []
 
+        log_msg = f"{self.db_name}: Retrieved {len(results)} chunks. Similarity threshold: {similarity:.2f}"
+        if method_name:
+            log_msg += f" ({method_name})"
+        logging.info(log_msg)
         return results
+
 
     async def retrieve_by_actor(self,
                                 actors: List[str],
@@ -600,14 +627,10 @@ class DynamicRAGSystem:
             if similarity >= similarity_threshold:
                 results.append(RetrievalResult(chunk=chunk, similarity_score=similarity))
 
-        # Sort by similarity and limit results
-        results.sort(key=lambda x: x.similarity_score, reverse=True)
-        results = results[:max_results]
-
+        # Sort by actor and limit results
+        results = await self.sort_results(results, similarity_threshold, 'actor similarity', max_results)
         if not results:
-            logging.error(f"No chunks found with actor search - similarity threshold {similarity_threshold}")
             raise NoMatchingEntryError(similarity_threshold)
-
         return results
 
     async def delete_chunk(self, chunk: Union[DocumentChunk, str]) -> bool:
@@ -631,13 +654,13 @@ class DynamicRAGSystem:
         else:
             raise TypeError("chunk must be DocumentChunk or str")
 
-        logging.info(f"Deleting chunk with hash {chunk_hash}")
+        logging.info(f"{self.db_name}: Deleting chunk with hash {chunk_hash}")
         deleted = await self.db_manager.delete_chunk(chunk_hash)
         if not deleted:
-            logger.warning(f"Chunk {chunk_hash} could not be deleted")
+            logger.warning(f"{self.db_name}: Chunk {chunk_hash} could not be deleted")
             return False
         else:
-            logger.info(f"Deleted chunk {chunk_hash}")
+            logger.info(f"{self.db_name}: Deleted chunk {chunk_hash}")
             return True
 
     async def update_chunk(self, chunk_hash: str, new_content: str, actors: List[str]) -> bool:
@@ -662,9 +685,6 @@ class DynamicRAGSystem:
         if not deleted:
             return False
 
-        # Rate limiting delay
-        await asyncio.sleep(0.5)
-
         # Generate new embedding
         logging.info(f"Generating new embedding for updated chunk")
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
@@ -685,7 +705,7 @@ class DynamicRAGSystem:
 
         # Store updated chunk
         await self.db_manager.store_chunk(chunk)
-        logging.info(f"Updated chunk with hash {chunk_hash}")
+        logging.info(f"{self.db_name}: Updated chunk with hash {chunk_hash}")
         return True
 
     async def get_stats(self) -> Dict[str, Any]:
