@@ -103,10 +103,10 @@ class TestDataGenerator:
 
 # Note that this test uses HTTP only, not HTTPS. For production use, please update the host and port parameters accordingly.
 @pytest.fixture
-def test_rag_system(tmp_path):
+def test_rag_system(tmp_path, test_params):
     """Create a test RAG system with a temporary database"""
-    logging.info("Loading parameters from 'test_params.json'")
-    test_params = json.load(open('test_params.json', 'r'))
+    # logging.info("Loading parameters from 'test_params.json'")
+    # test_params = json.load(open('test_params.json', 'r'))
 
     db_path = str(tmp_path / "test_rag.db")
     rag_system = DynamicRAGSystem(
@@ -117,6 +117,12 @@ def test_rag_system(tmp_path):
         overlap=16
     )
     return rag_system
+
+@pytest.fixture
+def test_params():
+    logging.info("Loading parameters from 'test_params.json'")
+    params = json.load(open('test_params.json', 'r'))
+    return params
 
 '''
 @pytest.fixture
@@ -162,11 +168,8 @@ async def test_store_document(test_rag_system, caplog):
 
 
 @pytest.mark.asyncio
-async def test_retrieve_similar(test_rag_system):
+async def test_retrieve_similar(test_rag_system, test_params):
     """Test similarity-based retrieval"""
-    logging.info("Loading parameters from 'test_params.json'")
-    test_params = json.load(open('test_params.json', 'r'))
-
     # First store some test documents
     data = TestDataGenerator.get_test_documents()
     for doc in data:
@@ -182,7 +185,7 @@ async def test_retrieve_similar(test_rag_system):
     results = await test_rag_system.retrieve_similar(
         query="machine learning",
         similarity_threshold=test_params['rag_similarity_threshold'],
-        max_results=2
+        max_results=test_params['rag_max_results']
     )
 
     assert len(results) > 0, "No results found for machine learning query"
@@ -240,9 +243,7 @@ async def test_stats(test_rag_system):
 
 
 @pytest.mark.asyncio
-async def test_update_chunk(test_rag_system):
-    logging.info("Loading parameters from 'test_params.json'")
-    test_params = json.load(open('test_params.json', 'r'))
+async def test_update_chunk(test_rag_system, test_params):
 
     """Test chunk update functionality"""
     # Store a test chunk
@@ -276,10 +277,7 @@ async def test_update_chunk(test_rag_system):
 
 
 @pytest.mark.asyncio
-async def test_precision_recall(test_rag_system, caplog):
-    logging.info("Loading parameters from 'test_params.json'")
-    test_params = json.load(open('test_params.json', 'r'))
-
+async def test_precision_recall(test_rag_system, test_params, caplog):
     """Test retrieval precision and recall metrics"""
     test_queries = TestDataGenerator.get_test_queries()
     test_docs = TestDataGenerator.get_test_documents()
@@ -305,7 +303,7 @@ async def test_precision_recall(test_rag_system, caplog):
         results = await test_rag_system.retrieve_similar(
             query=query,
             similarity_threshold=test_params['rag_similarity_threshold'],
-            max_results=5
+            max_results=test_params['rag_max_results']
         )
 
         # Calculate precision: relevant results / total results
@@ -347,11 +345,8 @@ async def test_precision_recall(test_rag_system, caplog):
 
 
 @pytest.mark.asyncio
-async def test_hallucinations(test_rag_system, caplog):
+async def test_hallucinations(test_rag_system, test_params, caplog):
     """Test hallucination rate (returning irrelevant results)"""
-    logging.info("Loading parameters from 'test_params.json'")
-    test_params = json.load(open('test_params.json', 'r'))
-
     irrelevant_queries = [
         "quantum physics equations",
         "ancient roman history",
@@ -367,7 +362,7 @@ async def test_hallucinations(test_rag_system, caplog):
             results = await test_rag_system.retrieve_similar(
                 query=query,
                 similarity_threshold=test_params['rag_similarity_threshold'],
-                max_results=3
+                max_results=test_params['rag_max_results']
             )
             # Any results for irrelevant queries could be hallucinations
             if results:
@@ -377,7 +372,7 @@ async def test_hallucinations(test_rag_system, caplog):
             pass
 
     # Calculate hallucination rate
-    total_possible_hallucinations = len(irrelevant_queries) * 3
+    total_possible_hallucinations = len(irrelevant_queries) * test_params['rag_max_results']
     hallucination_rate = hallucination_count / total_possible_hallucinations if total_possible_hallucinations > 0 else 0
     logging.info(f"Hallucination Rate: {hallucination_rate:.2%}")
     print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
@@ -403,11 +398,8 @@ async def test_cosine_similarity():
 
 
 @pytest.mark.asyncio
-async def test_no_matching_entry_error(test_rag_system):
+async def test_no_matching_entry_error(test_rag_system, test_params):
     """Test NoMatchingEntryError handling"""
-    logging.info("Loading parameters from 'test_params.json'")
-    test_params = json.load(open('test_params.json', 'r'))
-
     # Store a document that won't match the query
     await test_rag_system.store_document(
         content="Completely unrelated content",
@@ -419,5 +411,5 @@ async def test_no_matching_entry_error(test_rag_system):
         await test_rag_system.retrieve_similar(
             query="machine learning",
             similarity_threshold=test_params['rag_similarity_threshold'],
-            max_results=1
+            max_results=test_params['rag_max_results']
         )
