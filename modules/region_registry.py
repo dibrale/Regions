@@ -86,7 +86,7 @@ class RegionEntry:
             >>> assert entry.name == "customer_region"
         """
         self.name = region.name
-        self.type = class_str_from_instance(region.__class__)
+        self.type = class_str_from_instance(region)
 
         # Alternate code (no checks for dictionary presence)
         # self.type = type(region).__name__
