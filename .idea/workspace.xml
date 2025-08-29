@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="First pass bottom action bar.">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Appropriate placement of bottom action bar.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gui/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/gui/src/App.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -344,14 +345,6 @@
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
       <workItem from="1755807881103" duration="167184000" />
-    </task>
-    <task id="LOCAL-00028" summary="Start of work on unit tests for Postmaster">
-      <option name="closed" value="true" />
-      <created>1755647357651</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1755647357651</updated>
     </task>
     <task id="LOCAL-00029" summary="- Postmaster passing unit tests, except edge cases.&#10;- Better behavior for emitter function">
       <option name="closed" value="true" />
@@ -737,7 +730,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756506043943</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="Appropriate placement of bottom action bar.">
+      <option name="closed" value="true" />
+      <created>1756506675167</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1756506675167</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -755,7 +756,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Skeleton of Executor context manager and Execute decorator" />
     <MESSAGE value=" Non-working outlines for 'execute_layer', 'execute_plan', the 'Executor' context manager and the 'Execute' decorator" />
     <MESSAGE value="First pass of possibly working versions of 'execute_layer', 'execute_plan', the 'Executor' context manager and the 'Execute' decorator" />
     <MESSAGE value="- Added 'stop' function to postmaster; no unit tests yet&#10;- try/except spam for plan execution&#10;- remove 'postmaster' argument from single layer execution function" />
@@ -780,7 +780,8 @@
     <MESSAGE value="Added some snippets to README.md" />
     <MESSAGE value="Vibecoded partial React GUI for configuration building" />
     <MESSAGE value="First pass bottom action bar." />
-    <option name="LAST_COMMIT_MESSAGE" value="First pass bottom action bar." />
+    <MESSAGE value="Appropriate placement of bottom action bar." />
+    <option name="LAST_COMMIT_MESSAGE" value="Appropriate placement of bottom action bar." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

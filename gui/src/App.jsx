@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Download, Plus, Trash2, Moon, Sun, Upload, X } from "lucide-react";
+import {Download, Plus, Trash2, Moon, Sun, Upload, X, Space} from "lucide-react";
 import './App.css'
 
 // Predefined color palette for chains
@@ -733,84 +733,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
   const sidebar = (
     <div className={`h-full space-y-3 ${isDarkMode ? 'dark' : ''}`}>
       {/* Layer Selection Panel */}
-      <Card className={`rounded-2xl ${isDarkMode ? 'bg-gray-900 border-gray-700' : ''}`}>
-        <CardHeader className="pb-2">
-          <CardTitle className={`text-base ${isDarkMode ? 'text-white' : ''}`}>Layer Management</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Label className={`text-xs ${isDarkMode ? 'text-gray-300' : ''}`}>Current Layer:</Label>
-            <Select value={selectedLayer.toString()} onValueChange={(v) => setSelectedLayer(parseInt(v))}>
-              <SelectTrigger className={`flex-1 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
-                {layerConfig.map((_, index) => (
-                  <SelectItem key={index} value={index.toString()} className={isDarkMode ? 'text-white hover:bg-gray-700' : ''}>
-                    Layer {index}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              onClick={() => {
-                setLayerConfig([...layerConfig, {}]);
-                setExecutionConfig([...executionConfig, []]);
-                setExecutionOrder([...executionOrder, layerConfig.length]);
-                setChainColors([...chainColors, {}]);
-              }}
-              className="gap-1"
-            >
-              <Plus className="w-3 h-3" /> Add Layer
-            </Button>
-            <Button 
-              size="sm" 
-              variant="destructive" 
-              disabled={layerConfig.length <= 1}
-              onClick={() => {
-                if (confirm(`Delete Layer ${selectedLayer}? This will remove all chain assignments and method configurations for this layer.`)) {
-                  const newLayerConfig = layerConfig.filter((_, i) => i !== selectedLayer);
-                  const newExecutionConfig = executionConfig.filter((_, i) => i !== selectedLayer);
-                  const newExecutionOrder = executionOrder.filter(i => i !== selectedLayer).map(i => i > selectedLayer ? i - 1 : i);
-                  const newChainColors = chainColors.filter((_, i) => i !== selectedLayer);
-                  setLayerConfig(newLayerConfig);
-                  setExecutionConfig(newExecutionConfig);
-                  setExecutionOrder(newExecutionOrder);
-                  setChainColors(newChainColors);
-                  setSelectedLayer(Math.min(selectedLayer, newLayerConfig.length - 1));
-                }
-              }}
-              className="gap-1"
-            >
-              <Trash2 className="w-3 h-3" /> Delete Layer
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
-      <Card className={`rounded-2xl ${isDarkMode ? 'bg-gray-900 border-gray-700' : ''}`}>
-        <CardHeader className="pb-2">
-          <CardTitle className={`text-base ${isDarkMode ? 'text-white' : ''}`}>Add Region</CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center gap-2">
-          <Select value={newType} onValueChange={(v) => setNewType(v)}>
-            <SelectTrigger className={`w-48 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}>
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
-              {Object.entries(REGION_CATALOG).map(([k, v]) => (
-                <SelectItem key={k} value={k} className={isDarkMode ? 'text-white hover:bg-gray-700' : ''}>
-                  {v.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={() => addNode(newType)} className="gap-2"><Plus className="w-4 h-4" /> Place node</Button>
-        </CardContent>
-      </Card>
 
       {/* Chain Assignment Panel */}
       <Card className={`rounded-2xl ${isDarkMode ? 'bg-gray-900 border-gray-700' : ''}`}>
@@ -1184,16 +1107,96 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
   return (
 
     <div className={`w-full h-[86vh] relative ${isDarkMode ? 'dark' : ''}`} onKeyDown={onKeyDown} tabIndex={0}>
-      {/* Theme Toggle Button */}
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={() => setIsDarkMode(!isDarkMode)}
-        className={`absolute top-4 right-4 z-10 gap-2 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white hover:bg-gray-700' : ''}`}
-      >
-        {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        {isDarkMode ? 'Light' : 'Dark'}
-      </Button>
+      {/* Top thin bar with Layer Management, Add Region, and Theme Toggle */}
+      <div className={`fixed top-0 left-0 right-45 z-0 border-b ${isDarkMode ? 'bg-gray-900/90 border-gray-700' : 'bg-white/90 border-gray-200'}`}>
+        <div className="max-w-screen-2xl mx-auto px-4 py-2 flex items-start gap-4">
+          {/* Layer Management (moved from sidebar) */}
+          <div className="flex flex-col gap-2">
+
+            <div className="flex items-center gap-2">
+              <Label className={`text-xs ${isDarkMode ? 'text-gray-300' : ''}`}>Current Layer:</Label>
+              <Select value={selectedLayer.toString()} onValueChange={(v) => setSelectedLayer(parseInt(v))}>
+                <SelectTrigger className={`${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''} w-28`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
+                  {layerConfig.map((_, index) => (
+                    <SelectItem key={index} value={index.toString()} className={isDarkMode ? 'text-white hover:bg-gray-700' : ''}>
+                      Layer {index}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button 
+                size="sm"
+                onClick={() => {
+                  setLayerConfig([...layerConfig, {}]);
+                  setExecutionConfig([...executionConfig, []]);
+                  setExecutionOrder([...executionOrder, layerConfig.length]);
+                  setChainColors([...chainColors, {}]);
+                }}
+                className="gap-1"
+              >
+                <Plus className="w-3 h-3" /> Add Layer
+              </Button>
+              <Button 
+                size="sm" 
+                variant="destructive" 
+                disabled={layerConfig.length <= 1}
+                onClick={() => {
+                  if (confirm(`Delete Layer ${selectedLayer}? This will remove all chain assignments and method configurations for this layer.`)) {
+                    const newLayerConfig = layerConfig.filter((_, i) => i !== selectedLayer);
+                    const newExecutionConfig = executionConfig.filter((_, i) => i !== selectedLayer);
+                    const newExecutionOrder = executionOrder.filter(i => i !== selectedLayer).map(i => i > selectedLayer ? i - 1 : i);
+                    const newChainColors = chainColors.filter((_, i) => i !== selectedLayer);
+                    setLayerConfig(newLayerConfig);
+                    setExecutionConfig(newExecutionConfig);
+                    setExecutionOrder(newExecutionOrder);
+                    setChainColors(newChainColors);
+                    setSelectedLayer(Math.min(selectedLayer, newLayerConfig.length - 1));
+                  }
+                }}
+                className="gap-1"
+              >
+                <Trash2 className="w-3 h-3" /> Delete Layer
+              </Button>
+            </div>
+          </div>
+
+          {/* Add Region (moved from sidebar) */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+                <div className={`text-xs font-medium ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Add Region</div>
+              <Select value={newType} onValueChange={(v) => setNewType(v)}>
+                <SelectTrigger className={`w-48 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
+                  {Object.entries(REGION_CATALOG).map(([k, v]) => (
+                    <SelectItem key={k} value={k} className={isDarkMode ? 'text-white hover:bg-gray-700' : ''}>
+                      {v.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button onClick={() => addNode(newType)} className="gap-2"><Plus className="w-4 h-4" /> Place node</Button>
+            </div>
+          </div>
+
+         {/* Theme Toggle */}
+          <div className="ml-auto self-start">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`${isDarkMode ? 'bg-gray-800 border-gray-600 text-white hover:bg-gray-700' : ''} gap-2`}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDarkMode ? 'Light' : 'Dark'}
+            </Button>
+          </div>
+        </div>
+      </div>
       
       <div className="w-full h-full flex gap-4">
         <div className="w-96 flex-shrink-0">
