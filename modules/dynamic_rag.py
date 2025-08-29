@@ -466,6 +466,52 @@ class DynamicRAGSystem:
         self._default_overlap = overlap
         self._default_max_results = max_results
 
+    def save(self, path: str) -> None:
+        """Save current configuration to a JSON file."""
+        pure_path = pathlib.PurePath(path)
+        if self.name:
+            logging.info(f"Saving '{self.name}' configuration to {pure_path}")
+        else:
+            logging.info(f"Saving configuration to {pure_path}")
+        try:
+            with open(str(pure_path), 'w') as f:
+                json.dump({
+                    "db_path": self.db_manager.db_path,
+                    "embedding_server_url": self.embedding_server_url,
+                    "embedding_model": self.embedding_model,
+                    "name": self.name,
+                    "chunk_size": self._default_chunk_size,
+                    "overlap": self._default_overlap,
+                    "max_results": self._default_max_results
+                }, f, indent=4)
+            logging.info(f"{self.db_name}: RAG configuration saved to {pure_path}")
+        except IOError as e:
+            logging.error(f"{self.db_name}: Failed to save RAG configuration: {str(e)}")
+
+    @classmethod
+    def load(cls, path: str) -> 'DynamicRAGSystem | None':
+        """Load a Dynamic RAG system from a JSON file."""
+        pure_path = pathlib.PurePath(path)
+        logging.info(f"{cls.__name__}: Loading RAG configuration from {pure_path.name}")
+        try:
+            with open(str(pure_path)) as f:
+                config = json.load(f)
+                if config.get('name') is not None:
+                    logging.info(f"{cls.__name__}: Loaded '{config['name']}' RAG configuration")
+                else:
+                    logging.info(f"{cls.__name__}: Loaded RAG configuration")
+                return cls(
+                    db_path=config['db_path'],
+                    embedding_server_url=config['embedding_server_url'],
+                    embedding_model=config['embedding_model'],
+                    name=config.get('name', None),
+                    chunk_size=config['chunk_size'],
+                    overlap=config['overlap'],
+                    max_results=config['max_results']
+                )
+        except IOError as e:
+            logging.error(f"{cls.__name__}: Failed to load RAG configuration: {str(e)}")
+
     async def store_document(self,
                              content: str,
                              actors: List[str],

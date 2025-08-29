@@ -1,4 +1,8 @@
+import json
+
 import aiohttp
+import logging
+import pathlib
 
 from modules.utils import assure_string, parse_host_port
 
@@ -13,18 +17,23 @@ class LLMLink:
 
        Attributes:
            url (str): Original host string (host:port) provided during initialization
-           host (str): Host part of the API endpoint (e.g., '192.168.1.232')
-           port (str | None): Port part of the API endpoint (e.g., '5000'), or None if not specified
+           _host (str): Host part of the API endpoint (e.g., '192.168.1.232')
+           _port (str | None): Port part of the API endpoint (e.g., '5000'), or None if not specified
            params (dict): LLM inference parameters
            headers (dict): HTTP headers for API requests
            ssl (bool): Whether SSL verification is enabled (for https)
     """
 
-    def __init__(self, host: str = '192.168.1.232:5000', params: dict = None, headers: dict = None, ssl: bool = False):
+    def __init__(self,
+                 url: str = '192.168.1.232:5000',
+                 params: dict = None,
+                 headers: dict = None,
+                 name: str = None,
+                 ssl: bool = False):
         """Initialize the LLMLink client with optional configuration.
 
         Args:
-            host (str, optional): API endpoint host:port. Defaults to local development server.
+            url (str, optional): API endpoint _host:_port. Defaults to local development server.
             params (dict, optional): LLM inference parameters. Defaults to:
                 {
                     "temperature": 1,
@@ -36,34 +45,42 @@ class LLMLink:
             ssl (bool, optional): Whether to enable SSL verification. Defaults to False.
 
         Note:
-            - If no host is provided, defaults to local LLM server (for development)
+            - If no _host is provided, defaults to local LLM server (for development)
             - All parameters use safe defaults to ensure immediate usability
             - SSL verification is disabled by default (use only for trusted local networks)
         """
-        self.url = host
+        self.url = url
         self.params = params
         self.headers = headers
+        self.name = name
         self.ssl = ssl
+        self._configure()
 
-        self.host, self.port = parse_host_port(host)
+    def __setattr__(self, name, value):
+        if not name.startswith('_'):
+            self._configure()
+
+    def _configure(self):
+
+        self._host, self._port = parse_host_port(self.url)
 
         if self.ssl:
-            self.protocol = 'https'
+            self._protocol = 'https'
         else:
-            self.protocol = 'http'
+            self._protocol = 'http'
 
-        if not self.port:
-            self.base_url = f'{self.protocol}://{self.host}'
+        if not self._port:
+            self._base_url = f'{self._protocol}://{self._host}'
         else:
-            self.base_url = f'{self.protocol}://{self.host}:{self.port}'
+            self._base_url = f'{self._protocol}://{self._host}:{self._port}'
 
-        self.chat_url = f'{self.base_url}/v1/chat/completions'
-        self.text_url = f'{self.base_url}/v1/completions'
-        self.models_url = f'{self.base_url}/v1/models'
-        self.tokenize_url = f'{self.base_url}/tokenize'
-        self.health_url = f'{self.base_url}/health'
+        self._chat_url = f'{self._base_url}/v1/chat/completions'
+        self._text_url = f'{self._base_url}/v1/completions'
+        self._models_url = f'{self._base_url}/v1/models'
+        self._tokenize_url = f'{self._base_url}/tokenize'
+        self._health_url = f'{self._base_url}/health'
 
-        if not params:
+        if not self.params:
             self.params = {
                 "temperature": 1,
                 "top_p": 0,
@@ -71,8 +88,50 @@ class LLMLink:
                 "top_n_sigma": 1
             }
 
-        if not headers:
+        if not self.headers:
             self.headers = {"Content-Type": "application/json"}
+
+    def save(self, path: str) -> None:
+        """Save LLMLink to a JSON file."""
+        pure_path = pathlib.PurePath(path)
+        if self.name:
+            logging.info(f"Saving '{self.name}' LLMLink configuration to {pure_path}")
+        else:
+            logging.info(f"Saving LLMLink configuration to {pure_path}")
+        try:
+            with open(str(pure_path), 'w') as f:
+                json.dump({
+                    "url": self.url,
+                    "params": self.params,
+                    "headers": self.headers,
+                    "name": self.name,
+                    "ssl": self.ssl,
+                }, f, indent=4)
+            logging.info(f"{self.name}: LLMLink configuration saved to {pure_path}")
+        except IOError as e:
+            logging.error(f"{self.name}: Failed to save LLMLink configuration: {str(e)}")
+
+    @classmethod
+    def load(cls, path: str) -> 'LLMLink | None':
+        """Load a LLMLink from a JSON file."""
+        pure_path = pathlib.PurePath(path)
+        logging.info(f"{cls.__name__}: Loading LLMLink configuration from {pure_path.name}")
+        try:
+            with open(str(pure_path)) as f:
+                config = json.load(f)
+                if config.get('name') is not None:
+                    logging.info(f"{cls.__name__}: Loaded '{config['name']}' LLMLink configuration")
+                else:
+                    logging.info(f"{cls.__name__}: Loaded LLMLink configuration")
+                return cls(
+                    url=config['url'],
+                    params=config['params'],
+                    headers=config['headers'],
+                    name=config.get('name', None),
+                    ssl=config['ssl'],
+                )
+        except IOError as e:
+            logging.error(f"{cls.__name__}: Failed to load LLMLink configuration: {str(e)}")
 
     async def chat(self, prompt) -> str:
         """Send a prompt to the LLM and return the response text.
@@ -125,7 +184,7 @@ class LLMLink:
         # Send request using aiohttp
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                    self.chat_url,
+                    self._chat_url,
                     headers=self.headers,
                     json=data,
                     ssl=self.ssl
@@ -159,7 +218,7 @@ class LLMLink:
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                    self.text_url,
+                    self._text_url,
                     headers=self.headers,
                     json=data,
                     ssl=self.ssl
@@ -189,7 +248,7 @@ class LLMLink:
         """
         async with aiohttp.ClientSession() as session:
             async with await session.get(
-                    self.health_url,
+                    self._health_url,
                     headers=self.headers,
                     ssl=self.ssl
             ) as response:
@@ -222,7 +281,7 @@ class LLMLink:
         """
         async with aiohttp.ClientSession() as session:
             async with await session.get(
-                    self.models_url,
+                    self._models_url,
                     headers=self.headers,
                     ssl=self.ssl
             ) as response:
@@ -252,7 +311,7 @@ class LLMLink:
         """
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                    self.tokenize_url,
+                    self._tokenize_url,
                     headers=self.headers,
                     json={"content": content},
                     ssl=self.ssl
