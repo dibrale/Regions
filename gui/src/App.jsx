@@ -1108,8 +1108,8 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
 
     <div className={`w-full h-[86vh] relative ${isDarkMode ? 'dark' : ''}`} onKeyDown={onKeyDown} tabIndex={0}>
       {/* Top thin bar with Layer Management, Add Region, and Theme Toggle */}
-      <div className={`fixed top-0 left-0 right-45 z-0 border-b ${isDarkMode ? 'bg-gray-900/90 border-gray-700' : 'bg-white/90 border-gray-200'}`}>
-        <div className="max-w-screen-2xl mx-auto px-4 py-2 flex items-start gap-4">
+      <div className={`fixed top-0 left-0 right-0 z-0 border-b ${isDarkMode ? 'bg-gray-900/90 border-gray-700' : 'bg-white/90 border-gray-200'}`}>
+        <div className="max-w-screen-2xl mx-4 px-2 py-2 flex items-start gap-4">
           {/* Layer Management (moved from sidebar) */}
           <div className="flex flex-col gap-2">
 
@@ -1164,7 +1164,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
           </div>
 
           {/* Add Region (moved from sidebar) */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col px-40 gap-2">
             <div className="flex items-center gap-2">
                 <div className={`text-xs font-medium ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Add Region</div>
               <Select value={newType} onValueChange={(v) => setNewType(v)}>
@@ -1199,11 +1199,11 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
       </div>
       
       <div className="w-full h-full flex gap-4">
-        <div className="w-96 flex-shrink-0">
+        <div className="w-96 flex-shrink-0 offset-y-16 py-12 overflow-y-auto">
           {sidebar}
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 py-12">
           <Card className={`rounded-2xl h-full ${isDarkMode ? 'bg-gray-900 border-gray-700' : ''}`}>
             <CardHeader className="py-3">
               <CardTitle className={`text-base ${isDarkMode ? 'text-white' : ''}`}>
