@@ -169,7 +169,7 @@ class RegionEntry:
                 fields will be initialized with None values per the dataclass defaults.
 
                 Args:
-                    path (str): File path to JSON configuration (supports POSIX-style paths)
+                    path (str): File path to JSON configuration
 
                 Returns:
                     List[RegionEntry]: Validated list of region entry objects
@@ -194,15 +194,15 @@ class RegionEntry:
                     must be created separately via RegionEntry.make_region(). The returned entries
                     contain no live region objects (region attribute remains None).
                 """
-        posix_path = pathlib.PurePosixPath(path)
+        pure_path = pathlib.PurePath(path)
 
-        with open(str(posix_path)) as f:
+        with open(str(pure_path)) as f:
             raw_list = json.load(f)     # [{"name": ..., "type": ..., ...}, ...]
-            logging.info(f"Loaded {len(raw_list)} entries from '{posix_path.name}'")
+            logging.info(f"Loaded {len(raw_list)} entries from '{pure_path.name}'")
             name_roll = []
             for entry in raw_list: name_roll.append(entry['name'])
             if len(name_roll) != len(set(name_roll)):
-                raise ValueError(f"Duplicate region names in list from '{posix_path.name}'")
+                raise ValueError(f"Duplicate region names in list from '{pure_path.name}'")
         return [cls(**item) for item in raw_list]
 
 class RegionRegistry:
@@ -451,22 +451,22 @@ class RegionRegistry:
         Example:
             >>> registry.load("config/regions.json")
         """
-        posix_path = pathlib.PurePosixPath(path)
+        pure_path = pathlib.PurePath(path)
 
         try:
-            self.regions = RegionEntry.load_list(str(posix_path))
+            self.regions = RegionEntry.load_list(str(pure_path))
         except FileNotFoundError:
-            logging.error(f"File '{posix_path.name}' not found at '{str(posix_path.parent)}'.")
+            logging.error(f"File '{pure_path.name}' not found at '{str(pure_path.parent)}'.")
             return False
         except json.decoder.JSONDecodeError:
-            logging.error(f"File '{posix_path.name}' not valid JSON.")
+            logging.error(f"File '{pure_path.name}' not valid JSON.")
             return False
         except Exception as e:
-            logging.error(f"Problem loading file '{posix_path.name}' from '{str(posix_path.parent)}': {e}")
+            logging.error(f"Problem loading file '{pure_path.name}' from '{str(pure_path.parent)}': {e}")
             return False
 
         self._update_names()
-        logging.info(f"Registered regions from '{posix_path.name}' at '{str(posix_path.parent)}'")
+        logging.info(f"Registered regions from '{pure_path.name}' at '{str(pure_path.parent)}'")
         return True
 
     def verify(self) -> tuple[list[str], list[str]]:
