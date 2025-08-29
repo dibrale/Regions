@@ -2,13 +2,13 @@
     {
         "name":"foo",
         "type":"Region",
-        "task":"Does things",
-        "connections":["bar"]
+        "task":"Important job",
+        "connections":{"bar": "Does things"}
     },
     {
         "name":"bar",
         "type": "RAGRegion",
         "task":"Does things",
-        "connections":[]
+        "connections": {}
     }
 ]
