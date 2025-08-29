@@ -1019,27 +1019,6 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
         </CardContent>
       </Card>
 
-      {/* Export button moved out of the Init Parameters card - exports whole graph */}
-      <div className="px-4 space-y-2">
-        <Button variant="default" onClick={exportJSON} className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white">
-          <Download className="w-4 h-4" /> Export Regions
-        </Button>
-        <Button variant="outline" onClick={exportOrchestratorConfig} className={`w-full gap-2 ${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''}`}>
-          <Download className="w-4 h-4" /> Export Orchestrator Config
-        </Button>
-        <div className="relative">
-          <input 
-            type="file" 
-            accept=".json" 
-            onChange={importOrchestratorConfig}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            id="import-orchestrator"
-          />
-          <Button variant="outline" className={`w-full gap-2 ${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''}`}>
-            <Upload className="w-4 h-4" /> Import Orchestrator Config
-          </Button>
-        </div>
-      </div>
 
       <Tabs defaultValue="params" className="grow grid grid-rows-[auto,1fr]">
         <TabsList className={`w-full ${isDarkMode ? 'bg-gray-800 border-gray-600' : ''}`}>
@@ -1203,6 +1182,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
   );
 
   return (
+
     <div className={`w-full h-[86vh] relative ${isDarkMode ? 'dark' : ''}`} onKeyDown={onKeyDown} tabIndex={0}>
       {/* Theme Toggle Button */}
       <Button 
@@ -1267,7 +1247,9 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
             </CardContent>
           </Card>
         </div>
-      </div>
+
+
+
 
       {/* Delete confirmation dialog */}
       <Dialog open={!!pendingDeleteId} onOpenChange={(v) => !v && setPendingDeleteId(null)}>
@@ -1280,6 +1262,30 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+                    {/* Bottom action bar: Export/Import buttons */}
+          <div className="absolute bottom-4 left-4 right-4 z-10">
+            <div className="flex flex-wrap gap-2 justify-end">
+              <Button variant="default" onClick={exportJSON} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+                <Download className="w-4 h-4" /> Export Regions
+              </Button>
+              <Button variant="outline" onClick={exportOrchestratorConfig} className={`${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''} gap-2`}>
+                <Download className="w-4 h-4" /> Export Orchestrator Config
+              </Button>
+              <div className="relative">
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={importOrchestratorConfig}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="import-orchestrator-footer"
+                />
+                <Button variant="outline" className={`${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''} gap-2`}>
+                  <Upload className="w-4 h-4" /> Import Orchestrator Config
+                </Button>
+              </div>
+            </div>
+          </div>
+      </div>
     </div>
   );
 }
