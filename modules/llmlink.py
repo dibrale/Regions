@@ -1,4 +1,5 @@
 import json
+from os.path import exists
 
 import aiohttp
 import logging
@@ -17,10 +18,9 @@ class LLMLink:
 
        Attributes:
            url (str): Original host string (host:port) provided during initialization
-           _host (str): Host part of the API endpoint (e.g., '192.168.1.232')
-           _port (str | None): Port part of the API endpoint (e.g., '5000'), or None if not specified
            params (dict): LLM inference parameters
            headers (dict): HTTP headers for API requests
+           name (str): Optional name for the configuration
            ssl (bool): Whether SSL verification is enabled (for https)
     """
 
@@ -45,7 +45,7 @@ class LLMLink:
             ssl (bool, optional): Whether to enable SSL verification. Defaults to False.
 
         Note:
-            - If no _host is provided, defaults to local LLM server (for development)
+            - If no url is provided, defaults to local LLM server (for development)
             - All parameters use safe defaults to ensure immediate usability
             - SSL verification is disabled by default (use only for trusted local networks)
         """
@@ -54,10 +54,27 @@ class LLMLink:
         self.headers = headers
         self.name = name
         self.ssl = ssl
+
+        # Internal attribute to make sure init is done when any of the attributes are set
+        self._initialized = True
+
+        # Internal attributes to be set with _configure() method
+        self._host = None
+        self._port = None
+        self._protocol = None
+        self._base_url = None
+        self._chat_url = None
+        self._text_url = None
+        self._models_url = None
+        self._tokenize_url = None
+        self._health_url = None
+
         self._configure()
 
     def __setattr__(self, name, value):
-        if not name.startswith('_'):
+        """Override setattr to ensure config reconfiguration on attribute change"""
+        self.__dict__[name] = value
+        if hasattr(self, '_initialized') and not name.startswith('_'):
             self._configure()
 
     def _configure(self):

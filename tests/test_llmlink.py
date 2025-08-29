@@ -11,7 +11,7 @@ class TestLLMLink(unittest.IsolatedAsyncioTestCase):
         logging.info("Loading parameters from 'test_params.json'")
         test_params = json.load(open('test_params.json', 'r'))
 
-        self.obj = LLMLink(host=f"{test_params['llm_host']}:{test_params['llm_port']}")
+        self.obj = LLMLink(url=f"{test_params['llm_host']}:{test_params['llm_port']}")
         logging.info("Initialized LLMLink object for testing")
         await asyncio.sleep(0)
 
