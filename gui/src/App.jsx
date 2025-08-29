@@ -1263,7 +1263,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
         </DialogContent>
       </Dialog>
                     {/* Bottom action bar: Export/Import buttons */}
-          <div className="absolute bottom-4 left-4 right-4 z-10">
+          <div className="fixed bottom-4 left-4 right-4 z-10">
             <div className="flex flex-wrap gap-2 justify-end">
               <Button variant="default" onClick={exportJSON} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
                 <Download className="w-4 h-4" /> Export Regions
