@@ -45,7 +45,7 @@ class TestRegionRegistry(unittest.TestCase):
             name="test_region",
             type="MockRegion",
             task="test task",
-            connections=["other_region"]
+            connections={"other_region":"Things and stuff"}
         )
 
         registered = self.registry.register(entry)
@@ -121,13 +121,13 @@ class TestRegionRegistry(unittest.TestCase):
             name="sales",
             type="MockRegion",
             task="handle sales inquiries",
-            connections=["customer_support"]
+            connections={"customer_support": "provide customer assistance"}
         )
         entry2 = RegionEntry(
             name="customer_support",
             type="MockRAGRegion",
             task="provide customer assistance",
-            connections=["sales"]
+            connections={"sales": "handle sales inquiries"}
         )
         self.registry.regions = [entry1, entry2]
         self.registry._update_names()
@@ -143,7 +143,7 @@ class TestRegionRegistry(unittest.TestCase):
             name="sales",
             type="MockRegion",
             task="handle sales inquiries",
-            connections=["invalid_region"]
+            connections={"invalid_region": "invalid task"}
         )
         self.registry.regions = [entry]
         self.registry._update_names()
@@ -159,7 +159,7 @@ class TestRegionRegistry(unittest.TestCase):
             name="sales",
             type="MockRegion",
             task="handle sales inquiries",
-            connections=[]
+            connections={}
         )
         self.registry.regions = [entry]
         self.registry._update_names()
@@ -179,7 +179,7 @@ class TestRegionRegistry(unittest.TestCase):
             name="customer_support",
             type="RAGRegion",
             task="provide customer assistance",
-            connections=[]
+            connections={}
         )
         self.registry.regions = [entry]
         self.registry._update_names()
@@ -201,7 +201,7 @@ class TestRegionRegistry(unittest.TestCase):
             name="sales",
             type="MockRegion",
             task="handle sales inquiries",
-            connections=[]
+            connections={}
         )
         self.registry.register(entry)
 
@@ -210,7 +210,7 @@ class TestRegionRegistry(unittest.TestCase):
             name="sales",
             type="MockRegion",
             task="handle updated sales inquiries",
-            connections=[]
+            connections={}
         )
         self.registry.update(updated_entry)
 

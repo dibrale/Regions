@@ -538,7 +538,7 @@ class RegionRegistry:
                 if not region.llm:
                     warnings.append(f"No LLM given for region '{region.name}' - will set default on build")
             if region.connections:
-                for connection in region.connections:
+                for connection in region.connections.keys():
                     if not connection in self.names:
                         issues.append(f"Connection to '{connection}' specified for '{region.name}', but no such region in name list")
             else:
