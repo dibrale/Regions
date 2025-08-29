@@ -24,7 +24,7 @@ class RegionEntry:
         name (str): Unique identifier for the region. Default: None
         type (str): Fully qualified class name of the region implementation. Default: None
         task (str): Primary objective/functionality description of the region. Default: None
-        connections (list[str]): Names of regions this region interacts with. Default: None
+        connections (dict[str, str]): Names of downstream regions mapped to their task descriptions. Default: None
         rag (DynamicRAGSystem): Optional retrieval-augmented generation system for knowledge access. Default: None
         llm (LLMLink): Optional language model interface for generating responses. Default: None
         region (base_region.BaseRegion): Live instance of the region (populated when active). Default: None
@@ -38,7 +38,7 @@ class RegionEntry:
     name: str = None
     type: str = None
     task: str = None
-    connections: list[str] = None
+    connections: dict[str, str] = None
     rag: DynamicRAGSystem = None
     llm: LLMLink = None
     region: BaseRegion = None
