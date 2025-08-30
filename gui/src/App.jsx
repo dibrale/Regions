@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactFlow, {
     addEdge,
     Background,
@@ -11,32 +11,27 @@ import ReactFlow, {
     useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import {Button} from "@/components/ui/button";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
-import {Label} from "@/components/ui/label";
-import {Download, Moon, Plus, Sun, Trash2, Upload, X} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Download, Moon, Plus, Sun, Trash2, Upload, X } from "lucide-react";
 import './App.css'
+import {includes} from "zod/v4";
 
 // Predefined color palette for chains
 const CHAIN_COLORS = [
-    {name: 'Blue', light: 'bg-blue-500', dark: 'bg-blue-600', text: 'text-white'},
-    {name: 'Green', light: 'bg-green-500', dark: 'bg-green-600', text: 'text-white'},
-    {name: 'Red', light: 'bg-red-500', dark: 'bg-red-600', text: 'text-white'},
-    {name: 'Purple', light: 'bg-purple-500', dark: 'bg-purple-600', text: 'text-white'},
-    {name: 'Orange', light: 'bg-orange-500', dark: 'bg-orange-600', text: 'text-white'},
-    {name: 'Pink', light: 'bg-pink-500', dark: 'bg-pink-600', text: 'text-white'},
-    {name: 'Indigo', light: 'bg-indigo-500', dark: 'bg-indigo-600', text: 'text-white'},
-    {name: 'Teal', light: 'bg-teal-500', dark: 'bg-teal-600', text: 'text-white'},
+    { name: 'Blue', light: 'bg-blue-500', dark: 'bg-blue-600', text: 'text-white' },
+    { name: 'Green', light: 'bg-green-500', dark: 'bg-green-600', text: 'text-white' },
+    { name: 'Red', light: 'bg-red-500', dark: 'bg-red-600', text: 'text-white' },
+    { name: 'Purple', light: 'bg-purple-500', dark: 'bg-purple-600', text: 'text-white' },
+    { name: 'Orange', light: 'bg-orange-500', dark: 'bg-orange-600', text: 'text-white' },
+    { name: 'Pink', light: 'bg-pink-500', dark: 'bg-pink-600', text: 'text-white' },
+    { name: 'Indigo', light: 'bg-indigo-500', dark: 'bg-indigo-600', text: 'text-white' },
+    { name: 'Teal', light: 'bg-teal-500', dark: 'bg-teal-600', text: 'text-white' },
 ];
-
-/**
- * Regions GUI – Flow Editor
- *
- * This version fixes the text field focus issue by adding stable keys to all input elements.
- */
 
 // --- Region catalog (edit to mirror your Python classes) ---
 const REGION_CATALOG = {
@@ -48,8 +43,8 @@ const REGION_CATALOG = {
             connections: {},
         }),
         methods: {
-            make_questions: {doc: "Generate questions for connected regions to update knowledge."},
-            make_replies: {doc: "Generate replies to all pending requests in _incoming_requests."},
+            make_questions: { doc: "Generate questions for connected regions to update knowledge." },
+            make_replies: { doc: "Generate replies to all pending requests in _incoming_requests." },
         },
     },
     RAGRegion: {
@@ -61,9 +56,9 @@ const REGION_CATALOG = {
             connections: {},
         }),
         methods: {
-            make_replies: {doc: "Generate structured replies to all pending requests using RAG retrieval."},
-            make_updates: {doc: "Process incoming knowledge updates and consolidate similar fragments in the RAG database."},
-            request_summaries: {doc: "Request knowledge summaries from all connected regions."},
+            make_replies: { doc: "Generate structured replies to all pending requests using RAG retrieval." },
+            make_updates: { doc: "Process incoming knowledge updates and consolidate similar fragments in the RAG database." },
+            request_summaries: { doc: "Request knowledge summaries from all connected regions." },
         },
     },
     ListenerRegion: {
@@ -74,10 +69,10 @@ const REGION_CATALOG = {
             connections: {}
         }),
         methods: {
-            start: {doc: "Launches the background forwarding task."},
-            forward: {doc: "Background task that continuously drains ALL pending messages from inbox and forwards each message to output process via mp.Queue."},
-            stop: {doc: "Cleanly stops forwarding and terminates output process."},
-            verify: {doc: "Verify correct configuration of ListenerRegion in the orchestrator via the region profile."}
+            start: { doc: "Launches the background forwarding task." },
+            forward: { doc: "Background task that continuously drains ALL pending messages from inbox and forwards each message to output process via mp.Queue." },
+            stop: { doc: "Cleanly stops forwarding and terminates output process." },
+            verify: { doc: "Verify correct configuration of ListenerRegion in the orchestrator via the region profile." }
         },
     },
 };
@@ -85,8 +80,8 @@ const REGION_CATALOG = {
 // Types for node data
 const nodeStyle = "rounded-2xl shadow-md border bg-white";
 
-function RegionNode({data, selected}) {
-    const {typeName, params, isDarkMode, layerInfo} = data;
+function RegionNode({ data, selected }) {
+    const { typeName, params, isDarkMode, layerInfo } = data;
     const nodeClass = isDarkMode
         ? "rounded-2xl shadow-md border bg-gray-800 border-gray-600 text-white"
         : "rounded-2xl shadow-md border bg-white";
@@ -108,7 +103,6 @@ function RegionNode({data, selected}) {
                     {chainName}
                 </div>
             )}
-
             <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
                 {REGION_CATALOG[typeName].label}
             </div>
@@ -122,21 +116,20 @@ function RegionNode({data, selected}) {
                     {params.task}
                 </div>
             )}
-
             {/* Input & Output handles ("pips") - attach mouse handlers to detect hover on handles too */}
             <Handle type="target" position={Position.Left} id="in"
-                    onMouseEnter={() => data.onHandleEnter?.(data.nodeId)} onMouseLeave={() => data.onHandleLeave?.()}/>
+                    onMouseEnter={() => data.onHandleEnter?.(data.nodeId)} onMouseLeave={() => data.onHandleLeave?.()} />
             {/* Hide outgoing handle for ListenerRegion since it doesn't pass messages to other regions */}
             {typeName !== 'ListenerRegion' && (
                 <Handle type="source" position={Position.Right} id="out"
                         onMouseEnter={() => data.onHandleEnter?.(data.nodeId)}
-                        onMouseLeave={() => data.onHandleLeave?.()}/>
+                        onMouseLeave={() => data.onHandleLeave?.()} />
             )}
         </div>
     );
 }
 
-const nodeTypes = {regionNode: RegionNode};
+const nodeTypes = { regionNode: RegionNode };
 
 // Utility to download files from the browser
 function download(filename, text) {
@@ -158,22 +151,89 @@ function toRegistryJSON(nodes, edges) {
         if (!sourceNode || !targetNode) return;
         if (!connectionsBySource[sourceNode.id]) connectionsBySource[sourceNode.id] = {};
         const entryName = targetNode.data.params.name;
-        //const connectionEntry = {};
-        //connectionEntry[entryName] = entryTask;
         connectionsBySource[sourceNode.id][entryName] = targetNode.data.params.task;
     });
-
     return nodes.map((n) => {
         const name = n.data.params?.name || n.id;
         const type = n.data.typeName;
         const task = n.data.params?.task || "";
-        const connections = connectionsBySource[n.id] || [];
-        return {name, type, task, connections};
+        const connections = connectionsBySource[n.id] || {};
+        return { name, type, task, connections };
     }); // Return array directly, not wrapped in object
 }
 
+// Transform imported JSON format back into nodes and edges
+function fromRegistryJSON(jsonData, isDarkMode, idRef) {
+    // Create a map from region name to a unique ID for the new flow
+    const nameToIdMap = {};
+    const newNodes = jsonData.map((item) => {
+        // Generate a new unique ID for the node in the flow diagram
+        // Use the idRef to ensure uniqueness
+        const nodeId = `imported_${idRef.current++}_${item.name}`;
+        nameToIdMap[item.name] = nodeId;
+
+        // Find the type definition in the catalog
+        const typeDef = REGION_CATALOG[item.type];
+        if (!typeDef) {
+             console.warn(`Unknown region type '${item.type}' for region '${item.name}'. Skipping.`);
+             return null; // Or handle unknown types differently
+        }
+
+        // Merge defaults with imported data
+        // We need to be careful not to override the imported name/task/connections
+        const defaults = typeDef.defaults(0); // Pass 0 or dummy value, as we'll override name/task anyway
+        const mergedParams = {
+            ...defaults,
+            ...item, // This ensures name, task, connections from JSON override defaults
+            // Explicitly ensure connections is an object
+            connections: item.connections && typeof item.connections === 'object' && !Array.isArray(item.connections) ? item.connections : {}
+        };
+
+        return {
+            id: nodeId,
+            type: "regionNode",
+            position: { x: Math.random() * 500, y: Math.random() * 500 }, // Place randomly or use a layout algorithm
+            data: {
+                typeName: item.type,
+                params: mergedParams,
+                nodeId: nodeId, // Add nodeId to data for handle callbacks
+                isDarkMode,
+                onHandleEnter: (nid) => {}, // Will be updated by EditorImpl
+                onHandleLeave: () => {},
+            },
+        };
+    }).filter(node => node !== null); // Remove any null nodes from unknown types
+
+    // Create edges based on the connections defined in the JSON
+    const newEdges = [];
+    newNodes.forEach((node) => {
+        const sourceName = node.data.params.name;
+        const connections = node.data.params.connections || {};
+        Object.keys(connections).forEach((targetName) => {
+            const targetId = nameToIdMap[targetName];
+            if (targetId) { // Only create edge if target node exists
+                // Ensure the target node actually exists in the newNodes list
+                const targetNodeExists = newNodes.some(n => n.id === targetId);
+                if (targetNodeExists) {
+                     newEdges.push({
+                        id: `e_${node.id}_${targetId}`,
+                        source: node.id,
+                        target: targetId,
+                        type: "default"
+                    });
+                }
+            } else {
+                console.warn(`Connection target '${targetName}' not found for source '${sourceName}'.`);
+            }
+        });
+    });
+
+    return { nodes: newNodes, edges: newEdges };
+}
+
+
 // Pretty print a method list + docs for a chosen region type
-function MethodList({typeName}) {
+function MethodList({ typeName }) {
     const methods = REGION_CATALOG[typeName].methods;
     const entries = Object.entries(methods);
     return (
@@ -195,30 +255,30 @@ function MethodList({typeName}) {
 
 // FIXED: ParamEditor component extracted outside to prevent recreation on every render
 function ParamEditor({
-                         selectedNode,
-                         updateParam,
-                         edges,
-                         nodes,
-                         draggingSourceId,
-                         hoverTargetId,
-                         connectionsEditingNodeId,
-                         connectionsEditBuffer,
-                         setConnectionsEditingNodeId,
-                         setConnectionsEditBuffer,
-                         selectedNodeId,
-                         syncEdgesWithConnections,
-                         isDarkMode
-                     }) {
+    selectedNode,
+    updateParam,
+    edges,
+    nodes,
+    draggingSourceId,
+    hoverTargetId,
+    connectionsEditingNodeId,
+    connectionsEditBuffer,
+    setConnectionsEditingNodeId,
+    setConnectionsEditBuffer,
+    selectedNodeId,
+    syncEdgesWithConnections,
+    isDarkMode
+}) {
     if (!selectedNode) return <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Select a
         region to edit parameters.</div>;
-    const {typeName, params} = selectedNode.data;
 
+    const { typeName, params } = selectedNode.data;
     const flat = [];
     Object.entries(params || {}).forEach(([k, v]) => {
         if (v && typeof v === "object" && !Array.isArray(v)) {
-            Object.entries(v).forEach(([kk, vv]) => flat.push({key: `${k}.${kk}`, value: vv}));
+            Object.entries(v).forEach(([kk, vv]) => flat.push({ key: `${k}.${kk}`, value: vv }));
         } else {
-            flat.push({key: k, value: v});
+            flat.push({ key: k, value: v });
         }
     });
 
@@ -241,7 +301,7 @@ function ParamEditor({
     // Merge derived (from edges + transient) with any explicit connections user saved in params.
     // Explicit overrides win.
     const explicitConnections = params?.connections || {};
-    const previewConnections = {...derivedConnections, ...explicitConnections};
+    const previewConnections = { ...derivedConnections, ...explicitConnections };
 
     // Decide what to render into the textarea: if user is actively editing this node, show their buffer;
     // otherwise show the live preview (derived+explicit).
@@ -250,8 +310,8 @@ function ParamEditor({
     return (
         <div className="space-y-3">
             {flat
-                .filter(({key}) => !key.includes('connections'))
-                .map(({key, value}) => (
+                .filter(({ key }) => !(key.includes('connections') || key.includes('type')))
+                .map(({ key, value }) => (
                     <div key={`${selectedNode.id}-${key}`} className="grid grid-cols-3 gap-2 items-center">
                         <Label className={`text-xs col-span-1 truncate ${isDarkMode ? 'text-gray-300' : ''}`}
                                title={key}>{key}</Label>
@@ -278,7 +338,7 @@ function ParamEditor({
                             >
                                 <SelectTrigger
                                     className={`col-span-2 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}>
-                                    <SelectValue/>
+                                    <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
                                     <SelectItem value="true"
@@ -297,7 +357,6 @@ function ParamEditor({
                         )}
                     </div>
                 ))}
-
             {/* Connections editor (JSON) - hidden for ListenerRegion since it doesn't pass messages to other regions */}
             {selectedNode.data.typeName !== 'ListenerRegion' && (
                 <div className="space-y-1">
@@ -333,7 +392,6 @@ function ParamEditor({
 
 export default function RegionsFlowEditor() {
     const [isDarkMode, setIsDarkMode] = useState(false);
-
     // Apply dark class to body for global dark mode
     useEffect(() => {
         if (isDarkMode) {
@@ -342,40 +400,35 @@ export default function RegionsFlowEditor() {
             document.body.classList.remove('dark');
         }
     }, [isDarkMode]);
-
     return (
         <div className="w-full h-full p-4">
             <ReactFlowProvider>
-                <EditorImpl isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>
+                <EditorImpl isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
             </ReactFlowProvider>
         </div>
     );
 }
 
-function EditorImpl({isDarkMode, setIsDarkMode}) {
-    const idRef = useRef(1);
+function EditorImpl({ isDarkMode, setIsDarkMode }) {
+    const idRef = useRef(1); // Keep idRef for generating unique IDs during import
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [selectedNodeId, setSelectedNodeId] = useState(null);
     const [selectedEdgeIds, setSelectedEdgeIds] = useState([]);
     const [pendingDeleteId, setPendingDeleteId] = useState(null);
     const [newType, setNewType] = useState("Region");
-
     // Orchestrator state management
     const [selectedLayer, setSelectedLayer] = useState(0);
     const [layerConfig, setLayerConfig] = useState([{}]); // Start with one empty layer
     const [executionConfig, setExecutionConfig] = useState([[]]); // Start with one empty execution layer
     const [executionOrder, setExecutionOrder] = useState([0]); // Default sequential order
     const [chainColors, setChainColors] = useState([{}]); // Chain color assignments per layer
-
     // transient drag/hover state to show directional preview in the connections JSON
     const [draggingSourceId, setDraggingSourceId] = useState(null);
     const [hoverTargetId, setHoverTargetId] = useState(null);
-
     // editing state for manual JSON editing (prevents cursor losing focus while typing)
     const [connectionsEditBuffer, setConnectionsEditBuffer] = useState("");
     const [connectionsEditingNodeId, setConnectionsEditingNodeId] = useState(null);
-
     // refs to track previous edges and nodes for diffing without triggering extra renders/effects
     const prevEdgesRef = useRef([]);
     const nodesRef = useRef(nodes);
@@ -402,18 +455,15 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
             currentNodes.map((node) => {
                 const regionName = node.data.params?.name;
                 const currentLayerConfig = layerConfig[selectedLayer] || {};
-
                 // Find which chain this region belongs to in the current layer
                 let chainName = null;
                 let isInCurrentLayer = false;
                 let chainColorClass = '';
                 let chainTextClass = '';
-
                 for (const [chain, regions] of Object.entries(currentLayerConfig)) {
                     if (regions.includes(regionName)) {
                         chainName = chain;
                         isInCurrentLayer = true;
-
                         // Get chain color
                         const chainColor = chainColors[selectedLayer]?.[chain] || 0;
                         const colorConfig = CHAIN_COLORS[chainColor];
@@ -422,7 +472,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                         break;
                     }
                 }
-
                 return {
                     ...node,
                     data: {
@@ -447,7 +496,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
             if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable)) {
                 return; // don't intercept; allow typing/backspace/delete inside fields
             }
-
             if (e.key === "Delete" || e.key === "Backspace") {
                 e.preventDefault();
                 // if edges are selected, delete them (no confirmation)
@@ -467,16 +515,14 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
     );
 
     // Selection change handler from React Flow
-    const onSelectionChange = useCallback(({nodes: selNodes, edges: selEdges}) => {
+    const onSelectionChange = useCallback(({ nodes: selNodes, edges: selEdges }) => {
         // update selected edge ids
         setSelectedEdgeIds((selEdges || []).map((e) => e.id));
-
         // if nodes are present in the selection, pick the first one
         if (selNodes && selNodes.length > 0) {
             setSelectedNodeId(selNodes[0].id);
             return;
         }
-
         // selNodes is empty (no node selected). Do NOT clear the selectedNodeId if the user is
         // actively typing in an input/textarea or editing the connections buffer — clearing
         // the selection here causes the ParamEditor to unmount/remount, which steals focus.
@@ -486,15 +532,13 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
             // preserve selection while user is typing
             return;
         }
-
         // also preserve selection if user is explicitly editing the connections textarea
         if (connectionsEditingNodeId) return;
-
         // safe to clear selection
         setSelectedNodeId(null);
     }, [connectionsEditingNodeId]);
 
-    const onConnectStart = useCallback((_, {nodeId}) => {
+    const onConnectStart = useCallback((_, { nodeId }) => {
         // user started dragging a connection from nodeId
         setDraggingSourceId(nodeId || null);
     }, []);
@@ -522,16 +566,17 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
             type: "default",
             id: `e_${connection.source}_${connection.target}`
         }, eds));
+
         // persist connection into source node params
-        const {source, target} = connection;
+        const { source, target } = connection;
         setNodes((prev) =>
             prev.map((n) => {
                 if (n.id !== source) return n;
-                const params = {...n.data.params};
-                params.connections = {...params.connections};
+                const params = { ...n.data.params };
+                params.connections = { ...params.connections };
                 const targetNode = nodesRef.current.find((nd) => nd.id === target);
                 if (targetNode) params.connections[targetNode.data.params.name] = targetNode.data.params.task ?? "";
-                return {...n, data: {...n.data, params}};
+                return { ...n, data: { ...n.data, params } };
             })
         );
     }, [setEdges, setNodes]);
@@ -546,11 +591,11 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
             const node = {
                 id,
                 type: "regionNode",
-                position: {x, y},
+                position: { x, y },
                 data: {
                     typeName,
                     params: defaults,
-                    nodeId: id,
+                    nodeId: id, // Add nodeId to data for handle callbacks
                     isDarkMode,
                     // callbacks for handle hover — these are safe to store in node data here
                     onHandleEnter: (nid) => setHoverTargetId(nid),
@@ -564,7 +609,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
     );
 
     const onNodeClick = useCallback((_, node) => setSelectedNodeId(node.id), []);
-
     const selectedNode = useMemo(() => nodes.find((n) => n.id === selectedNodeId) || null, [nodes, selectedNodeId]);
 
     const updateParam = useCallback(
@@ -572,7 +616,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
             setNodes((ns) =>
                 ns.map((n) => {
                     if (n.id !== selectedNodeId) return n;
-                    const params = {...n.data.params};
+                    const params = { ...n.data.params };
                     const parts = keyPath.split(".");
                     let cur = params;
                     for (let i = 0; i < parts.length - 1; i++) {
@@ -581,7 +625,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                         cur = cur[p];
                     }
                     cur[parts[parts.length - 1]] = value;
-                    return {...n, data: {...n.data, params}};
+                    return { ...n, data: { ...n.data, params } };
                 })
             );
         },
@@ -601,7 +645,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
         const prev = prevEdgesRef.current;
         const added = edges.filter((e) => !prev.some((pe) => (pe.id ? pe.id === e.id : (pe.source === e.source && pe.target === e.target))));
         const removed = prev.filter((pe) => !edges.some((e) => (pe.id ? e.id === pe.id : (e.source === pe.source && e.target === pe.target))));
-
         if (added.length === 0 && removed.length === 0) {
             prevEdgesRef.current = edges;
             return;
@@ -613,13 +656,13 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                 prevNodes.map((n) => {
                     const related = added.filter((a) => a.source === n.id);
                     if (related.length === 0) return n;
-                    const params = {...n.data.params};
-                    params.connections = {...(params.connections || {})};
+                    const params = { ...n.data.params };
+                    params.connections = { ...(params.connections || {}) };
                     related.forEach((a) => {
                         const tgt = nodesRef.current.find((nd) => nd.id === a.target);
                         if (tgt) params.connections[tgt.data.params.name] = tgt.data.params.task ?? "";
                     });
-                    return {...n, data: {...n.data, params}};
+                    return { ...n, data: { ...n.data, params } };
                 })
             );
         }
@@ -630,9 +673,9 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                 prevNodes.map((n) => {
                     const related = removed.filter((a) => a.source === n.id);
                     if (related.length === 0) return n;
-                    const params = {...n.data.params};
+                    const params = { ...n.data.params };
                     if (!params.connections) return n;
-                    const newConns = {...params.connections};
+                    const newConns = { ...params.connections };
                     related.forEach((a) => {
                         const tgt = nodesRef.current.find((nd) => nd.id === a.target);
                         if (tgt && Object.prototype.hasOwnProperty.call(newConns, tgt.data.params.name)) {
@@ -640,11 +683,10 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                         }
                     });
                     params.connections = newConns;
-                    return {...n, data: {...n.data, params}};
+                    return { ...n, data: { ...n.data, params } };
                 })
             );
         }
-
         prevEdgesRef.current = edges;
     }, [edges, setNodes]);
 
@@ -655,7 +697,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
         nodesRef.current.forEach((n) => {
             nameToId[n.data.params.name] = n.id;
         });
-
         setEdges((prevEdges) => {
             const next = [...prevEdges];
             // ensure edges for entries in connectionsObj exist
@@ -680,6 +721,40 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
         });
     }, []);
 
+    // --- New Import Functionality ---
+    const importRegions = useCallback((event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const jsonData = JSON.parse(e.target.result);
+                if (!Array.isArray(jsonData)) {
+                     alert('Invalid file format: Expected an array of region objects.');
+                     return;
+                }
+                const { nodes: importedNodes, edges: importedEdges } = fromRegistryJSON(jsonData, isDarkMode, idRef);
+                setNodes(importedNodes);
+                setEdges(importedEdges);
+                setSelectedNodeId(null); // Clear selection after import
+                // Optionally reset other state like layerConfig if needed, or prompt user
+                // setLayerConfig([{}]);
+                // setExecutionConfig([[]]);
+                // setExecutionOrder([0]);
+                // setChainColors([{}]);
+                alert('Regions imported successfully!');
+            } catch (error) {
+                console.error("Error importing regions:", error);
+                alert('Error importing regions: ' + (error.message || 'Invalid JSON or unexpected format.'));
+            } finally {
+                // Reset the input so the same file can be selected again
+                event.target.value = '';
+            }
+        };
+        reader.readAsText(file);
+    }, [isDarkMode, setNodes, setEdges]);
+
     const exportJSON = useCallback(() => {
         console.log("Export called - nodes:", nodes.length, "edges:", edges.length);
         const json = toRegistryJSON(nodes, edges);
@@ -688,7 +763,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
         console.log("JSON string:", jsonString);
 
         // Create and trigger download
-        const blob = new Blob([jsonString], {type: 'application/json'});
+        const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -697,6 +772,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+
         console.log("Download triggered");
     }, [nodes, edges]);
 
@@ -706,11 +782,10 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
             execution_config: executionConfig,
             execution_order: executionOrder
         };
-
         const jsonString = JSON.stringify(config, null, 2);
 
         // Create and trigger download
-        const blob = new Blob([jsonString], {type: 'application/json'});
+        const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -724,12 +799,10 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
     const importOrchestratorConfig = useCallback((event) => {
         const file = event.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const config = JSON.parse(e.target.result);
-
                 if (config.layer_config) {
                     setLayerConfig(config.layer_config);
                 }
@@ -743,16 +816,15 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                 if (config.execution_order) {
                     setExecutionOrder(config.execution_order);
                 }
-
                 alert('Orchestrator configuration imported successfully!');
             } catch (error) {
                 alert('Error importing configuration: ' + error.message);
+            } finally {
+                 // Reset the input so the same file can be selected again
+                event.target.value = '';
             }
         };
         reader.readAsText(file);
-
-        // Reset the input so the same file can be selected again
-        event.target.value = '';
     }, []);
 
     // Initialize or update the connections edit buffer when selection changes (but not while actively editing)
@@ -769,7 +841,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
             const tgt = nodes.find((n) => n.id === e.target);
             if (tgt) derived[tgt.data.params.name] = tgt.data.params.task ?? "";
         });
-
         const explicit = selectedNode.data.params.connections || {};
         const starting = Object.keys(explicit).length > 0 ? explicit : derived;
         setConnectionsEditBuffer(JSON.stringify(starting || {}, null, 2));
@@ -778,8 +849,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
     const sidebar = (
         <div className={`h-full space-y-3 ${isDarkMode ? 'dark' : ''}`}>
             {/* Layer Selection Panel */}
-
-
             {/* Chain Assignment Panel */}
             <Card className={`rounded-2xl ${isDarkMode ? 'bg-gray-900 border-gray-700' : ''}`}>
                 <CardHeader className="pb-2">
@@ -791,7 +860,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                         {Object.entries(layerConfig[selectedLayer] || {}).map(([chainName, regions]) => {
                             const chainColor = chainColors[selectedLayer]?.[chainName] || 0;
                             const colorConfig = CHAIN_COLORS[chainColor];
-
                             return (
                                 <div key={chainName}
                                      className={`border rounded p-2 ${isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}>
@@ -816,7 +884,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                             >
                                                 <SelectTrigger
                                                     className={`w-20 h-6 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}`}>
-                                                    <SelectValue/>
+                                                    <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent
                                                     className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
@@ -848,7 +916,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                                 }}
                                                 className="h-6 w-6 p-0"
                                             >
-                                                <X className="w-3 h-3"/>
+                                                <X className="w-3 h-3" />
                                             </Button>
                                         </div>
                                     </div>
@@ -877,7 +945,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                             )
                         })}
                     </div>
-
                     <div className="flex gap-2">
                         <input
                             type="text"
@@ -927,15 +994,13 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                             }}
                             className="gap-1"
                         >
-                            <Plus className="w-3 h-3"/> Add Chain
+                            <Plus className="w-3 h-3" /> Add Chain
                         </Button>
                     </div>
-
                     <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         Drag regions from the flow diagram into chains, or click a region and select "Assign to Chain"
                         below.
                     </div>
-
                     {selectedNodeId && (
                         <div className="space-y-2">
                             <Label className={`text-xs ${isDarkMode ? 'text-gray-300' : ''}`}>
@@ -945,7 +1010,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                 value={(() => {
                                     const regionName = nodes.find(n => n.id === selectedNodeId)?.data?.params?.name;
                                     const currentLayerConfig = layerConfig[selectedLayer] || {};
-
                                     // Find which chain this region is currently assigned to
                                     for (const [chainName, regions] of Object.entries(currentLayerConfig)) {
                                         if (regions.includes(regionName)) {
@@ -983,7 +1047,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                             >
                                 <SelectTrigger
                                     className={`${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}>
-                                    <SelectValue placeholder="Select chain"/>
+                                    <SelectValue placeholder="Select chain" />
                                 </SelectTrigger>
                                 <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
                                     {Object.keys(layerConfig[selectedLayer] || {}).map(chainName => (
@@ -998,8 +1062,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                     )}
                 </CardContent>
             </Card>
-
-
             <Tabs defaultValue="params" className="grow grid grid-rows-[auto,1fr]">
                 <TabsList className={`w-full ${isDarkMode ? 'bg-gray-800 border-gray-600' : ''}`}>
                     <TabsTrigger value="params"
@@ -1040,7 +1102,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                             <div className="flex gap-2">
                                 <Button variant="destructive" disabled={!selectedNodeId} className="gap-2"
                                         onClick={() => setPendingDeleteId(selectedNodeId)}>
-                                    <Trash2 className="w-4 h-4"/> Delete selected
+                                    <Trash2 className="w-4 h-4" /> Delete selected
                                 </Button>
                             </div>
                         </CardContent>
@@ -1050,7 +1112,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                     <Card className="rounded-2xl h-full"><CardHeader className="pb-1"><CardTitle className="text-sm">Available
                         Methods</CardTitle></CardHeader>
                         <CardContent>
-                            {selectedNode ? (<MethodList typeName={selectedNode.data.typeName}/>) : (
+                            {selectedNode ? (<MethodList typeName={selectedNode.data.typeName} />) : (
                                 <div className="text-sm text-gray-500">Select a region to see its methods and
                                     docstrings.</div>)}
                         </CardContent>
@@ -1074,7 +1136,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                         {regions.map(regionName => {
                                             const currentMethods = executionConfig[selectedLayer]?.filter(([region]) => region === regionName) || [];
                                             const availableMethods = Object.keys(REGION_CATALOG[nodes.find(n => n.data.params.name === regionName)?.data.typeName]?.methods || {});
-
                                             return (
                                                 <div key={regionName}
                                                      className={`border rounded p-3 ${isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}>
@@ -1082,7 +1143,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                                         className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : ''}`}>
                                                         {regionName}
                                                     </div>
-
                                                     {/* Current methods */}
                                                     <div className="space-y-1 mb-2">
                                                         {currentMethods.map(([, method], index) => (
@@ -1104,12 +1164,11 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                                                     }}
                                                                     className="h-6 w-6 p-0"
                                                                 >
-                                                                    <X className="w-3 h-3"/>
+                                                                    <X className="w-3 h-3" />
                                                                 </Button>
                                                             </div>
                                                         ))}
                                                     </div>
-
                                                     {/* Add method */}
                                                     <div className="flex gap-2">
                                                         <Select
@@ -1128,7 +1187,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                                         >
                                                             <SelectTrigger
                                                                 className={`flex-1 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}`}>
-                                                                <SelectValue placeholder="Add method"/>
+                                                                <SelectValue placeholder="Add method" />
                                                             </SelectTrigger>
                                                             <SelectContent
                                                                 className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
@@ -1147,14 +1206,12 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                     </div>
                                 ))}
                             </div>
-
                             {Object.keys(layerConfig[selectedLayer] || {}).length === 0 && (
                                 <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                     No regions assigned to this layer. Use the Chain Assignment panel to add regions
                                     first.
                                 </div>
                             )}
-
                             {/* Execution Timeline */}
                             {executionConfig[selectedLayer]?.length > 0 && (
                                 <div className="mt-4">
@@ -1176,7 +1233,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                     </Card>
                 </TabsContent>
             </Tabs>
-
             <div className="text-[11px] text-gray-500 px-1">Drag from a node's right pip to another node's left pip to
                 create a connection.
             </div>
@@ -1184,7 +1240,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
     );
 
     return (
-
         <div className={`w-full h-[95vh] flex ${isDarkMode ? 'dark' : ''}`} onKeyDown={onKeyDown} tabIndex={0}>
             {/* Top thin bar with Layer Management, Add Region, and Theme Toggle */}
             <div
@@ -1192,14 +1247,13 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                 <div className="max-w-screen-2xl mx-4 px-2 py-2 flex items-start gap-4">
                     {/* Layer Management (moved from sidebar) */}
                     <div className="flex flex-col gap-2">
-
                         <div className="flex items-center gap-2">
                             <Label className={`text-xs ${isDarkMode ? 'text-gray-300' : ''}`}>Current Layer:</Label>
                             <Select value={selectedLayer.toString()}
                                     onValueChange={(v) => setSelectedLayer(parseInt(v))}>
                                 <SelectTrigger
                                     className={`${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''} w-28`}>
-                                    <SelectValue/>
+                                    <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
                                     {layerConfig.map((_, index) => (
@@ -1220,7 +1274,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                 }}
                                 className="gap-1"
                             >
-                                <Plus className="w-3 h-3"/> Add Layer
+                                <Plus className="w-3 h-3" /> Add Layer
                             </Button>
                             <Button
                                 size="sm"
@@ -1241,11 +1295,10 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                 }}
                                 className="gap-1"
                             >
-                                <Trash2 className="w-3 h-3"/> Delete Layer
+                                <Trash2 className="w-3 h-3" /> Delete Layer
                             </Button>
                         </div>
                     </div>
-
                     {/* Add Region */}
                     <div className="flex flex-col pl-40 gap-2">
                         <div className="flex items-center gap-2">
@@ -1255,7 +1308,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                             <Select value={newType} onValueChange={(v) => setNewType(v)}>
                                 <SelectTrigger
                                     className={`w-48 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}>
-                                    <SelectValue placeholder="Select type"/>
+                                    <SelectValue placeholder="Select type" />
                                 </SelectTrigger>
                                 <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
                                     {Object.entries(REGION_CATALOG).map(([k, v]) => (
@@ -1266,11 +1319,10 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <Button onClick={() => addNode(newType)} className="gap-2"><Plus className="w-4 h-4"/> Place
+                            <Button onClick={() => addNode(newType)} className="gap-2"><Plus className="w-4 h-4" /> Place
                                 node</Button>
                         </div>
                     </div>
-
                     {/* Theme Toggle */}
                     <div className="ml-auto right self-start">
                         <Button
@@ -1279,7 +1331,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                             onClick={() => setIsDarkMode(!isDarkMode)}
                             className={`${isDarkMode ? 'bg-gray-800 border-gray-600 text-white hover:bg-gray-700' : ''} gap-2`}
                         >
-                            {isDarkMode ? <Sun className="w-4 h-4"/> : <Moon className="w-4 h-4"/>}
+                            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                             {isDarkMode ? 'Light' : 'Dark'}
                         </Button>
                     </div>
@@ -1292,11 +1344,27 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                     <div className="flex flex-wrap gap-2 justify-end">
                         <Button variant="default" onClick={exportJSON}
                                 className="gap-2 bg-green-600 hover:bg-green-700 text-white">
-                            <Download className="w-4 h-4"/> Export Regions
+                            <Download className="w-4 h-4" /> Export Regions
                         </Button>
+                        {/* --- New Import Regions Button --- */}
+                        <div className="relative">
+                            <input
+                                type="file"
+                                accept=".json"
+                                onChange={importRegions} // Use the new import function
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                id="import-regions-footer"
+                            />
+                            <Button variant="outline"
+                                    className={`${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''} gap-2`}>
+                                <Upload className="w-4 h-4" /> Import Regions
+                            </Button>
+                        </div>
+                        {/* --- End New Import Regions Button --- */}
+
                         <Button variant="default" onClick={exportOrchestratorConfig}
                                 className="gap-2 bg-green-600 hover:bg-green-700 text-white">
-                            <Download className="w-4 h-4"/> Export Orchestrator Config
+                            <Download className="w-4 h-4" /> Export Orchestrator Config
                         </Button>
                         <div className="relative">
                             <input
@@ -1308,18 +1376,16 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                             />
                             <Button variant="outline"
                                     className={`${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''} gap-2`}>
-                                <Upload className="w-4 h-4"/> Import Orchestrator Config
+                                <Upload className="w-4 h-4" /> Import Orchestrator Config
                             </Button>
                         </div>
                     </div>
-
                 </div>
             </div>
             <div className="w-full h-full flex gap-4">
                 <div className="w-96 flex-shrink-0 offset-y-16 py-12 overflow-y-auto">
                     {sidebar}
                 </div>
-
                 <div className="flex-1 py-12">
                     <Card className={`rounded-2xl h-full ${isDarkMode ? 'bg-gray-900 border-gray-700' : ''}`}>
                         <CardHeader className="py-1">
@@ -1345,7 +1411,7 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                                 // disable React Flow's built-in delete handling so our custom onKeyDown controls delete behavior
                                 deleteKeyCode={null}
                             >
-                                <Background variant="dots" gap={16} size={1}/>
+                                <Background variant="dots" gap={16} size={1} />
                                 <Controls
                                     style={{
                                         button: {
@@ -1367,8 +1433,6 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
                         </CardContent>
                     </Card>
                 </div>
-
-
                 {/* Delete confirmation dialog */}
                 <Dialog open={!!pendingDeleteId} onOpenChange={(v) => !v && setPendingDeleteId(null)}>
                     <DialogContent className="rounded-2xl">
@@ -1384,4 +1448,3 @@ function EditorImpl({isDarkMode, setIsDarkMode}) {
         </div>
     );
 }
-
