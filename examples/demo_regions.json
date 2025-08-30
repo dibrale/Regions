@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Historian",
+    "type": "Region",
+    "task": "Synthesize historical information from multiple sources. You are interested in the Zebra-Kiwia conflict and the leaders involved.",
+    "connections": {
+      "Biography": "Provide historical figure information",
+      "HistoricalFacts": "Provide historical event information"
+    }
+  },
+  {
+    "name": "HistoricalFacts",
+    "type": "RAGRegion",
+    "task": "Provide historical event information",
+    "connections": []
+  },
+  {
+    "name": "Biography",
+    "type": "RAGRegion",
+    "task": "Provide historical figure information",
+    "connections": []
+  }
+]

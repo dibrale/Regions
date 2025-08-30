@@ -1,0 +1,51 @@
+{
+  "layer_config": [
+    {
+      "chain0": [
+        "Historian"
+      ]
+    },
+    {
+      "chain0": [
+        "Biography"
+      ],
+      "chain1": [
+        "HistoricalFacts"
+      ]
+    },
+    {
+      "chain0": [
+        "Historian"
+      ]
+    }
+  ],
+  "execution_config": [
+    [
+      [
+        "Historian",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Biography",
+        "make_replies"
+      ],
+      [
+        "HistoricalFacts",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Historian",
+        "make_replies"
+      ]
+    ]
+  ],
+  "execution_order": [
+    0,
+    1,
+    2
+  ]
+}
