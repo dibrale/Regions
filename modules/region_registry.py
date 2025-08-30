@@ -104,7 +104,7 @@ class RegionEntry:
             self.delay = region.delay
         self.region = region
 
-    def make_region(self):
+    def make_region(self) -> BaseRegion | None:
         """Instantiate a region from stored configuration.
 
         Recreates a region object using the entry's metadata and dependencies.
@@ -140,6 +140,8 @@ class RegionEntry:
 
         if self.connections:
             f = partial(f, connections=self.connections)
+        else:
+            f = partial(f, connections={})
         if self.rag:
             f = partial(f, rag=self.rag)
         if self.llm:
@@ -154,6 +156,7 @@ class RegionEntry:
             logging.info(f"Created '{self.name}' {self.type} from entry")
         except Exception as e:
             logging.error(f"Exception while making '{self.name}' {self.type}: {e}")
+            return None
         return self.region
 
     @classmethod
@@ -469,7 +472,7 @@ class RegionRegistry:
         logging.info(f"Registered regions from '{pure_path.name}' at '{str(pure_path.parent)}'")
         return True
 
-    def verify(self) -> tuple[list[str], list[str]]:
+    def verify(self) -> tuple[int, int]:
         """Verify registry consistency and configuration validity.
 
         Checks for:
@@ -480,23 +483,23 @@ class RegionRegistry:
         - Proper dependencies (RAG, LLM)
 
         Returns:
-            tuple[list[str], list[str]]: (issues, warnings) where:
-                - issues: Critical problems that prevent building regions
-                - warnings: Non-critical issues that may affect performance
+            tuple[int, int]: (issues, warnings) where:
+                - issues: Number of critical problems that prevent building regions
+                - warnings: Number of non-critical issues that may affect performance
 
         Example:
             >>> issues, warnings = registry.verify()
             >>> if not issues:
             ...     registry.build_regions()
         """
-        print("Verifying registry...")
+        logging.info("Verifying registry...")
         issues = []
         warnings = []
         names_from_entries = []
 
         # Are there regions to verify?
         if not self.regions:
-            print("No regions registered")
+            logging.info("No regions registered")
             return issues, warnings
 
         # Is there the same number of names as regions?
@@ -544,18 +547,17 @@ class RegionRegistry:
             else:
                 warnings.append(f"No outgoing connections specified from region '{region.name}'")
 
-        print("\n=== Registry Verification Result ===\n")
         if issues:
-            print(f"Found {len(issues)} issues:\n")
+            logging.error(f"Verification failed: {len(issues)} issues")
             for issue in issues:
                 logging.error(issue)
         else:
-            logging.info("Verified successfully")
+            logging.info("Verification passed")
         if warnings:
-            print(f"\n{len(warnings)} warnings: {', '.join(warnings)}\n")
+            logging.warning(f"{len(warnings)} warnings")
             for warning in warnings:
                 logging.warning(warning)
-        return issues, warnings
+        return len(issues), len(warnings)
 
 
     def build_regions(self, overwrite: bool = False, verify = True) -> bool:
@@ -594,12 +596,14 @@ class RegionRegistry:
         # Start build
         logging.info(f"Attempting to build {len(self.regions)} regions...")
         built = 0
+        skipped = 0
         faultless = True
 
         for entry in self.regions:
 
             # Do not overwrite existing region info if overwrite disabled
             if entry.region and not overwrite:
+                skipped += 1
                 logging.info(f"Skipping build of region '{entry.name}'")
 
             else:
@@ -616,16 +620,29 @@ class RegionRegistry:
 
                 # Try actually building the region
                 try:
-                    entry.make_region()
-                    built += 1
-                    logging.info(f"Successfully built region '{entry.name}'")
+                    if entry.make_region():
+                        built += 1
+                        logging.info(f"Successfully built region '{entry.name}'")
+                    else:
+                        faultless = False
+                        logging.error(f"Failed to build region '{entry.name}'")
                 except Exception as e:
                     logging.error(f"Failed to build region '{entry.name}': {e}")
                     faultless = False
 
         # Wrap-up and final tally
-        print(f"Build done.")
-        logging.info(f"Successfully built {built} out of {len(self.regions)} regions.")
+        print(f"Build operation done.")
+        if overwrite:
+            logging.info(f"Successfully built {built} out of {len(self.regions)} regions.")
+        else:
+            if not skipped:
+                logging.info(f"Successfully built {built} out of {len(self.regions)} regions.")
+            else:
+                logging.info(f"Skipped {skipped} out of {len(self.regions)} regions.")
+                logging.info(f"Built {built} out of {len(self.regions)} regions.")
+        if built + skipped != len(self.regions):
+            logging.error(f"Failed to build {len(self.regions) - built - skipped} out of {len(self.regions)} regions.")
+            faultless = False
 
         return faultless
 
