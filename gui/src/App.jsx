@@ -236,40 +236,50 @@ function ParamEditor({
   const textareaValue = (connectionsEditingNodeId === selectedNode.id) ? connectionsEditBuffer : JSON.stringify(previewConnections || {}, null, 2);
 
   return (
-    <div className="space-y-3">
-      {flat.map(({ key, value }) => (
-        <div key={`${selectedNode.id}-${key}`} className="grid grid-cols-3 gap-2 items-center">
-          <Label className={`text-xs col-span-1 truncate ${isDarkMode ? 'text-gray-300' : ''}`} title={key}>{key}</Label>
-          {typeof value === "string" ? (
-            <input 
-              key={`${selectedNode.id}-${key}-input`}
-              value={value} 
-              onChange={(e) => updateParam(key, e.target.value)} 
-              className={`col-span-2 border rounded px-2 py-1 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}
-            />
-          ) : typeof value === "boolean" ? (
-            <Select 
-              key={`${selectedNode.id}-${key}-select`}
-              value={value ? "true" : "false"} 
-              onValueChange={(v) => updateParam(key, v === "true")}
-            > 
-              <SelectTrigger className={`col-span-2 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
-                <SelectItem value="true" className={isDarkMode ? 'text-white hover:bg-gray-700' : ''}>true</SelectItem>
-                <SelectItem value="false" className={isDarkMode ? 'text-white hover:bg-gray-700' : ''}>false</SelectItem>
-              </SelectContent>
-            </Select>
-          ) : (
-            <input 
-              key={`${selectedNode.id}-${key}-input-other`}
-              value={String(value)} 
-              onChange={(e) => updateParam(key, e.target.value)} 
-              className={`col-span-2 border rounded px-2 py-1 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}
-            />
-          )}
-        </div>
+<div className="space-y-3">
+  {flat
+    .filter(({ key }) => !key.includes('connections'))
+    .map(({ key, value }) => (
+      <div key={`${selectedNode.id}-${key}`} className="grid grid-cols-3 gap-2 items-center">
+        <Label className={`text-xs col-span-1 truncate ${isDarkMode ? 'text-gray-300' : ''}`} title={key}>{key}</Label>
+        {key === 'task' ? (
+          <textarea
+            key={`${selectedNode.id}-${key}-textarea`}
+            value={value}
+            onChange={(e) => updateParam(key, e.target.value)}
+            className={`col-span-3 border rounded px-2 py-1 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}
+            rows={3}
+          />
+        ) : typeof value === "string" ? (
+          <input
+            key={`${selectedNode.id}-${key}-input`}
+            value={value}
+            onChange={(e) => updateParam(key, e.target.value)}
+            className={`col-span-2 border rounded px-2 py-1 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}
+          />
+        ) : typeof value === "boolean" ? (
+          <Select
+            key={`${selectedNode.id}-${key}-select`}
+            value={value ? "true" : "false"}
+            onValueChange={(v) => updateParam(key, v === "true")}
+          >
+            <SelectTrigger className={`col-span-2 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className={isDarkMode ? 'bg-gray-800 border-gray-600' : ''}>
+              <SelectItem value="true" className={isDarkMode ? 'text-white hover:bg-gray-700' : ''}>true</SelectItem>
+              <SelectItem value="false" className={isDarkMode ? 'text-white hover:bg-gray-700' : ''}>false</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          <input
+            key={`${selectedNode.id}-${key}-input-other`}
+            value={String(value)}
+            onChange={(e) => updateParam(key, e.target.value)}
+            className={`col-span-2 border rounded px-2 py-1 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}
+          />
+        )}
+      </div>
       ))}
 
       {/* Connections editor (JSON) - hidden for ListenerRegion since it doesn't pass messages to other regions */}
