@@ -1,23 +1,23 @@
-import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import ReactFlow, {
-  ReactFlowProvider,
-  addEdge,
-  Background,
-  Controls,
-  MiniMap,
-  Handle,
-  Position,
-  useEdgesState,
-  useNodesState,
+    addEdge,
+    Background,
+    Controls,
+    Handle,
+    MiniMap,
+    Position,
+    ReactFlowProvider,
+    useEdgesState,
+    useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import {Download, Plus, Trash2, Moon, Sun, Upload, X, Space} from "lucide-react";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+import {Label} from "@/components/ui/label";
+import {Download, Moon, Plus, Sun, Trash2, Upload, X} from "lucide-react";
 import './App.css'
 
 // Predefined color palette for chains
@@ -33,7 +33,7 @@ const CHAIN_COLORS = [
 ];
 
 /**
- * Regions GUI – Flow Editor (Fixed Version)
+ * Regions GUI – Flow Editor
  * 
  * This version fixes the text field focus issue by adding stable keys to all input elements.
  */
@@ -140,24 +140,25 @@ function download(filename, text) {
 
 // Transform current graph into the expected JSON format
 function toRegistryJSON(nodes, edges) {
-  const connectionsBySource = {};
+  const connectionsBySource = [];
   edges.forEach((e) => {
     const sourceNode = nodes.find((n) => n.id === e.source);
     const targetNode = nodes.find((n) => n.id === e.target);
     if (!sourceNode || !targetNode) return;
-    if (!connectionsBySource[sourceNode.id]) connectionsBySource[sourceNode.id] = [];
-    connectionsBySource[sourceNode.id].push(targetNode.data.params.name);
+    if (!connectionsBySource[sourceNode.id]) connectionsBySource[sourceNode.id] = {};
+    const entryName = targetNode.data.params.name;
+    //const connectionEntry = {};
+    //connectionEntry[entryName] = entryTask;
+    connectionsBySource[sourceNode.id][entryName] = targetNode.data.params.task;
   });
 
-  const regions = nodes.map((n) => {
-    const name = n.data.params?.name || n.id;
-    const type = n.data.typeName;
-    const task = n.data.params?.task || "";
-    const connections = connectionsBySource[n.id] || [];
-    return { name, type, task, connections };
-  });
-
-  return regions; // Return array directly, not wrapped in object
+  return nodes.map((n) => {
+      const name = n.data.params?.name || n.id;
+      const type = n.data.typeName;
+      const task = n.data.params?.task || "";
+      const connections = connectionsBySource[n.id] || [];
+      return {name, type, task, connections};
+  }); // Return array directly, not wrapped in object
 }
 
 // Pretty print a method list + docs for a chosen region type
@@ -167,11 +168,11 @@ function MethodList({ typeName }) {
   return (
     <div className="space-y-2">
       {entries.map(([name, m]) => (
-        <Card key={name} className="border rounded-2xl">
-          <CardHeader className="py-3">
+        <Card key={name} className="border rounded-md">
+          <CardHeader className="py-0">
             <CardTitle className="text-sm font-semibold">{name}()</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0 pb-4">
+          <CardContent className="pt-0 pb-0">
             <div className="text-xs text-gray-600 whitespace-pre-wrap">{m.doc}</div>
           </CardContent>
         </Card>
@@ -295,7 +296,7 @@ function ParamEditor({
             }}
             className={`text-xs h-32 font-mono w-full border rounded p-2 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}
           />
-          <div className="text-[10px] text-gray-500">Hint: connections are auto-populated from edges (and from the live drag target); you can override here. Valid JSON will be committed as you type.</div>
+          <div className="text-[10px] text-gray-500">Connections are auto-populated from edges (and from the live drag target); you can override here. Valid JSON will be committed as you type.</div>
         </div>
       )}
     </div>
@@ -1100,7 +1101,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
         </TabsContent>
       </Tabs>
 
-      <div className="text-[11px] text-gray-500 px-1">Tip: Drag from a node's right pip to another node's left pip to create a connection.</div>
+      <div className="text-[11px] text-gray-500 px-1">Drag from a node's right pip to another node's left pip to create a connection.</div>
     </div>
   );
 
@@ -1163,7 +1164,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
             </div>
           </div>
 
-          {/* Add Region (moved from sidebar) */}
+          {/* Add Region */}
           <div className="flex flex-col px-40 gap-2">
             <div className="flex items-center gap-2">
                 <div className={`text-xs font-medium ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Add Region</div>
@@ -1207,7 +1208,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
           <Card className={`rounded-2xl h-full ${isDarkMode ? 'bg-gray-900 border-gray-700' : ''}`}>
             <CardHeader className="py-3">
               <CardTitle className={`text-base ${isDarkMode ? 'text-white' : ''}`}>
-                Regions Flow Editor (Fixed Version)
+                Regions Flow Editor
               </CardTitle>
             </CardHeader>
             <CardContent className="h-[calc(100%-5rem)]">
@@ -1271,7 +1272,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
               <Button variant="default" onClick={exportJSON} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
                 <Download className="w-4 h-4" /> Export Regions
               </Button>
-              <Button variant="outline" onClick={exportOrchestratorConfig} className={`${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''} gap-2`}>
+              <Button variant="outline" onClick={exportOrchestratorConfig} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
                 <Download className="w-4 h-4" /> Export Orchestrator Config
               </Button>
               <div className="relative">
