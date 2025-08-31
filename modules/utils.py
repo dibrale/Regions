@@ -1,3 +1,6 @@
+import asyncio
+import logging
+from asyncio import Queue
 from typing import Any, List
 import re
 
@@ -136,3 +139,24 @@ def _chunk_text(text: str, chunk_size: int, overlap: int) -> List[str]:
         start = end - overlap
 
     return chunks
+
+async def until_empty(queue: Queue, interval: float = 0.1, timeout: float = 3) -> bool:
+    """Wait until the queue is empty without blocking other work.
+
+    Args:
+        queue (Queue): The queue to wait for.
+        interval (float, optional): The time to wait between checks in seconds. Defaults to 0.1.
+        timeout (float, optional): The maximum time to wait in seconds. Defaults to 3.
+    """
+    if queue.empty():
+        logging.info("Queue is already empty")
+        return True
+    start_time = asyncio.get_event_loop().time()
+    while asyncio.get_event_loop().time() - start_time < timeout:
+        if queue.empty():
+            logging.info(f"Queue {str(queue)} is now empty")
+            return True
+        else:
+            await asyncio.sleep(interval)
+    logging.warning(f"Queue {str(queue)} not empty after timeout")
+    return False
