@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from functools import partial
 from typing import Callable, Any
@@ -5,20 +6,21 @@ from typing import Callable, Any
 from postmaster import Postmaster
 
 
-def inject(postmaster: Postmaster, source: str, destination: str, role: str, content: str) -> None:
+def inject(postmaster: Postmaster, source: str, role: str, destination: str, content: str) -> None:
     """Inject a message into the distributed system using the postmaster.
 
     Args:
         postmaster (Postmaster): The postmaster instance to use for sending messages.
         source (str): The source identifier for the message (e.g., "region-a").
-        destination (str): The destination identifier for the message (e.g., "region-b").
         role(str): The role of the message ('request' or 'reply').
+        destination (str): The destination identifier for the message (e.g., "region-b").
         content (str): The message content to be sent.
 
     This function places the message dictionary into the postmaster's message queue.
     """
     msg = dict(source=source, destination=destination, role=role, content=content)
     postmaster.messages.put_nowait(msg)
+    logging.info(f"Injected {role} from '{source}' to '{destination}'")
 
 @dataclass
 class Injector:
@@ -58,9 +60,9 @@ class Injector:
     role: str = 'reply'
 
     def __enter__(self):
-        self.send = partial(inject, postmaster=self.postmaster, source=self.source, role=self.role)
-        self.request = partial(inject, postmaster=self.postmaster, source=self.source, role='request')
-        self.reply = partial(inject, postmaster=self.postmaster, source=self.source, role='reply')
+        self.send = partial(inject, self.postmaster, self.source, self.role)
+        self.request = partial(inject, self.postmaster, self.source, 'request')
+        self.reply = partial(inject, self.postmaster, self.source, 'reply')
         return self
 
     def __exit__(self, *exc):
