@@ -1,5 +1,8 @@
 # Regions
 
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![CodeFactor](https://www.codefactor.io/repository/github/dibrale/regions/badge)](https://www.codefactor.io/repository/github/dibrale/regions)
+
 Modular framework for building message‑passing "regions" that collaborate through configurable execution plans. It includes:
 
 - **Regions**: autonomous units built to accommodate an LLM interface, exchanging messages through inbox/outbox queues
