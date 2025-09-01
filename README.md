@@ -1,8 +1,8 @@
 # Regions
 
-Modular framework for building LLM-driven, message‑passing "regions" that collaborate through configurable execution plans. It includes:
+Modular framework for building message‑passing "regions" that collaborate through configurable execution plans. It includes:
 
-- Regions: autonomous units with an LLM interface, exchanging messages through inbox/outbox queues
+- Regions: autonomous units built to accommodate an LLM interface, exchanging messages through inbox/outbox queues
 - Orchestrator: defines layered execution plans and chains of region methods
 - Executor: runs the plan layer‑by‑layer and handles async/sync region methods
 - Postmaster: background message transport between regions
@@ -10,7 +10,7 @@ Modular framework for building LLM-driven, message‑passing "regions" that coll
 - Dynamic RAG: simple, local, sqlite‑backed store/retrieve pipeline with an external embedding server
 - LLMLink: lightweight HTTP client for text generation/health/model endpoints
 
-This repo also provides examples and a comprehensive pytest suite to help you get started quickly.
+This repo also provides examples and a pytest suite to help you get started quickly.
 
 
 ## Features
@@ -44,6 +44,12 @@ with Executor(registry, orchestrator, postmaster) as executor:
 - Message injection for testing and debugging
 ```python
 from modules.injector import Addressograph
+from modules.postmaster import Postmaster
+from modules.region_registry import RegionRegistry
+
+registry = RegionRegistry()
+# Initialize with the appropriate parameters
+postmaster = Postmaster(registry)
 
 @Addressograph(postmaster, "test_user", role="request", injector_name="user")
 def test_scenario(user):
@@ -75,8 +81,8 @@ Optional runtime services:
 - An LLM HTTP endpoint for LLMLink (configurable via parameters).
 
 
-## Quickstart
-There is a basic example under examples\demo.py. It initializes two RAG stores, two RAG regions, and one synthesizing Region, then routes messages to produce a final answer.
+## Quick-ish Start
+There is a basic example under examples\demo.py. It initializes two RAG stores, two RAG regions, and one synthesizing LLM-powered Region, then routes messages to produce a final answer.
 
 Before running examples or tests, add the project’s modules directory to PYTHONPATH so imports like `from regions.region import Region` and `from llmlink import LLMLink` work:
 
@@ -126,6 +132,34 @@ asyncio.run(main())
 ```
 
 
+## GUI: Visual Flow Editor
+A React-based editor for composing Regions, configuring connections, and assigning methods to layered execution plans. You can load and save JSON plans to use with the Python orchestrator/executor.
+
+![GUI Screenshot](gui\gui_screenshot.png)
+
+Install and run the GUI (React + Vite):
+
+```powershell
+# From the project root
+cd gui
+
+# Option A: pnpm (recommended)
+# If pnpm isn't installed, install once:
+npm install -g pnpm
+pnpm install
+pnpm dev
+
+# Option B: npm
+npm install
+npm run dev
+```
+
+Then open http://localhost:5173 in your browser. To build a production bundle:
+
+```powershell
+pnpm build
+```
+
 ## Architecture Overview
 - Region (modules\regions\region.py):
   - Core async methods: `make_questions()`, `make_replies()`
@@ -143,7 +177,7 @@ asyncio.run(main())
 
 
 ## Running Tests
-This project ships with pytest tests.
+This project ships with pytest unit tests covering the core framework and components.
 
 ```powershell
 # From the project root
@@ -158,6 +192,16 @@ Note that test_params.json may need to be moved to the project directory for som
 - See examples\demo_params.json for LLM and embedding server settings used by examples\demo.py
 - Additional example datasets: examples\demo_historical.json, examples\demo_biography.json
 - A prebuilt registry example: examples\regions.json
+- Execution plan example: examples\demo_executions.json (used by the infrastructure demo)
+- Full infrastructure demo: examples\demo_with_infrastructure.py (loads params, regions, executions; wires two RAGs and an LLM; can be edited/inspected via the GUI)
+
+Run the infrastructure demo:
+```powershell
+# From the project root
+$env:PYTHONPATH = ".;.\modules"
+cd examples
+python .\demo_with_infrastructure.py
+```
 
 
 ## Project Structure
@@ -173,4 +217,4 @@ Note that test_params.json may need to be moved to the project directory for som
 
 
 ## Contributing
-Issues and PRs are welcome! Consider running the test suite before submitting changes:
+Issues and PRs are welcome! I've only been able to test the components of this framework on a limited number of machines. Any bug reports and feedback - both positive and negative - are heartily appreciated. If you are having difficulty running the framework, please let me know and I will do my best to help you. Consider running the test suite before submitting changes.
