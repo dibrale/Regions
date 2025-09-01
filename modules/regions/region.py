@@ -84,10 +84,12 @@ class Region(BaseRegion):
             - Returns False if any LLM processing fails
             - Clears _incoming_requests after processing
         """
+        logging.debug(f"{self.name}: Initiating reply generation...")
         faultless = True
         self._run_inbox()
 
         for source, question in self._incoming_requests.items():
+            logging.info(f"{self.name}: Received request from {source}: {question}")
             prompt = self._make_prompt(question)
             reply = None
             try:
@@ -109,6 +111,7 @@ class Region(BaseRegion):
             if reply:
                 self._reply(source, reply)
 
+        logging.debug(f"{self.name}: Replied to {len(self._incoming_requests)} queries.")
         self._incoming_requests.clear()  # Clear processed queries
         return faultless
 
@@ -138,9 +141,9 @@ class Region(BaseRegion):
         prompt = self._make_prompt(user_prompt)
         try:
             reply = await self.llm.text(prompt)
-            logging.debug(f"{self.name}: Got reply from LLM: {reply}", False)
+            logging.debug(f"{self.name}: Got reply from LLM: {reply}")
             questions = json.loads(re.findall(r"\[\s*?\n*?\s*?{.*?}\s*?\n*?\s*?]", reply, flags=re.DOTALL)[-1])
-            logging.debug(f"{self.name}: Extracted questions: {questions}", False)
+            logging.debug(f"{self.name}: Extracted questions: {questions}")
         except Exception as e:
             print(f"\n{self.name}: Processing failed. {e}")
             faultless = False
