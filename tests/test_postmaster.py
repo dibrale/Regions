@@ -4,8 +4,8 @@ import asyncio
 from unittest.mock import MagicMock
 
 from postmaster import Postmaster
-from regions.region import Region
-
+from region_registry import RegionRegistry, RegionEntry
+from region_types import *
 
 class TestPostmasterInitialization:
     def test_default_parameters(self):
@@ -50,37 +50,53 @@ class TestPostmasterInitialization:
 class TestPostmasterCollector:
     @pytest.fixture
     async def pm_with_regions(self):
-        registry = MagicMock()
-        region1 = MagicMock(name='region1', outbox=asyncio.Queue())
-        region2 = MagicMock(name='region2', outbox=asyncio.Queue())
-        registry.__iter__.return_value = [region1, region2]
-        pm = Postmaster(registry, delay=0.01)
-        await pm.start()
+        registry = RegionRegistry()
+        region1 = MockRegion('test1','test1_outbox')
+        region2 = MockRegion('test2','test2_outbox')
+        entry1 = RegionEntry()
+        entry2 = RegionEntry()
+        entry1.from_region(region1)
+        entry2.from_region(region2)
+        registry.register(entry1)
+        registry.register(entry2)
+        pm = Postmaster(registry)
         yield pm, region1, region2
-        pm.collect.cancel()
-        pm.emit.cancel()
+        await pm.stop()
+
+
+    @pytest.fixture
+    def test_message(self):
+        yield {
+            'source': 'test',
+            'destination': f'nonexistent',
+            'type': 'test_type',
+            'content': f'msg'
+        }
 
     @pytest.mark.asyncio
-    async def test_collector_drains_outboxes(self, pm_with_regions):
+    async def test_collector_drains_outboxes(self, pm_with_regions, test_message, caplog):
+        logging.basicConfig()
+        logging.getLogger().setLevel(logging.DEBUG)
         pm, region1, region2 = pm_with_regions
 
-        # Isolate collector behavior
+        await pm.start()
         pm.emit.cancel()
+        await asyncio.sleep(0.5) # wait for cancel to work
+        # print('\n'+str(pm.emit))
+        # print(pm.collect)
 
         # Add properly structured messages
-        await region1.outbox.put({
-            'source': 'test',
-            'destination': 'nonexistent1',
-            'content': 'msg1'
-        })
-        await region2.outbox.put({
-            'source': 'test',
-            'destination': 'nonexistent2',
-            'content': 'msg2'
-        })
+        await region1.outbox.put(test_message)
+        await region2.outbox.put(test_message)
+        logging.info("Region 1 outbox: " + str(region1.outbox.qsize()))
+        logging.info("Region 2 outbox: " + str(region2.outbox.qsize()))
 
         # Allow collector to run
         await asyncio.sleep(0.02)
+
+        # print('\n'+str(pm.emit))
+        # print(pm.collect)
+        print("\n=== CAPLOG ===\n" + caplog.text +"\n=== END CAPLOG ===")
 
         # Verify collector behavior
         assert pm.messages.qsize() == 2
@@ -90,18 +106,17 @@ class TestPostmasterCollector:
         assert region2.outbox.qsize() == 0
 
         # Restart emitter for other tests (optional)
-        pm.emit = asyncio.create_task(pm.emitter())
+        # pm.emit = asyncio.create_task(pm.emitter())
 
     @pytest.mark.asyncio
-    async def test_collector_respects_delay(self):
-        registry = MagicMock()
-        region = MagicMock(outbox=asyncio.Queue())
-        registry.__iter__.return_value = [region]
-        pm = Postmaster(registry, delay=0.1)
-        await pm.start()
+    async def test_collector_respects_delay(self, pm_with_regions, caplog):
+        logging.basicConfig()
+        logging.getLogger().setLevel(logging.DEBUG)
+        pm, region, region2 = pm_with_regions
 
-        # Isolate collector behavior
+        await pm.start()
         pm.emit.cancel()
+        await asyncio.sleep(0.5)  # wait for cancel to work
 
         # Add message
         await region.outbox.put({'content': 'test'})
@@ -111,19 +126,22 @@ class TestPostmasterCollector:
 
         # Wait longer than delay
         await asyncio.sleep(0.15)
+
+        print("\n=== CAPLOG ===\n" + caplog.text + "\n=== END CAPLOG ===")
         assert pm.messages.qsize() == 1
 
     @pytest.mark.asyncio
-    async def test_collector_yields_control(self, pm_with_regions):
+    async def test_collector_yields_control(self, pm_with_regions, test_message, caplog):
         pm, region1, region2 = pm_with_regions
 
-        # Isolate collector behavior
+        await pm.start()
         pm.emit.cancel()
+        await asyncio.sleep(0.5)
 
-        await region1.outbox.put({'content': 'msg1'})
+        await region1.outbox.put(test_message)
 
         # Short sleep should allow collector to yield
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.001)
         assert pm.messages.qsize() == 1
 
 
@@ -144,28 +162,29 @@ class TestPostmasterEmitter:
     @pytest.mark.asyncio
     async def test_delivery_success(self, caplog):
         # Setup registry with matching region
-        registry = MagicMock()
-        region = Region('target','', MagicMock(), None)
-
-        registry.__iter__.return_value = [region]
+        registry = RegionRegistry()
+        region = MockRegion('target', 'testing')
+        entry = RegionEntry()
+        entry.from_region(region)
+        registry.register(entry)
 
         pm = Postmaster(registry)
         await pm.start()
 
         # Send message
-        await pm.messages.put({'source': 'sender', 'destination': 'target', 'content': 'test'})
+        await pm.messages.put({'source': 'sender', 'destination': 'target', 'content': 'test', 'type': 'test_type'})
 
         # Wait for emitter to process
         start_time = asyncio.get_event_loop().time()
-        while region.inbox.qsize() == 0 and asyncio.get_event_loop().time() - start_time < 0.1:
-            await asyncio.sleep(1.01)   # Spends one tick without any messages, but cancels collector
-                                        # Gets message sent by end of second tick
+        while asyncio.get_event_loop().time() - start_time < 1.8:
+            await asyncio.sleep(0.1)
 
         # Verify delivery
-        # print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
-        assert region.inbox.qsize() == 1
-        msg = await region.inbox.get()
+        print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
+        assert registry['target'].inbox.qsize() == 1
+        msg = await registry['target'].inbox.get()
         assert msg['content'] == 'test'
+        await pm.stop()
 
     @pytest.mark.asyncio
     async def test_undeliverable_drop(self, pm_no_delivery, caplog):
@@ -353,13 +372,16 @@ class TestPostmasterEdgeCases:
     @pytest.mark.asyncio
     async def test_mixed_delivery_scenarios(self, caplog):
         # Setup registry with one matching region
-        registry = MagicMock()
-        region = Region('target','', MagicMock(), None)
-        registry.__iter__.return_value = [region]
-        registry.messages = asyncio.Queue()
+        registry = RegionRegistry()
+        region = MockRegion('target', 'testing')
+        entry = RegionEntry()
+        entry.from_region(region)
+        registry.register(entry)
+
         pm = Postmaster(registry, undeliverable='reroute', reroute_destination='new_dest')
         await pm.start()
         pm.collect.cancel()
+        await asyncio.sleep(0.5)
 
         # Send mixed messages
         await pm.messages.put({'source': 'sender', 'destination': 'target', 'content': 'valid'})
