@@ -3,8 +3,8 @@ import json
 import logging
 import os
 
-from executor import Execute, Executor
-from injector import Addressograph, Injector
+from executor import Executor
+from injector import Injector
 from modules.llmlink import LLMLink
 from orchestrator import Orchestrator
 from postmaster import Postmaster
@@ -15,6 +15,7 @@ from verify import verify
 '''
 Script to demonstrate the usage of Regions and RAGRegions with an orchestrator, registry and postmaster. 
 Functions similarly to the base demo script. Reads embedding and text model server configurations from 'demo_params.json'.
+These can be loaded via the GUI for inspection.
 
 Note: Hardcoded to http - change to https if SSL is truly desired for a demo
 '''
@@ -45,7 +46,7 @@ async def main():
     print("Loading biography facts from 'demo_biography.json'")
     biography_knowledge = json.loads(open('demo_biography.json','r').read())
 
-    # RAG and LLM configurations are not presently storable, so we define them here
+    # RAG and LLM configurations are not presently GUI configurable, so we just define them here
     # initialize the LLM
     llm = LLMLink(
         params=params['llm_params']
