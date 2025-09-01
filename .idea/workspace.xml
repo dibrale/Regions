@@ -4,9 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Top bar pass">
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Set loglevel to debug">
+      <change afterPath="$PROJECT_DIR$/examples/demo_with_infrastructure.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/gui/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/executor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/injector.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/injector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/postmaster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/regions/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/regions/region.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_postmaster.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,6 +105,7 @@
     "Python tests.Python tests for test_postmaster.TestPostmasterEmitter.test_undeliverable_return_with_modifications.executor": "Run",
     "Python tests.Python tests for test_postmaster.TestPostmasterEmitter.test_undeliverable_return_without_prepend.executor": "Run",
     "Python tests.Python tests for test_postmaster.TestPostmasterInitialization.executor": "Run",
+    "Python tests.Python tests for test_postmaster.TestPostmasterInitialization.test_default_parameters.executor": "Run",
     "Python tests.Python tests for test_postmaster.TestPostmasterInitialization.test_reroute_destination_set.executor": "Run",
     "Python tests.Python tests for test_postmaster.TestPostmasterInitialization.test_rts_parameters_used_with_return_policy.executor": "Run",
     "Python tests.Python tests for test_rag.test_hallucinations.executor": "Run",
@@ -134,6 +141,7 @@
     "Python tests.Python tests in test_database.py.executor": "Run",
     "Python tests.Python tests in test_error.py.executor": "Run",
     "Python tests.Python tests in test_executor.py.executor": "Run",
+    "Python tests.Python tests in test_injector.py.executor": "Run",
     "Python tests.Python tests in test_postmaster.py.executor": "Run",
     "Python tests.Python tests in test_rag.py.executor": "Run",
     "Python tests.Python tests in test_ragregion.py.executor": "Run",
@@ -142,10 +150,13 @@
     "Python tests.Python tests in tests.executor": "Run",
     "Python tests.pytest for test_executor.test_execute_plan_postmaster_stop_failure.executor": "Run",
     "Python tests.pytest for test_executor.top_level_collect.executor": "Run",
+    "Python tests.pytest for test_postmaster.TestPostmasterCollector.test_collector_drains_outboxes.executor": "Run",
+    "Python tests.pytest for test_postmaster.TestPostmasterEmitter.test_delivery_success.executor": "Run",
     "Python tests.pytest for test_rag.executor": "Run",
     "Python.comprehensive_unit_tests.executor": "Run",
     "Python.config.executor": "Run",
     "Python.demo.executor": "Run",
+    "Python.demo_with_infrastructure.executor": "Run",
     "Python.dynamic_rag.executor": "Run",
     "Python.example_usage.executor": "Run",
     "Python.llamacpp_api.executor": "Run",
@@ -172,7 +183,7 @@
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "C:/Users/adibrov/PycharmProjects/Regions",
+    "last_opened_file_path": "C:/Users/adibrov/PycharmProjects/Regions/examples",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -182,6 +193,7 @@
     "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
     "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\PyCharm 2025.1.3.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -192,11 +204,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\adibrov\PycharmProjects\Regions" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples" />
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\gui" />
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\modules" />
       <recent name="C:\Users\adibrov\PycharmProjects\Morphea" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Morphea\tests" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\tests" />
@@ -206,8 +218,8 @@
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.dev">
-    <configuration name="postmaster" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.demo_with_infrastructure">
+    <configuration name="demo_with_infrastructure" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -216,12 +228,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/modules" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/examples" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/modules/postmaster.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/demo_with_infrastructure.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -230,14 +242,36 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
-      <package-json value="$PROJECT_DIR$/gui/package.json" />
-      <command value="run" />
-      <scripts>
-        <script value="dev" />
-      </scripts>
-      <node-interpreter value="project" />
-      <envs />
+    <configuration name="Python tests for test_postmaster.TestPostmasterCollector.test_collector_respects_delay" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Regions" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_postmaster.TestPostmasterCollector.test_collector_respects_delay&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for test_postmaster.TestPostmasterCollector.test_collector_yields_control" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Regions" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_postmaster.TestPostmasterCollector.test_collector_yields_control&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <configuration name="Python tests in test_postmaster.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
@@ -256,23 +290,7 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests in tests" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
-      <module name="Regions" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
-    <configuration name="pytest for test_rag" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for test_postmaster.TestPostmasterEmitter.test_delivery_success" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -286,25 +304,25 @@
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_rag&quot;" />
+      <option name="_new_target" value="&quot;test_postmaster.TestPostmasterEmitter.test_delivery_success&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.dev" />
-        <item itemvalue="Python tests.Python tests in tests" />
+        <item itemvalue="Python.demo_with_infrastructure" />
         <item itemvalue="Python tests.Python tests in test_postmaster.py" />
-        <item itemvalue="Python.postmaster" />
-        <item itemvalue="Python tests.pytest for test_rag" />
+        <item itemvalue="Python tests.pytest for test_postmaster.TestPostmasterEmitter.test_delivery_success" />
+        <item itemvalue="Python tests.Python tests for test_postmaster.TestPostmasterCollector.test_collector_yields_control" />
+        <item itemvalue="Python tests.Python tests for test_postmaster.TestPostmasterCollector.test_collector_respects_delay" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-PY-252.23892.515" />
-        <option value="bundled-python-sdk-7e47963ff851-f0eec537fc84-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.23892.515" />
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-PY-252.25557.130" />
+        <option value="bundled-python-sdk-1bde30d8e611-7b97d883f26b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.25557.130" />
       </set>
     </attachedChunks>
   </component>
@@ -345,94 +363,9 @@
       <workItem from="1755626522566" duration="131000" />
       <workItem from="1755627181614" duration="76419000" />
       <workItem from="1755807881103" duration="167184000" />
-    </task>
-    <task id="LOCAL-00030" summary="Postmaster passing all tests">
-      <option name="closed" value="true" />
-      <created>1755716827770</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1755716827770</updated>
-    </task>
-    <task id="LOCAL-00031" summary="Second Postmaster documentation pass.">
-      <option name="closed" value="true" />
-      <created>1755730589548</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1755730589548</updated>
-    </task>
-    <task id="LOCAL-00032" summary="Functional description of the Orchestrator class.">
-      <option name="closed" value="true" />
-      <created>1755751354893</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1755751354893</updated>
-    </task>
-    <task id="LOCAL-00033" summary="- Explicitly defined additional container functions for RegionRegistry&#10;- 'llamacpp_api' renamed to 'llmlink' to follow module conventions">
-      <option name="closed" value="true" />
-      <created>1755794245161</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1755794245161</updated>
-    </task>
-    <task id="LOCAL-00034" summary="First pass of Orchestrator class code">
-      <option name="closed" value="true" />
-      <created>1755852455579</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1755852455579</updated>
-    </task>
-    <task id="LOCAL-00035" summary="- Orchestrator class debugging and validation method&#10;- Additional utility functions for Orchestrator class">
-      <option name="closed" value="true" />
-      <created>1755892731669</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1755892731669</updated>
-    </task>
-    <task id="LOCAL-00036" summary="Orchestrator class docstrings">
-      <option name="closed" value="true" />
-      <created>1755893152891</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
-      <option name="project" value="LOCAL" />
-      <updated>1755893152891</updated>
-    </task>
-    <task id="LOCAL-00037" summary="- Added unit tests for Orchestrator class&#10;- Orchestrator class passes unit tests">
-      <option name="closed" value="true" />
-      <created>1755901626658</created>
-      <option name="number" value="00037" />
-      <option name="presentableId" value="LOCAL-00037" />
-      <option name="project" value="LOCAL" />
-      <updated>1755901626658</updated>
-    </task>
-    <task id="LOCAL-00038" summary="- Added the Injector context manager&#10;- Fixed behaviors surrounding message type in Postmaster">
-      <option name="closed" value="true" />
-      <created>1755927030851</created>
-      <option name="number" value="00038" />
-      <option name="presentableId" value="LOCAL-00038" />
-      <option name="project" value="LOCAL" />
-      <updated>1755927030852</updated>
-    </task>
-    <task id="LOCAL-00039" summary="First pass of ListenerRegion code">
-      <option name="closed" value="true" />
-      <created>1755934117046</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1755934117046</updated>
-    </task>
-    <task id="LOCAL-00040" summary="Updated ListenerRegion docstrings">
-      <option name="closed" value="true" />
-      <created>1755935082716</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1755935082716</updated>
+      <workItem from="1756576398325" duration="11425000" />
+      <workItem from="1756587928845" duration="16559000" />
+      <workItem from="1756672209135" duration="16728000" />
     </task>
     <task id="LOCAL-00041" summary="ListenerRegion bugfixes">
       <option name="closed" value="true" />
@@ -738,7 +671,95 @@
       <option name="project" value="LOCAL" />
       <updated>1756508704207</updated>
     </task>
-    <option name="localTasksCounter" value="79" />
+    <task id="LOCAL-00079" summary="Making the layout a little cleaner">
+      <option name="closed" value="true" />
+      <created>1756510395522</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1756510395522</updated>
+    </task>
+    <task id="LOCAL-00080" summary="Fixing build and verify logic and logging">
+      <option name="closed" value="true" />
+      <created>1756587468029</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1756587468029</updated>
+    </task>
+    <task id="LOCAL-00081" summary="Fixing export logic and UI elements">
+      <option name="closed" value="true" />
+      <created>1756587494471</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1756587494472</updated>
+    </task>
+    <task id="LOCAL-00082" summary="Cleaner init parameters element">
+      <option name="closed" value="true" />
+      <created>1756588567607</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1756588567608</updated>
+    </task>
+    <task id="LOCAL-00083" summary="Code style and GUI appearance changes">
+      <option name="closed" value="true" />
+      <created>1756592794486</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1756592794486</updated>
+    </task>
+    <task id="LOCAL-00084" summary="Import Regions functionality">
+      <option name="closed" value="true" />
+      <created>1756594449043</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1756594449043</updated>
+    </task>
+    <task id="LOCAL-00085" summary="Definitions for infrastructure demo">
+      <option name="closed" value="true" />
+      <created>1756596307433</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1756596307433</updated>
+    </task>
+    <task id="LOCAL-00086" summary="The GUI is tolerably pretty">
+      <option name="closed" value="true" />
+      <created>1756596329608</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1756596329608</updated>
+    </task>
+    <task id="LOCAL-00087" summary="Added function to poll for empty queue">
+      <option name="closed" value="true" />
+      <created>1756598703638</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1756598703638</updated>
+    </task>
+    <task id="LOCAL-00088" summary="Unit tests for message injection routines">
+      <option name="closed" value="true" />
+      <created>1756675723505</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1756675723505</updated>
+    </task>
+    <task id="LOCAL-00089" summary="Set loglevel to debug">
+      <option name="closed" value="true" />
+      <created>1756675744144</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1756675744144</updated>
+    </task>
+    <option name="localTasksCounter" value="90" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -756,17 +777,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="First pass of possibly working versions of 'execute_layer', 'execute_plan', the 'Executor' context manager and the 'Execute' decorator" />
-    <MESSAGE value="- Added 'stop' function to postmaster; no unit tests yet&#10;- try/except spam for plan execution&#10;- remove 'postmaster' argument from single layer execution function" />
-    <MESSAGE value="Unit test passing for postmaster stop" />
-    <MESSAGE value="- Executor context manager bugfix for individual layer calls&#10;- Postmaster 'stop' docstrings" />
-    <MESSAGE value="Re-added 'cross_verify' as separate module" />
-    <MESSAGE value="Docstrings for classes and methods in 'executor.py'" />
-    <MESSAGE value="Executor passes unit tests" />
-    <MESSAGE value="Pass of DynamicRAGSystem with unit test revisions, passing 6/11" />
-    <MESSAGE value="DynamicRAGSystem passing all tests again" />
-    <MESSAGE value="Refactoring directory structure" />
-    <MESSAGE value="- Unit test format updated to match standards&#10;- Began deprecating ServiceUnavailableError for DB&#10;- Renaming for consistency&#10;- Retired 'testutils.py'" />
     <MESSAGE value="- Corrected import error in test_rag.py&#10;- All tests passing" />
     <MESSAGE value="Updated requirements.txt" />
     <MESSAGE value="- Massive refactoring of directory structure for clarity and readability&#10;- 'cross_verify' renamed to 'verify' to avoid conflation between code and scholarship&#10;- Cleaned up imports&#10;- Regions split up into distinct files for each&#10;- Serialized testing connection parameters for 'test_rag' and 'test_llmlink'" />
@@ -781,20 +791,32 @@
     <MESSAGE value="First pass bottom action bar." />
     <MESSAGE value="Appropriate placement of bottom action bar." />
     <MESSAGE value="Top bar pass" />
-    <option name="LAST_COMMIT_MESSAGE" value="Top bar pass" />
+    <MESSAGE value="Making the layout a little cleaner" />
+    <MESSAGE value="Fixing build and verify logic and logging" />
+    <MESSAGE value="Fixing export logic and UI elements" />
+    <MESSAGE value="Cleaner init parameters element" />
+    <MESSAGE value="Code style and GUI appearance changes" />
+    <MESSAGE value="Import Regions functionality" />
+    <MESSAGE value="Definitions for infrastructure demo" />
+    <MESSAGE value="The GUI is tolerably pretty" />
+    <MESSAGE value="Added function to poll for empty queue" />
+    <MESSAGE value="Unit tests for message injection routines" />
+    <MESSAGE value="Set loglevel to debug" />
+    <option name="LAST_COMMIT_MESSAGE" value="Set loglevel to debug" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$self_indulgent_demo.coverage" NAME="self_indulgent_demo Coverage Results" MODIFIED="1755414074076" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$test_rag_system.coverage" NAME="test_rag_system Coverage Results" MODIFIED="1754960037443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation__1_.coverage" NAME="system_validation (1) Coverage Results" MODIFIED="1754953956081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1756491623957" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Regions$.coverage" NAME=" Coverage Results" MODIFIED="1756687942157" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$test_error_handling.coverage" NAME="test_error_handling Coverage Results" MODIFIED="1755024022292" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$example_usage.coverage" NAME="example_usage Coverage Results" MODIFIED="1754960592061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Regions$pytest_for_test_rag.coverage" NAME="pytest for test_rag Coverage Results" MODIFIED="1756177623633" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Regions$postmaster.coverage" NAME="postmaster Coverage Results" MODIFIED="1756192283431" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$test_embedding_client.coverage" NAME="test_embedding_client Coverage Results" MODIFIED="1754960121608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Regions$dynamic_rag.coverage" NAME="dynamic_rag Coverage Results" MODIFIED="1756090482413" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
+    <SUITE FILE_PATH="coverage/Regions$pytest_for_test_postmaster_TestPostmasterCollector_test_collector_drains_outboxes.coverage" NAME="pytest for test_postmaster.TestPostmasterCollector.test_collector_drains_outboxes Coverage Results" MODIFIED="1756685088078" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$ooba_api.coverage" NAME="ooba_api Coverage Results" MODIFIED="1754771453647" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Regions$demo.coverage" NAME="demo Coverage Results" MODIFIED="1756174122521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
     <SUITE FILE_PATH="coverage/Morphea$test_error__1_.coverage" NAME="test_error (1) Coverage Results" MODIFIED="1755067513413" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -807,10 +829,12 @@
     <SUITE FILE_PATH="coverage/Morphea$rag_test.coverage" NAME="rag_test Coverage Results" MODIFIED="1755027223154" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Regions$self_indulgent_demo.coverage" NAME="self_indulgent_demo Coverage Results" MODIFIED="1756088713159" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$config.coverage" NAME="config Coverage Results" MODIFIED="1754783507497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
+    <SUITE FILE_PATH="coverage/Regions$demo_with_infrastructure.coverage" NAME="demo_with_infrastructure Coverage Results" MODIFIED="1756688914015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
     <SUITE FILE_PATH="coverage/Morphea$test_database.coverage" NAME="test_database Coverage Results" MODIFIED="1755067054258" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$comprehensive_unit_tests.coverage" NAME="comprehensive_unit_tests Coverage Results" MODIFIED="1754957816626" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Regions$pytest_for_test_executor_top_level_collect.coverage" NAME="pytest for test_executor.top_level_collect Coverage Results" MODIFIED="1756161779185" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$system_validation.coverage" NAME="system_validation Coverage Results" MODIFIED="1754952625432" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scratch" />
+    <SUITE FILE_PATH="coverage/Regions$pytest_for_test_postmaster_TestPostmasterEmitter_test_delivery_success.coverage" NAME="pytest for test_postmaster.TestPostmasterEmitter.test_delivery_success Coverage Results" MODIFIED="1756687529872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Regions$orchestrator.coverage" NAME="orchestrator Coverage Results" MODIFIED="1755457792261" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Regions$regions_gui.coverage" NAME="regions_gui Coverage Results" MODIFIED="1756314403998" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$tools_test.coverage" NAME="tools_test Coverage Results" MODIFIED="1753822899523" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
