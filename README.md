@@ -135,7 +135,7 @@ asyncio.run(main())
 ## GUI: Visual Flow Editor
 A React-based editor for composing Regions, configuring connections, and assigning methods to layered execution plans. You can load and save JSON plans to use with the Python orchestrator/executor.
 
-![GUI Screenshot](gui\gui_screenshot.png)
+![GUI Screenshot](gui/gui_screenshot.png)
 
 Install and run the GUI (React + Vite):
 
