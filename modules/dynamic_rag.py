@@ -176,7 +176,7 @@ class EmbeddingClient:
                 if "data" not in result or not result["data"]:
                     raise SchemaMismatchError("Invalid embedding response format")
 
-                logging.info(f"Successfully received embedding for text of length {len(text)}")
+                logging.info(f"Received embedding for text of length {len(text)}")
                 return result["data"][0]["embedding"]
 
         except SchemaMismatchError:
@@ -272,7 +272,7 @@ class DatabaseManager:
             if not chunk.chunk_hash:
                 chunk.chunk_hash = hashlib.sha256(chunk.content.encode()).hexdigest()
 
-            logging.info(f"{self.db_name}: Storing document chunk with hash: {chunk.chunk_hash}")
+            logging.debug(f"{self.db_name}: Storing document chunk with hash: {chunk.chunk_hash}")
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
@@ -347,7 +347,7 @@ class DatabaseManager:
                 chunks.append(chunk)
 
             conn.close()
-            logging.info(f"{self.db_name}: Retrieved all stored document chunks")
+            logging.debug(f"{self.db_name}: Retrieved all stored document chunks")
             return chunks
 
         except sqlite3.Error as e:
@@ -700,13 +700,13 @@ class DynamicRAGSystem:
         else:
             raise TypeError("chunk must be DocumentChunk or str")
 
-        logging.info(f"{self.db_name}: Deleting chunk with hash {chunk_hash}")
+        logging.debug(f"{self.db_name}: Deleting chunk with hash {chunk_hash}")
         deleted = await self.db_manager.delete_chunk(chunk_hash)
         if not deleted:
-            logger.warning(f"{self.db_name}: Chunk {chunk_hash} could not be deleted")
+            logging.warning(f"{self.db_name}: Chunk {chunk_hash} could not be deleted")
             return False
         else:
-            logger.info(f"{self.db_name}: Deleted chunk {chunk_hash}")
+            logging.info(f"{self.db_name}: Deleted chunk {chunk_hash}")
             return True
 
     async def update_chunk(self, chunk_hash: str, new_content: str, actors: List[str]) -> bool:
@@ -732,7 +732,7 @@ class DynamicRAGSystem:
             return False
 
         # Generate new embedding
-        logging.info(f"Generating new embedding for updated chunk")
+        logging.debug(f"Generating new embedding for updated chunk")
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
             embedding = await embedding_client.get_embedding(new_content)
 

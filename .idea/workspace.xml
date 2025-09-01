@@ -4,15 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Set loglevel to debug">
-      <change afterPath="$PROJECT_DIR$/examples/demo_with_infrastructure.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/executor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/injector.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/injector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/postmaster.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/regions/region.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/regions/region.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_postmaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_postmaster.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Directory structure refactoring">
+      <change beforePath="$PROJECT_DIR$/modules/dynamic_rag.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dynamic_rag.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -365,71 +358,7 @@
       <workItem from="1755807881103" duration="167184000" />
       <workItem from="1756576398325" duration="11425000" />
       <workItem from="1756587928845" duration="16559000" />
-      <workItem from="1756672209135" duration="16728000" />
-    </task>
-    <task id="LOCAL-00041" summary="ListenerRegion bugfixes">
-      <option name="closed" value="true" />
-      <created>1755936982999</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1755936982999</updated>
-    </task>
-    <task id="LOCAL-00042" summary="First pass on unit tests for ListenerRegion - not working yet.">
-      <option name="closed" value="true" />
-      <created>1755974248807</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1755974248807</updated>
-    </task>
-    <task id="LOCAL-00043" summary="Further work on unit tests for ListenerRegion.">
-      <option name="closed" value="true" />
-      <created>1755989224533</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1755989224533</updated>
-    </task>
-    <task id="LOCAL-00044" summary="Decorator-based context manager '@Addressograph' that uses the Injector class and can be applied recursively.">
-      <option name="closed" value="true" />
-      <created>1755992091314</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1755992091314</updated>
-    </task>
-    <task id="LOCAL-00045" summary="ListenerRegion all passing 9/10 tests, except 'test_cancellation_drains_inbox'">
-      <option name="closed" value="true" />
-      <created>1755992237511</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
-      <option name="project" value="LOCAL" />
-      <updated>1755992237511</updated>
-    </task>
-    <task id="LOCAL-00046" summary="ListenerRegion passing all unit tests">
-      <option name="closed" value="true" />
-      <created>1755994195660</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
-      <option name="project" value="LOCAL" />
-      <updated>1755994195660</updated>
-    </task>
-    <task id="LOCAL-00047" summary="- Utility function in orchestrator&#10;- Verification function for ListenerRegion behavior in orchestrator via ListenerRegion instances">
-      <option name="closed" value="true" />
-      <created>1755998900282</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
-      <option name="project" value="LOCAL" />
-      <updated>1755998900282</updated>
-    </task>
-    <task id="LOCAL-00048" summary="- Verify docstrings for ListenerRegion&#10;- Cross-validation method for an entire run configuration">
-      <option name="closed" value="true" />
-      <created>1756002979981</created>
-      <option name="number" value="00048" />
-      <option name="presentableId" value="LOCAL-00048" />
-      <option name="project" value="LOCAL" />
-      <updated>1756002979981</updated>
+      <workItem from="1756672209135" duration="17965000" />
     </task>
     <task id="LOCAL-00049" summary="- cross_verify is now passing unit tests&#10;- mock regions separated into own file">
       <option name="closed" value="true" />
@@ -759,7 +688,71 @@
       <option name="project" value="LOCAL" />
       <updated>1756675744144</updated>
     </task>
-    <option name="localTasksCounter" value="90" />
+    <task id="LOCAL-00090" summary="Set loglevel to debug for empty queue spam">
+      <option name="closed" value="true" />
+      <created>1756689208740</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1756689208740</updated>
+    </task>
+    <task id="LOCAL-00091" summary="Variant of demo that uses major infrastructure classes">
+      <option name="closed" value="true" />
+      <created>1756689287781</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1756689287781</updated>
+    </task>
+    <task id="LOCAL-00092" summary="Added idle time between layers for message passing">
+      <option name="closed" value="true" />
+      <created>1756689356175</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1756689356175</updated>
+    </task>
+    <task id="LOCAL-00093" summary="Fixed argument positions for Injector">
+      <option name="closed" value="true" />
+      <created>1756689416815</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1756689416815</updated>
+    </task>
+    <task id="LOCAL-00094" summary="Added configurable terminal print special address. Rebuilt emitter and collector to handle RegionEntry objects correctly.">
+      <option name="closed" value="true" />
+      <created>1756689599410</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1756689599410</updated>
+    </task>
+    <task id="LOCAL-00095" summary="Added and corrected debug lines">
+      <option name="closed" value="true" />
+      <created>1756689622127</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1756689622127</updated>
+    </task>
+    <task id="LOCAL-00096" summary="Rewrote several tests to use actual objects instead of MagicMock. Accounted for actual registry structure. Tweaked timings to match current implementation.">
+      <option name="closed" value="true" />
+      <created>1756689772546</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1756689772546</updated>
+    </task>
+    <task id="LOCAL-00097" summary="Directory structure refactoring">
+      <option name="closed" value="true" />
+      <created>1756689807033</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1756689807033</updated>
+    </task>
+    <option name="localTasksCounter" value="98" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -777,14 +770,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="- Corrected import error in test_rag.py&#10;- All tests passing" />
-    <MESSAGE value="Updated requirements.txt" />
-    <MESSAGE value="- Massive refactoring of directory structure for clarity and readability&#10;- 'cross_verify' renamed to 'verify' to avoid conflation between code and scholarship&#10;- Cleaned up imports&#10;- Regions split up into distinct files for each&#10;- Serialized testing connection parameters for 'test_rag' and 'test_llmlink'" />
-    <MESSAGE value="- Moved chunking function to 'utils.py'&#10;- Updated docstrings for 'dynamic_rag.py'" />
-    <MESSAGE value="- Removed unnecessary sleeps&#10;- Serialized yet more test parameters" />
-    <MESSAGE value="- Serialized demo LLM and embedding server addresses, as well as generation parameters. These now load from demo_params.json&#10;- Cleaned up demo code" />
-    <MESSAGE value="- Serialized demo data&#10;- Improved logging in 'dynamic_rag.py'" />
-    <MESSAGE value="- Added README.md&#10;- Added .gitignore" />
     <MESSAGE value="- Added README.md" />
     <MESSAGE value="Added some snippets to README.md" />
     <MESSAGE value="Vibecoded partial React GUI for configuration building" />
@@ -802,7 +787,15 @@
     <MESSAGE value="Added function to poll for empty queue" />
     <MESSAGE value="Unit tests for message injection routines" />
     <MESSAGE value="Set loglevel to debug" />
-    <option name="LAST_COMMIT_MESSAGE" value="Set loglevel to debug" />
+    <MESSAGE value="Set loglevel to debug for empty queue spam" />
+    <MESSAGE value="Variant of demo that uses major infrastructure classes" />
+    <MESSAGE value="Added idle time between layers for message passing" />
+    <MESSAGE value="Fixed argument positions for Injector" />
+    <MESSAGE value="Added configurable terminal print special address. Rebuilt emitter and collector to handle RegionEntry objects correctly." />
+    <MESSAGE value="Added and corrected debug lines" />
+    <MESSAGE value="Rewrote several tests to use actual objects instead of MagicMock. Accounted for actual registry structure. Tweaked timings to match current implementation." />
+    <MESSAGE value="Directory structure refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="Directory structure refactoring" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
@@ -829,7 +822,7 @@
     <SUITE FILE_PATH="coverage/Morphea$rag_test.coverage" NAME="rag_test Coverage Results" MODIFIED="1755027223154" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Regions$self_indulgent_demo.coverage" NAME="self_indulgent_demo Coverage Results" MODIFIED="1756088713159" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$config.coverage" NAME="config Coverage Results" MODIFIED="1754783507497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
-    <SUITE FILE_PATH="coverage/Regions$demo_with_infrastructure.coverage" NAME="demo_with_infrastructure Coverage Results" MODIFIED="1756688914015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/Regions$demo_with_infrastructure.coverage" NAME="demo_with_infrastructure Coverage Results" MODIFIED="1756689083029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
     <SUITE FILE_PATH="coverage/Morphea$test_database.coverage" NAME="test_database Coverage Results" MODIFIED="1755067054258" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$comprehensive_unit_tests.coverage" NAME="comprehensive_unit_tests Coverage Results" MODIFIED="1754957816626" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Regions$pytest_for_test_executor_top_level_collect.coverage" NAME="pytest for test_executor.top_level_collect Coverage Results" MODIFIED="1756161779185" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
