@@ -45,6 +45,7 @@ async def execute_layer(
 
     layer_config = orchestrator.layer_config[layer]
     chain_tasks = []
+    failed_chain_names = []
 
     # Process each chain concurrently
     for chain_name, regions in layer_config.items():
@@ -96,6 +97,7 @@ async def execute_layer(
                 except Exception as e:
                     logging.error(
                         f"Error awaiting '{method_name}' of region '{region_name}' in chain '{chain_name}': {str(e)}")
+                    failed_chain_names.append(chain_name)
                     return False
 
             return True
@@ -110,7 +112,7 @@ async def execute_layer(
     if not success:
         failed_chains = [i for i, r in enumerate(results) if not (isinstance(r, bool) and r)]
         logging.error(
-            f"Layer {layer} failed in {len(failed_chains)} chains: {', '.join([str(chain) for chain in failed_chains])}")
+            f"Layer {layer} failed in {len(failed_chains)} chains: {', '.join(failed_chain_names)}")
 
     return success
 
@@ -166,6 +168,7 @@ async def execute_plan(
 
         try:
             success = await execute_layer(registry, orchestrator, layer_idx)
+            logging.debug(f"Layer {layer_idx} success: {success}.")
         except Exception as e:
             logging.error(f"{e}")
             success = False
@@ -176,7 +179,7 @@ async def execute_plan(
         # Then, wait for the postmaster queue to empty before moving on to the next layer.
         empty_in_time = await until_empty(postmaster.messages, timeout=timeout)
         if empty_in_time or proceed_on_timeout:
-            continue
+            pass
         elif not empty_in_time and proceed_on_timeout:
             logging.info(f"Proceeding on timeout with {len(postmaster.messages)} unsent messages.")
         else:
