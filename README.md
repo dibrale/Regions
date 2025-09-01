@@ -2,13 +2,13 @@
 
 Modular framework for building message‑passing "regions" that collaborate through configurable execution plans. It includes:
 
-- Regions: autonomous units built to accommodate an LLM interface, exchanging messages through inbox/outbox queues
-- Orchestrator: defines layered execution plans and chains of region methods
-- Executor: runs the plan layer‑by‑layer and handles async/sync region methods
-- Postmaster: background message transport between regions
-- RegionRegistry: builds and manages region instances (with defaults)
-- Dynamic RAG: simple, local, sqlite‑backed store/retrieve pipeline with an external embedding server
-- LLMLink: lightweight HTTP client for text generation/health/model endpoints
+- **Regions**: autonomous units built to accommodate an LLM interface, exchanging messages through inbox/outbox queues
+- **Orchestrator**: defines layered execution plans and chains of region methods
+- **Executor**: runs the plan layer‑by‑layer and handles async/sync region methods
+- **Postmaster**: background message transport between regions
+- **RegionRegistry**: builds and manages region instances (with defaults)
+- **Dynamic RAG**: simple, local, sqlite‑backed store/retrieve pipeline with an external embedding server
+- **LLMLink**: lightweight HTTP client for text generation/health/model endpoints
 
 This repo also provides examples and a pytest suite to help you get started quickly.
 
