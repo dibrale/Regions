@@ -3,7 +3,6 @@ import logging
 
 from region_registry import RegionRegistry
 
-
 class Postmaster:
     """Manages message routing between regions with configurable undeliverable handling.
 
@@ -33,7 +32,8 @@ class Postmaster:
         rts_source: str = '',
         rts_prepend: bool = None,
         reroute_destination: str = '',
-        cc: str = None
+        cc: str = None,
+        print_address: str = 'terminal',
     ) -> None:
         """Initializes the Postmaster with routing configuration.
 
@@ -51,6 +51,7 @@ class Postmaster:
                          If None (default), no prepend occurs.
             reroute_destination: Target region name for rerouted messages
             cc: Name of a "CC" region (for debugging/logging purposes)
+            print_address: Destination that will cause the message to be written to sys.stdout via print()
 
         Raises:
             RuntimeError: If undeliverable='reroute' but reroute_destination is empty
@@ -64,7 +65,7 @@ class Postmaster:
         """
         self.registry = registry
         self.cc = cc
-
+        self.print_address = print_address
         self.delay = delay
         self.default_resend_delay = delay-0.01  # Should optimistically be long enough for other messages to arrive first
                                                 # This reduces priority of resends compared to new arrivals
@@ -101,8 +102,10 @@ class Postmaster:
         Notes:
             Must be called to activate message routing. Does not block execution.
         """
-        self.collect = asyncio.create_task(self.collector())
-        self.emit = asyncio.create_task(self.emitter())
+        loop = asyncio.get_event_loop()
+        self.collect = loop.create_task(self.collector())
+        self.emit = loop.create_task(self.emitter())
+
 
     async def stop(self) -> bool:
         """
@@ -196,16 +199,25 @@ class Postmaster:
             - Uses non-blocking queue operations to avoid blocking
             - Yields control after each message to allow other tasks to run
         """
+        logging.info("Starting postmaster collector")
+        try:
+            logging.debug(f"Polling regions: {', '.join([region.name for region in self.registry])}")
+        except Exception as e:
+            logging.error(f"Error occurred while polling: {e}")
         while True:  # Runs forever
-            await asyncio.sleep(self.delay)  # Wait before checking regions
-            for region in self.registry:  # Process each region
+            await asyncio.sleep(0)
+            await asyncio.sleep(self.delay)
+            for entry in self.registry:  # Process each region
+                # logging.debug(f"Processing outbox from '{entry.name}'")
                 while True:  # Drain region outbox completely
                     try:
-                        msg = region.outbox.get_nowait()  # Non-blocking pop
+                        msg = entry.region.outbox.get_nowait()  # Non-blocking pop
+                        logging.debug(f"Message received from '{entry.name}': {msg}")
                     except asyncio.QueueEmpty:  # raised when pop attempted on empty queue
+                        # logging.debug(f"No messages left in '{entry.name}'")
                         break  # breaks out of INNER loop
                     self.messages.put_nowait(msg)
-                    await asyncio.sleep(0)  # Yield to other tasks
+                    # await asyncio.sleep(0)  # Yield to other tasks
 
     async def resend(self, msg: dict, resend_delay: float = None):
         """Requeues a message after a configurable delay for retry delivery.
@@ -262,6 +274,7 @@ class Postmaster:
             - Logs undeliverable messages as warnings
             - Runs continuously until task cancellation
         """
+        logging.info("Starting postmaster emitter")
         while True:
 
             # Wait at least the delay time
@@ -270,17 +283,27 @@ class Postmaster:
                 await asyncio.sleep(0.01)
 
             while not self.messages.empty():
-                await asyncio.sleep(0)
+                await asyncio.sleep(0) # Yield here in case of cancellation
+                logging.debug(f"Postmaster emitter processing {self.messages.qsize()} messages")
                 message = self.messages.get_nowait()
                 sent = False
-                for region in self.registry:
-                    if message['destination'] == region.name:
-                        region.inbox.put_nowait(message)
+                for entry in self.registry:
+                    logging.debug(f"Looking for messages to '{entry.name}'")
+                    if message['destination'] == entry.name:
+                        logging.debug(f"Found message for '{entry.name}' from '{message['source']}'")
+                        try:
+                            entry.region.inbox.put_nowait(message)
+                        except Exception as e:
+                            logging.error(f"Failed to send message to '{entry.name}': {e}")
                         if self.cc:
                             self.registry[self.cc].inbox.put_nowait(message)
                         sent = True
                         logging.info(f"Message sent from '{message['source']}' to '{message['destination']}'")
                         break   # Exit region loop after delivery
+
+                if message['destination'] == self.print_address:
+                    print(f"{message['source']}: {message['content']}")
+                    continue
 
                 if not sent:
 
