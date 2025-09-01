@@ -4,9 +4,10 @@ import asyncio
 from unittest.mock import MagicMock, AsyncMock
 
 from executor import execute_layer, execute_plan, Executor, Execute
-from mock_regions import MockRegion
 from orchestrator import Orchestrator
 from postmaster import Postmaster
+from region_registry import RegionRegistry, RegionEntry
+from region_types import *
 
 
 # Mock registry implementation for testing
@@ -21,15 +22,25 @@ class MockRegionRegistry:
     def __iter__(self):
         return iter(self.regions.values())
 
-
-@pytest.mark.asyncio
-async def test_execute_layer_success(caplog):
-    """Test successful execution of a valid layer"""
+@pytest.fixture
+def test_registry():
     # Setup mock regions
     region1 = MockRegion('region1')
     region2 = MockRegion('region2')
-    regions = {'region1': region1, 'region2': region2}
-    registry = MockRegionRegistry(regions)
+    entry1 = RegionEntry()
+    entry2 = RegionEntry()
+    entry1.from_region(region1)
+    entry2.from_region(region2)
+    registry = RegionRegistry()
+    registry.register(entry1)
+    registry.register(entry2)
+    return registry
+
+@pytest.mark.asyncio
+async def test_execute_layer_success(caplog, test_registry):
+    """Test successful execution of a valid layer"""
+    # Setup mock regions
+    registry = test_registry
 
     # Configure orchestrator
     layer_config = [{'chain1': ['region1', 'region2']}]
@@ -62,7 +73,7 @@ async def test_execute_layer_out_of_range(caplog):
 
 
 @pytest.mark.asyncio
-async def test_execute_layer_chain_failure(caplog):
+async def test_execute_layer_chain_failure(caplog, test_registry):
     """Test chain failure handling"""
 
     class FailingRegion(MockRegion):
@@ -70,11 +81,12 @@ async def test_execute_layer_chain_failure(caplog):
             await asyncio.sleep(0.1)
             raise RuntimeError("Test failure")
 
+    region_dictionary.append({"name": "FailingRegion", "class": FailingRegion})
+
     # Setup regions with failing method
-    region2 = FailingRegion('region1')
-    region1 = MockRegion('region2')
-    regions = {'region1': region1, 'region2': region2}
-    registry = MockRegionRegistry(regions)
+    region2 = FailingRegion('region2')
+    registry = test_registry
+    registry.update(RegionEntry.make(region2))
 
     # Configure orchestrator
     layer_config = [{'chain1': ['region1', 'region2']}]
@@ -92,17 +104,16 @@ async def test_execute_layer_chain_failure(caplog):
 
 
 @pytest.mark.asyncio
-async def test_execute_plan_success(caplog):
+async def test_execute_plan_success(caplog, test_registry):
     """Test full successful execution plan"""
     # Setup mock components
-    region1 = MockRegion('region1')
-    registry = MockRegionRegistry({'region1': region1})
+    registry = test_registry
 
     layer_config = [{'chain1': ['region1']}]
     execution_config = [[('region1', 'mock_method')]]
     orchestrator = Orchestrator(layer_config, execution_config)
 
-    postmaster = MagicMock(spec=Postmaster)
+    postmaster = Postmaster(registry)
     postmaster.start = AsyncMock()
     postmaster.stop = AsyncMock(return_value=True)
 
@@ -134,7 +145,7 @@ async def test_execute_plan_postmaster_start_failure(caplog):
 
 
 @pytest.mark.asyncio
-async def test_execute_plan_layer_failure(caplog):
+async def test_execute_plan_layer_failure(caplog, test_registry):
     """Test layer failure abort behavior"""
 
     # Setup failing region
@@ -142,13 +153,17 @@ async def test_execute_plan_layer_failure(caplog):
         async def mock_method(self):
             raise RuntimeError("Layer failure")
 
-    registry = MockRegionRegistry({'region1': FailingRegion('region1')})
+    region_dictionary.append({"name": "FailingRegion", "class": FailingRegion})
+
+    region1 = FailingRegion('region1')
+    registry = test_registry
+    registry.update(RegionEntry.make(region1))
 
     layer_config = [{'chain1': ['region1']}]
     execution_config = [[('region1', 'mock_method')]]
     orchestrator = Orchestrator(layer_config, execution_config)
 
-    postmaster = MagicMock(spec=Postmaster)
+    postmaster = MagicMock(spec=Postmaster, delay=0.5, messages=asyncio.Queue())
     postmaster.start = AsyncMock()
     postmaster.stop = AsyncMock()
 
@@ -156,6 +171,7 @@ async def test_execute_plan_layer_failure(caplog):
     result = await execute_plan(registry, orchestrator, postmaster)
 
     # Verify abort behavior
+    print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
     assert result is False
     assert "Execution failed at layer 0" in caplog.text
     assert "Aborting execution" in caplog.text
@@ -163,16 +179,16 @@ async def test_execute_plan_layer_failure(caplog):
 
 
 @pytest.mark.asyncio
-async def test_execute_plan_postmaster_stop_failure(caplog):
+async def test_execute_plan_postmaster_stop_failure(caplog, test_registry):
     """Test postmaster shutdown failure handling"""
     # Setup mock components
-    registry = MockRegionRegistry({'region1': MockRegion('region1')})
+    registry = test_registry
 
     layer_config = [{'chain1': ['region1']}]
     execution_config = [[('region1', 'mock_method')]]
     orchestrator = Orchestrator(layer_config, execution_config)
 
-    postmaster = MagicMock(spec=Postmaster)
+    postmaster = MagicMock(spec=Postmaster, delay=0.5, messages=asyncio.Queue())
     postmaster.start = AsyncMock()
     postmaster.stop = AsyncMock(side_effect=RuntimeError("Shutdown failed"))
 
