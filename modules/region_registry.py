@@ -104,6 +104,33 @@ class RegionEntry:
             self.delay = region.delay
         self.region = region
 
+    @classmethod
+    def make(cls, region: BaseRegion):
+        """Create a RegionEntry instance directly from a live region.
+
+        Utilizes the from_region() instance method to copy attributes from a live instance.
+
+        Args:
+            region (base_region.BaseRegion): Source region instance to serialize
+
+        Side Effects:
+            Sets all attributes on result:
+            - name, type (from class name), task
+            - connections (if present on region)
+            - rag (if present on region)
+            - llm (if present on region)
+            - reply_with_actors (if present on region)
+            - delay (if present on region)
+            - region (direct reference to source object)
+
+        Example:
+            >>> entry = RegionEntry.make(customer_region)
+            >>> assert entry.name == "customer_region"
+        """
+        entry = RegionEntry()
+        entry.from_region(region)
+        return entry
+
     def make_region(self) -> BaseRegion | None:
         """Instantiate a region from stored configuration.
 
@@ -406,7 +433,8 @@ class RegionRegistry:
             logging.warning(f"Region '{region.name}' not found in registry")
             return False
         else:
-            self.regions[self.names.index(region.name)].region = region
+            self.deregister(region.name)
+            self.register(region)
             logging.info(f"Region '{region.name}' updated")
             return True
 
