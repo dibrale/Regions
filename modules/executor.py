@@ -6,6 +6,7 @@ from region_types import *
 from postmaster import Postmaster
 from orchestrator import Orchestrator
 from region_registry import RegionRegistry
+from utils import until_empty
 
 
 async def execute_layer(
@@ -118,6 +119,8 @@ async def execute_plan(
         registry: RegionRegistry,
         orchestrator: Orchestrator,
         postmaster: Postmaster,
+        timeout: float = 3,
+        proceed_on_timeout: bool = False
 ) -> bool:
     """
     Execute a verified distributed region execution plan across all layers.
@@ -130,6 +133,8 @@ async def execute_plan(
         registry: Region registry containing all registered regions
         orchestrator: Orchestrator defining the execution plan structure
         postmaster: Postmaster instance handling inter-region communication
+        timeout (float): Maximum time (in seconds) to wait between layers for the postmaster queue to be empty
+        proceed_on_timeout (bool): Whether to continue execution if the postmaster queue does not empty within the timeout period
 
     Returns:
         True if the entire execution plan completed successfully, False otherwise
@@ -158,11 +163,26 @@ async def execute_plan(
 
     # Execute layers in order
     for layer_idx in execution_order:
+
         try:
             success = await execute_layer(registry, orchestrator, layer_idx)
         except Exception as e:
             logging.error(f"{e}")
             success = False
+
+        # Wait for at least one message interval before executing a layer, plus two emitter ticks after the delay.
+        await asyncio.sleep(postmaster.delay + 0.02)
+
+        # Then, wait for the postmaster queue to empty before moving on to the next layer.
+        empty_in_time = await until_empty(postmaster.messages, timeout=timeout)
+        if empty_in_time or proceed_on_timeout:
+            continue
+        elif not empty_in_time and proceed_on_timeout:
+            logging.info(f"Proceeding on timeout with {len(postmaster.messages)} unsent messages.")
+        else:
+            logging.error(f"Postmaster queue did not empty within {timeout} seconds with {len(postmaster.messages)} messages remaining.")
+            success = False
+
         if not success:
             logging.error(f"Execution failed at layer {layer_idx}")
             logging.info(f"Aborting execution.")
