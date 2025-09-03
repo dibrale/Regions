@@ -598,6 +598,98 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
         reader.readAsText(file);
     }, []);
 
+    const exportAllState = useCallback(() => {
+        try {
+            // Combine all relevant state into a single object
+            const allState = {
+                // Flow Diagram State
+                nodes: toRegistryJSON(nodes, edges), // Reuse existing function to get serializable node data
+                edges: edges, // Edges are already serializable
+
+                // Orchestrator State
+                layerConfig: layerConfig,
+                executionConfig: executionConfig,
+                executionOrder: executionOrder,
+                chainColors: chainColors,
+            };
+
+            const jsonString = JSON.stringify(allState, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'app_full_state.json'; // Suggest a filename
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            console.log("Full application state exported successfully.");
+        } catch (error) {
+            console.error("Error exporting full state:", error);
+            alert('Error exporting full state: ' + (error.message || 'Unknown error'));
+        }
+    }, [nodes, edges, layerConfig, executionConfig, executionOrder, chainColors]); // Dependencies
+
+    const importAllState = useCallback((event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const allState = JSON.parse(e.target.result);
+
+                // --- Validate basic structure (basic check) ---
+                if (
+                    !allState.hasOwnProperty('nodes') ||
+                    !allState.hasOwnProperty('edges') ||
+                    !allState.hasOwnProperty('layerConfig') ||
+                    !allState.hasOwnProperty('executionConfig') ||
+                    !allState.hasOwnProperty('executionOrder') ||
+                    !allState.hasOwnProperty('chainColors')
+                ) {
+                    throw new Error('Invalid file format: Missing required state properties.');
+                }
+
+                // --- Import Flow Diagram State ---
+                // Use fromRegistryJSON to convert the imported node data back to React Flow nodes
+                const { nodes: importedNodes, edges: importedEdges } = fromRegistryJSON(allState.nodes, isDarkMode, idRef);
+                setNodes(importedNodes);
+                setEdges(importedEdges);
+
+                // --- Import Orchestrator State ---
+                setLayerConfig(allState.layerConfig);
+                // Ensure executionConfig inner arrays are proper arrays (not generic objects from JSON)
+                const convertedExecutionConfig = allState.executionConfig.map(layer =>
+                    layer.map(entry => Array.isArray(entry) ? [entry[0], entry[1]] : [null, null]) // Basic conversion, adjust if needed
+                );
+                setExecutionConfig(convertedExecutionConfig);
+                setExecutionOrder(allState.executionOrder);
+                setChainColors(allState.chainColors);
+
+                // --- Clear Selection ---
+                setSelectedNodeId(null);
+                setSelectedEdgeIds([]);
+
+                alert('Full application state imported successfully!');
+
+            } catch (error) {
+                console.error("Error importing full state:", error);
+                alert('Error importing full state: ' + (error.message || 'Invalid JSON or unexpected format.'));
+            } finally {
+                // Reset the input so the same file can be selected again
+                event.target.value = '';
+            }
+        };
+        reader.onerror = (e) => {
+             console.error("Error reading file:", e);
+             alert('Error reading file.');
+             event.target.value = '';
+        };
+        reader.readAsText(file);
+    }, [isDarkMode, setNodes, setEdges, setLayerConfig, setExecutionConfig, setExecutionOrder, setChainColors, setSelectedNodeId, setSelectedEdgeIds]);
+
     // Initialize or update the connections edit buffer when selection changes (but not while actively editing)
     useEffect(() => {
         if (!selectedNode) {
@@ -1117,7 +1209,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                 className="gap-2 bg-green-600 hover:bg-green-700 text-white">
                             <Download className="w-4 h-4" /> Export Regions
                         </Button>
-                        {/* --- New Import Regions Button --- */}
+                        {/* --- Import Regions Button --- */}
                         <div className="relative">
                             <input
                                 type="file"
@@ -1131,7 +1223,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                 <Upload className="w-4 h-4" /> Import Regions
                             </Button>
                         </div>
-                        {/* --- End New Import Regions Button --- */}
+                        {/* --- End Import Regions Button --- */}
 
                         <Button variant="default" onClick={exportOrchestratorConfig}
                                 className="gap-2 bg-green-600 hover:bg-green-700 text-white">
@@ -1150,6 +1242,26 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                 <Upload className="w-4 h-4" /> Import Orchestrator Config
                             </Button>
                         </div>
+
+                        {/* --- Full State Buttons --- */}
+                        <Button variant="default" onClick={exportAllState}
+                                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"> {/* Different color for distinction */}
+                            <Download className="w-4 h-4" /> Export All State
+                        </Button>
+                        <div className="relative">
+                            <input
+                                type="file"
+                                accept=".json"
+                                onChange={importAllState}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                id="import-all-state-footer"
+                            />
+                            <Button variant="outline"
+                                    className={`${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''} gap-2`}>
+                                <Upload className="w-4 h-4" /> Import All State
+                            </Button>
+                        </div>
+                        {/* --- End Full State Buttons --- */}
                     </div>
                 </div>
             </div>
