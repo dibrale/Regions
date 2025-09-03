@@ -1,0 +1,174 @@
+{
+  "flowNodes": [
+    {
+      "id": "imported_1_Historian",
+      "type": "regionNode",
+      "position": {
+        "x": -154.48589650060615,
+        "y": 243.58941023549443
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "Historian",
+          "task": "Synthesize historical information from multiple sources. You are interested in the Zebra-Kiwia conflict and the leaders involved.",
+          "connections": {
+            "Biography": "Provide historical figure information",
+            "HistoricalFacts": "Provide historical event information"
+          },
+          "type": "Region"
+        },
+        "nodeId": "imported_1_Historian",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "chain0",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 150,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -154.48589650060615,
+        "y": 243.58941023549443
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_2_HistoricalFacts",
+      "type": "regionNode",
+      "position": {
+        "x": 234.7404056378444,
+        "y": 359.6686188261742
+      },
+      "data": {
+        "typeName": "RAGRegion",
+        "params": {
+          "name": "HistoricalFacts",
+          "task": "Provide historical event information",
+          "reply_with_actors": true,
+          "connections": {},
+          "type": "RAGRegion"
+        },
+        "nodeId": "imported_2_HistoricalFacts",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 234.7404056378444,
+        "y": 359.6686188261742
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_3_Biography",
+      "type": "regionNode",
+      "position": {
+        "x": 222.17896792280675,
+        "y": 142.4115770634425
+      },
+      "data": {
+        "typeName": "RAGRegion",
+        "params": {
+          "name": "Biography",
+          "task": "Provide historical figure information",
+          "reply_with_actors": true,
+          "connections": {},
+          "type": "RAGRegion"
+        },
+        "nodeId": "imported_3_Biography",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": true,
+      "positionAbsolute": {
+        "x": 222.17896792280675,
+        "y": 142.4115770634425
+      },
+      "dragging": false
+    }
+  ],
+  "flowEdges": [
+    {
+      "id": "e_imported_1_Historian_imported_3_Biography",
+      "source": "imported_1_Historian",
+      "target": "imported_3_Biography",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_1_Historian_imported_2_HistoricalFacts",
+      "source": "imported_1_Historian",
+      "target": "imported_2_HistoricalFacts",
+      "type": "default"
+    }
+  ],
+  "layerConfig": [
+    {
+      "chain0": [
+        "Historian"
+      ]
+    },
+    {
+      "chain0": [
+        "Biography"
+      ],
+      "chain1": [
+        "HistoricalFacts"
+      ]
+    },
+    {
+      "chain0": [
+        "Historian"
+      ]
+    }
+  ],
+  "executionConfig": [
+    [
+      [
+        "Historian",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Biography",
+        "make_replies"
+      ],
+      [
+        "HistoricalFacts",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Historian",
+        "make_replies"
+      ]
+    ]
+  ],
+  "executionOrder": [
+    0,
+    1,
+    2
+  ],
+  "chainColors": [
+    {}
+  ]
+}

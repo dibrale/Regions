@@ -603,8 +603,9 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
             // Combine all relevant state into a single object
             const allState = {
                 // Flow Diagram State
-                nodes: toRegistryJSON(nodes, edges), // Reuse existing function to get serializable node data
-                edges: edges, // Edges are already serializable
+                // Export the full nodes and edges objects to preserve position and other React Flow properties
+                flowNodes: nodes, // This includes id, type, position, and data
+                flowEdges: edges, // This includes id, source, target, type
 
                 // Orchestrator State
                 layerConfig: layerConfig,
@@ -642,8 +643,8 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
 
                 // --- Validate basic structure (basic check) ---
                 if (
-                    !allState.hasOwnProperty('nodes') ||
-                    !allState.hasOwnProperty('edges') ||
+                    !allState.hasOwnProperty('flowNodes') ||
+                    !allState.hasOwnProperty('flowEdges') ||
                     !allState.hasOwnProperty('layerConfig') ||
                     !allState.hasOwnProperty('executionConfig') ||
                     !allState.hasOwnProperty('executionOrder') ||
@@ -653,18 +654,45 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                 }
 
                 // --- Import Flow Diagram State ---
-                // Use fromRegistryJSON to convert the imported node data back to React Flow nodes
-                const { nodes: importedNodes, edges: importedEdges } = fromRegistryJSON(allState.nodes, isDarkMode, idRef);
+                // The imported nodes should already have their positions.
+                // We need to ensure they have the correct structure, especially data.nodeId and data.isDarkMode
+                const importedNodes = allState.flowNodes.map(node => ({
+                    ...node,
+                    data: {
+                        ...node.data,
+                        // Ensure nodeId is present in data (important for handles)
+                        nodeId: node.data.nodeId || node.id,
+                        // Update isDarkMode to match the current UI setting
+                        isDarkMode: isDarkMode,
+                         // Ensure callbacks are present if needed by existing nodes (though new import might not need them immediately)
+                        // If callbacks are strictly needed, they should be re-assigned here or in a useEffect watching nodes.
+                        // For now, we rely on the useEffect that updates nodes when isDarkMode changes or when layer info changes.
+                        // The handle callbacks (onHandleEnter, onHandleLeave) are defined in `addNode` and might not be serializable.
+                        // They are usually assigned dynamically. We can omit them here and let the node component handle it,
+                        // or re-assign them if necessary. Let's assume the node component can handle it for now.
+                    }
+                }));
+
+                // Ensure edges have the correct type if missing or need defaulting
+                const importedEdges = allState.flowEdges.map(edge => ({
+                    ...edge,
+                    type: edge.type || 'default' // Ensure edge type is set
+                }));
+
                 setNodes(importedNodes);
                 setEdges(importedEdges);
 
                 // --- Import Orchestrator State ---
                 setLayerConfig(allState.layerConfig);
-                // Ensure executionConfig inner arrays are proper arrays (not generic objects from JSON)
+
+                // Ensure executionConfig inner arrays are proper arrays (robust parsing)
                 const convertedExecutionConfig = allState.executionConfig.map(layer =>
-                    layer.map(entry => Array.isArray(entry) ? [entry[0], entry[1]] : [null, null]) // Basic conversion, adjust if needed
+                    Array.isArray(layer) ? layer.map(entry =>
+                        Array.isArray(entry) && entry.length >= 2 ? [entry[0], entry[1]] : [null, null]
+                    ) : []
                 );
                 setExecutionConfig(convertedExecutionConfig);
+
                 setExecutionOrder(allState.executionOrder);
                 setChainColors(allState.chainColors);
 
@@ -688,7 +716,8 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
              event.target.value = '';
         };
         reader.readAsText(file);
-    }, [isDarkMode, setNodes, setEdges, setLayerConfig, setExecutionConfig, setExecutionOrder, setChainColors, setSelectedNodeId, setSelectedEdgeIds]);
+    }, [isDarkMode, setNodes, setEdges, setLayerConfig, setExecutionConfig, setExecutionOrder, setChainColors, setSelectedNodeId, setSelectedEdgeIds]); // Added dependencies
+
 
     // Initialize or update the connections edit buffer when selection changes (but not while actively editing)
     useEffect(() => {
@@ -1227,7 +1256,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
 
                         <Button variant="default" onClick={exportOrchestratorConfig}
                                 className="gap-2 bg-green-600 hover:bg-green-700 text-white">
-                            <Download className="w-4 h-4" /> Export Orchestrator Config
+                            <Download className="w-4 h-4" /> Export Executions
                         </Button>
                         <div className="relative">
                             <input
@@ -1239,14 +1268,14 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                             />
                             <Button variant="outline"
                                     className={`${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''} gap-2`}>
-                                <Upload className="w-4 h-4" /> Import Orchestrator Config
+                                <Upload className="w-4 h-4" /> Import Executions
                             </Button>
                         </div>
 
                         {/* --- Full State Buttons --- */}
                         <Button variant="default" onClick={exportAllState}
                                 className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"> {/* Different color for distinction */}
-                            <Download className="w-4 h-4" /> Export All State
+                            <Download className="w-4 h-4" /> Export Full State
                         </Button>
                         <div className="relative">
                             <input
@@ -1258,7 +1287,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                             />
                             <Button variant="outline"
                                     className={`${isDarkMode ? 'border-gray-600 text-white hover:bg-gray-800' : ''} gap-2`}>
-                                <Upload className="w-4 h-4" /> Import All State
+                                <Upload className="w-4 h-4" /> Import Full State
                             </Button>
                         </div>
                         {/* --- End Full State Buttons --- */}
