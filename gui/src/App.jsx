@@ -3,9 +3,7 @@ import ReactFlow, {
     addEdge,
     Background,
     Controls,
-    Handle,
     MiniMap,
-    Position,
     ReactFlowProvider,
     useEdgesState,
     useNodesState,
@@ -19,239 +17,11 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Label } from "@/components/ui/label";
 import { Download, Moon, Plus, Sun, Trash2, Upload, X } from "lucide-react";
 import './App.css'
-import {includes} from "zod/v4";
-
-// Predefined color palette for chains
-const CHAIN_COLORS = [
-    { name: 'Blue', light: 'bg-blue-500', dark: 'bg-blue-600', text: 'text-white' },
-    { name: 'Green', light: 'bg-green-500', dark: 'bg-green-600', text: 'text-white' },
-    { name: 'Red', light: 'bg-red-500', dark: 'bg-red-600', text: 'text-white' },
-    { name: 'Purple', light: 'bg-purple-500', dark: 'bg-purple-600', text: 'text-white' },
-    { name: 'Orange', light: 'bg-orange-500', dark: 'bg-orange-600', text: 'text-white' },
-    { name: 'Pink', light: 'bg-pink-500', dark: 'bg-pink-600', text: 'text-white' },
-    { name: 'Indigo', light: 'bg-indigo-500', dark: 'bg-indigo-600', text: 'text-white' },
-    { name: 'Teal', light: 'bg-teal-500', dark: 'bg-teal-600', text: 'text-white' },
-];
-
-// --- Region catalog (edit to mirror your Python classes) ---
-const REGION_CATALOG = {
-    Region: {
-        label: "Region",
-        defaults: (i) => ({
-            name: `Region_${i}`,
-            task: "Describe the purpose of this region",
-            connections: {},
-        }),
-        methods: {
-            make_questions: { doc: "Generate questions for connected regions to update knowledge." },
-            make_replies: { doc: "Generate replies to all pending requests in _incoming_requests." },
-        },
-    },
-    RAGRegion: {
-        label: "RAGRegion",
-        defaults: (i) => ({
-            name: `RAG_${i}`,
-            task: "Retrieve facts relevant to the request",
-            reply_with_actors: true,
-            connections: {},
-        }),
-        methods: {
-            make_replies: { doc: "Generate structured replies to all pending requests using RAG retrieval." },
-            make_updates: { doc: "Process incoming knowledge updates and consolidate similar fragments in the RAG database." },
-            request_summaries: { doc: "Request knowledge summaries from all connected regions." },
-        },
-    },
-    ListenerRegion: {
-        label: "ListenerRegion",
-        defaults: (i) => ({
-            name: `Listener_${i}`,
-            task: "Listen and forward specific events/messages",
-            connections: {}
-        }),
-        methods: {
-            start: { doc: "Launches the background forwarding task." },
-            forward: { doc: "Background task that continuously drains ALL pending messages from inbox and forwards each message to output process via mp.Queue." },
-            stop: { doc: "Cleanly stops forwarding and terminates output process." },
-            verify: { doc: "Verify correct configuration of ListenerRegion in the orchestrator via the region profile." }
-        },
-    },
-};
-
-// Types for node data
-const nodeStyle = "rounded-2xl shadow-md border bg-white";
-
-function RegionNode({ data, selected }) {
-    const { typeName, params, isDarkMode, layerInfo } = data;
-    const nodeClass = isDarkMode
-        ? "rounded-2xl shadow-md border bg-gray-800 border-gray-600 text-white"
-        : "rounded-2xl shadow-md border bg-white";
-
-    // Determine layer assignment styling
-    const isInCurrentLayer = layerInfo?.isInCurrentLayer;
-    const chainName = layerInfo?.chainName;
-    const layerBorderClass = isInCurrentLayer
-        ? (isDarkMode ? "ring-2 ring-green-400" : "ring-2 ring-green-500")
-        : (isDarkMode ? "opacity-60" : "opacity-50");
-
-    return (
-        <div
-            className={`${nodeClass} ${selected ? "ring-2 ring-indigo-500" : layerBorderClass} p-4 w-[220px] relative`}>
-            {/* Layer assignment badge */}
-            {isInCurrentLayer && chainName && (
-                <div
-                    className={`absolute -top-2 -right-2 text-xs px-2 py-1 rounded-full ${layerInfo.chainColorClass} ${layerInfo.chainTextClass}`}>
-                    {chainName}
-                </div>
-            )}
-            <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
-                {REGION_CATALOG[typeName].label}
-            </div>
-            <div className={`text-lg font-semibold break-words ${isDarkMode ? 'text-white' : 'text-black'}`}
-                 title={params?.name}>
-                {params?.name}
-            </div>
-            {params?.task && (
-                <div className={`text-xs mt-1 break-words ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}
-                     title={params.task}>
-                    {params.task}
-                </div>
-            )}
-            {/* Input & Output handles ("pips") - attach mouse handlers to detect hover on handles too */}
-            <Handle type="target" position={Position.Left} id="in"
-                    onMouseEnter={() => data.onHandleEnter?.(data.nodeId)} onMouseLeave={() => data.onHandleLeave?.()} />
-            {/* Hide outgoing handle for ListenerRegion since it doesn't pass messages to other regions */}
-            {typeName !== 'ListenerRegion' && (
-                <Handle type="source" position={Position.Right} id="out"
-                        onMouseEnter={() => data.onHandleEnter?.(data.nodeId)}
-                        onMouseLeave={() => data.onHandleLeave?.()} />
-            )}
-        </div>
-    );
-}
-
-const nodeTypes = { regionNode: RegionNode };
-
-// Utility to download files from the browser
-function download(filename, text) {
-    const el = document.createElement("a");
-    el.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(text));
-    el.setAttribute("download", filename);
-    el.style.display = "none";
-    document.body.appendChild(el);
-    el.click();
-    document.body.removeChild(el);
-}
-
-// Transform current graph into the expected JSON format
-function toRegistryJSON(nodes, edges) {
-    const connectionsBySource = [];
-    edges.forEach((e) => {
-        const sourceNode = nodes.find((n) => n.id === e.source);
-        const targetNode = nodes.find((n) => n.id === e.target);
-        if (!sourceNode || !targetNode) return;
-        if (!connectionsBySource[sourceNode.id]) connectionsBySource[sourceNode.id] = {};
-        const entryName = targetNode.data.params.name;
-        connectionsBySource[sourceNode.id][entryName] = targetNode.data.params.task;
-    });
-    return nodes.map((n) => {
-        const name = n.data.params?.name || n.id;
-        const type = n.data.typeName;
-        const task = n.data.params?.task || "";
-        const connections = connectionsBySource[n.id] || {};
-        return { name, type, task, connections };
-    }); // Return array directly, not wrapped in object
-}
-
-// Transform imported JSON format back into nodes and edges
-function fromRegistryJSON(jsonData, isDarkMode, idRef) {
-    // Create a map from region name to a unique ID for the new flow
-    const nameToIdMap = {};
-    const newNodes = jsonData.map((item) => {
-        // Generate a new unique ID for the node in the flow diagram
-        // Use the idRef to ensure uniqueness
-        const nodeId = `imported_${idRef.current++}_${item.name}`;
-        nameToIdMap[item.name] = nodeId;
-
-        // Find the type definition in the catalog
-        const typeDef = REGION_CATALOG[item.type];
-        if (!typeDef) {
-             console.warn(`Unknown region type '${item.type}' for region '${item.name}'. Skipping.`);
-             return null; // Or handle unknown types differently
-        }
-
-        // Merge defaults with imported data
-        // We need to be careful not to override the imported name/task/connections
-        const defaults = typeDef.defaults(0); // Pass 0 or dummy value, as we'll override name/task anyway
-        const mergedParams = {
-            ...defaults,
-            ...item, // This ensures name, task, connections from JSON override defaults
-            // Explicitly ensure connections is an object
-            connections: item.connections && typeof item.connections === 'object' && !Array.isArray(item.connections) ? item.connections : {}
-        };
-
-        return {
-            id: nodeId,
-            type: "regionNode",
-            position: { x: Math.random() * 500, y: Math.random() * 500 }, // Place randomly or use a layout algorithm
-            data: {
-                typeName: item.type,
-                params: mergedParams,
-                nodeId: nodeId, // Add nodeId to data for handle callbacks
-                isDarkMode,
-                onHandleEnter: (nid) => {}, // Will be updated by EditorImpl
-                onHandleLeave: () => {},
-            },
-        };
-    }).filter(node => node !== null); // Remove any null nodes from unknown types
-
-    // Create edges based on the connections defined in the JSON
-    const newEdges = [];
-    newNodes.forEach((node) => {
-        const sourceName = node.data.params.name;
-        const connections = node.data.params.connections || {};
-        Object.keys(connections).forEach((targetName) => {
-            const targetId = nameToIdMap[targetName];
-            if (targetId) { // Only create edge if target node exists
-                // Ensure the target node actually exists in the newNodes list
-                const targetNodeExists = newNodes.some(n => n.id === targetId);
-                if (targetNodeExists) {
-                     newEdges.push({
-                        id: `e_${node.id}_${targetId}`,
-                        source: node.id,
-                        target: targetId,
-                        type: "default"
-                    });
-                }
-            } else {
-                console.warn(`Connection target '${targetName}' not found for source '${sourceName}'.`);
-            }
-        });
-    });
-
-    return { nodes: newNodes, edges: newEdges };
-}
-
-
-// Pretty print a method list + docs for a chosen region type
-function MethodList({ typeName }) {
-    const methods = REGION_CATALOG[typeName].methods;
-    const entries = Object.entries(methods);
-    return (
-        <div className="space-y-2">
-            {entries.map(([name, m]) => (
-                <Card key={name} className="border rounded-md">
-                    <CardHeader className="py-0">
-                        <CardTitle className="text-sm font-semibold">{name}()</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0 pb-0">
-                        <div className="text-xs text-gray-600 whitespace-pre-wrap">{m.doc}</div>
-                    </CardContent>
-                </Card>
-            ))}
-            {entries.length === 0 && <div className="text-xs text-gray-500">No methods documented for this type.</div>}
-        </div>
-    );
-}
+import { REGION_CATALOG } from "@/modules/catalog.jsx"
+import { CHAIN_COLORS} from "@/modules/chain_colors.jsx";
+import { nodeTypes } from "@/modules/region_node.jsx"
+import { toRegistryJSON, fromRegistryJSON } from "@/modules/registry_json.jsx";
+import { MethodList } from "@/modules/method_list.jsx";
 
 // FIXED: ParamEditor component extracted outside to prevent recreation on every render
 function ParamEditor({
@@ -432,6 +202,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
     // refs to track previous edges and nodes for diffing without triggering extra renders/effects
     const prevEdgesRef = useRef([]);
     const nodesRef = useRef(nodes);
+
     useEffect(() => {
         nodesRef.current = nodes;
     }, [nodes]);
@@ -487,6 +258,56 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
             })
         );
     }, [selectedLayer, layerConfig, chainColors, isDarkMode, setNodes]);
+
+    // Sync edges <-> node.params.connections when edges change.
+    useEffect(() => {
+        const prev = prevEdgesRef.current;
+        const added = edges.filter((e) => !prev.some((pe) => (pe.id ? pe.id === e.id : (pe.source === e.source && pe.target === e.target))));
+        const removed = prev.filter((pe) => !edges.some((e) => (pe.id ? e.id === pe.id : (e.source === pe.source && e.target === pe.target))));
+        if (added.length === 0 && removed.length === 0) {
+            prevEdgesRef.current = edges;
+            return;
+        }
+
+        // For each added edge, persist in the source node params.connections
+        if (added.length > 0) {
+            setNodes((prevNodes) =>
+                prevNodes.map((n) => {
+                    const related = added.filter((a) => a.source === n.id);
+                    if (related.length === 0) return n;
+                    const params = { ...n.data.params };
+                    params.connections = { ...(params.connections || {}) };
+                    related.forEach((a) => {
+                        const tgt = nodesRef.current.find((nd) => nd.id === a.target);
+                        if (tgt) params.connections[tgt.data.params.name] = tgt.data.params.task ?? "";
+                    });
+                    return { ...n, data: { ...n.data, params } };
+                })
+            );
+        }
+
+        // For each removed edge, remove from source node params.connections
+        if (removed.length > 0) {
+            setNodes((prevNodes) =>
+                prevNodes.map((n) => {
+                    const related = removed.filter((a) => a.source === n.id);
+                    if (related.length === 0) return n;
+                    const params = { ...n.data.params };
+                    if (!params.connections) return n;
+                    const newConns = { ...params.connections };
+                    related.forEach((a) => {
+                        const tgt = nodesRef.current.find((nd) => nd.id === a.target);
+                        if (tgt && Object.prototype.hasOwnProperty.call(newConns, tgt.data.params.name)) {
+                            delete newConns[tgt.data.params.name];
+                        }
+                    });
+                    params.connections = newConns;
+                    return { ...n, data: { ...n.data, params } };
+                })
+            );
+        }
+        prevEdgesRef.current = edges;
+    }, [edges, setNodes]);
 
     // Keyboard listener for Delete w/ confirmation
     const onKeyDown = useCallback(
@@ -639,56 +460,6 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
         if (selectedNodeId === pendingDeleteId) setSelectedNodeId(null);
         setPendingDeleteId(null);
     }, [pendingDeleteId, selectedNodeId, setNodes, setEdges]);
-
-    // Sync edges <-> node.params.connections when edges change.
-    useEffect(() => {
-        const prev = prevEdgesRef.current;
-        const added = edges.filter((e) => !prev.some((pe) => (pe.id ? pe.id === e.id : (pe.source === e.source && pe.target === e.target))));
-        const removed = prev.filter((pe) => !edges.some((e) => (pe.id ? e.id === pe.id : (e.source === pe.source && e.target === pe.target))));
-        if (added.length === 0 && removed.length === 0) {
-            prevEdgesRef.current = edges;
-            return;
-        }
-
-        // For each added edge, persist in the source node params.connections
-        if (added.length > 0) {
-            setNodes((prevNodes) =>
-                prevNodes.map((n) => {
-                    const related = added.filter((a) => a.source === n.id);
-                    if (related.length === 0) return n;
-                    const params = { ...n.data.params };
-                    params.connections = { ...(params.connections || {}) };
-                    related.forEach((a) => {
-                        const tgt = nodesRef.current.find((nd) => nd.id === a.target);
-                        if (tgt) params.connections[tgt.data.params.name] = tgt.data.params.task ?? "";
-                    });
-                    return { ...n, data: { ...n.data, params } };
-                })
-            );
-        }
-
-        // For each removed edge, remove from source node params.connections
-        if (removed.length > 0) {
-            setNodes((prevNodes) =>
-                prevNodes.map((n) => {
-                    const related = removed.filter((a) => a.source === n.id);
-                    if (related.length === 0) return n;
-                    const params = { ...n.data.params };
-                    if (!params.connections) return n;
-                    const newConns = { ...params.connections };
-                    related.forEach((a) => {
-                        const tgt = nodesRef.current.find((nd) => nd.id === a.target);
-                        if (tgt && Object.prototype.hasOwnProperty.call(newConns, tgt.data.params.name)) {
-                            delete newConns[tgt.data.params.name];
-                        }
-                    });
-                    params.connections = newConns;
-                    return { ...n, data: { ...n.data, params } };
-                })
-            );
-        }
-        prevEdgesRef.current = edges;
-    }, [edges, setNodes]);
 
     // Helper to sync edges to match an explicit connections object for a given source node
     const syncEdgesWithConnections = useCallback((sourceNodeId, connectionsObj) => {
