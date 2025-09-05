@@ -8,9 +8,9 @@ import pytest
 
 from dynamic_rag import (
     DynamicRAGSystem,
-    NoMatchingEntryError,
-    cosine_similarity
+    NoMatchingEntryError
 )
+from utils import cosine_similarity
 
 
 class TestDataGenerator:

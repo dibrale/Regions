@@ -10,10 +10,11 @@ from modules.dynamic_rag import (
     NoMatchingEntryError,
     DatabaseNotAccessibleError,
     SchemaMismatchError,
-    HTTPError,
-    EmbeddingClient,
-    DatabaseManager
+    HTTPError
 )
+from database_manager import DatabaseManager
+from embedding_client import EmbeddingClient
+
 
 @pytest.fixture
 def rag_system(tmp_path):

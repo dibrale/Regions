@@ -3,10 +3,10 @@ import asyncio
 import time
 
 from modules.dynamic_rag import (
-    DatabaseManager,
     DocumentChunk,
     ChunkMetadata,
 )
+from database_manager import DatabaseManager
 
 
 @pytest.fixture
