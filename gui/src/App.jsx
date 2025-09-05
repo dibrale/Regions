@@ -42,7 +42,7 @@ function ParamEditor({
     if (!selectedNode) return <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Select a
         region to edit parameters.</div>;
 
-    const { typeName, params } = selectedNode.data;
+    const {params } = selectedNode.data;
     const flat = [];
     Object.entries(params || {}).forEach(([k, v]) => {
         if (v && typeof v === "object" && !Array.isArray(v)) {
