@@ -1,18 +1,17 @@
 import asyncio
 import pathlib
+import re
 import uuid
 
-import aiohttp
-import sqlite3
 import json
 import time
-import hashlib
 from typing import List, Dict, Any, Optional, Union
-from dataclasses import dataclass
 import logging
 
+from database_manager import DatabaseManager, RetrievalResult, ChunkMetadata, DocumentChunk
+from embedding_client import EmbeddingClient
 from exceptions import *
-from utils import _chunk_text
+from utils import _chunk_text, cosine_similarity
 
 """
 Dynamic RAG (Retrieval-Augmented Generation) Storage, Indexing, and Retrieval System.
@@ -33,384 +32,6 @@ with configurable parameters for chunk size, overlap, and similarity thresholds.
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-@dataclass
-class ChunkMetadata:
-    """Metadata associated with document chunks.
-
-    Attributes:
-        timestamp (int): Unix timestamp when the chunk was created
-        actors (List[str]): List of actor identifiers associated with the chunk
-        chunk_id (Optional[str]): Unique identifier for the chunk within a document
-        document_id (Optional[str]): Unique identifier for the source document
-    """
-    timestamp: int
-    actors: List[str]
-    chunk_id: Optional[str] = None
-    document_id: Optional[str] = None
-
-
-@dataclass
-class DocumentChunk:
-    """Document chunk containing text content and associated metadata.
-
-    Attributes:
-        content (str): The text content of the chunk
-        metadata (ChunkMetadata): Metadata describing the chunk
-        embedding (Optional[List[float]]): Vector embedding of the content
-        chunk_hash (Optional[str]): SHA-256 hash of the content (used as unique identifier)
-    """
-    content: str
-    metadata: ChunkMetadata
-    embedding: Optional[List[float]] = None
-    chunk_hash: Optional[str] = None
-
-
-@dataclass
-class RetrievalResult:
-    """Result from similarity search operations.
-
-    Attributes:
-        chunk (DocumentChunk): The retrieved document chunk
-        similarity_score (float): Score indicating similarity to the query (range: -1 to 1)
-    """
-    chunk: DocumentChunk
-    similarity_score: float
-
-
-class RateLimiter:
-    """Rate limiter enforcing minimum interval between database operations.
-
-    Ensures at least `min_interval` seconds elapse between consecutive operations
-    by sleeping when necessary (does not raise errors). Uses asyncio lock to prevent
-    concurrent access violations.
-
-    Attributes:
-        min_interval (float): Minimum time interval between operations in seconds
-        last_request_time (float): Timestamp of last operation
-    """
-
-    def __init__(self, min_interval: float = 0.1):
-        self.min_interval = min_interval
-        self.last_request_time = 0.0
-        self._lock = asyncio.Lock()
-
-    async def acquire(self):
-        """Acquire access to the database with enforced minimum interval.
-
-        If less than `min_interval` seconds have passed since the last operation,
-        sleeps for the remaining time. Safe for concurrent use.
-        """
-        async with self._lock:
-            current_time = time.time()
-            time_since_last = current_time - self.last_request_time
-
-            # Sleep if needed to enforce minimum interval
-            if time_since_last < self.min_interval:
-                wait_time = self.min_interval - time_since_last
-                await asyncio.sleep(wait_time)
-
-            self.last_request_time = time.time()
-
-
-class EmbeddingClient:
-    """Async client for OpenAI-compatible embedding servers (e.g., llama.cpp).
-
-    Must be used as an async context manager to handle session lifecycle.
-
-    Attributes:
-        base_url (str): Base URL of the embedding server
-        model (str): Embedding model name to use
-        session (Optional[aiohttp.ClientSession]): HTTP session (managed automatically)
-    """
-
-    def __init__(self, base_url: str = "http://localhost:8080", model: str = "text-embedding-ada-002"):
-        self.base_url = base_url.rstrip('/')
-        self.model = model
-        self.session: Optional[aiohttp.ClientSession] = None
-
-    async def __aenter__(self):
-        self.session = aiohttp.ClientSession()
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        if self.session:
-            await self.session.close()
-
-    async def get_embedding(self, text: str) -> List[float]:
-        """Generate embedding vector for input text.
-
-        Requires use as async context manager. Handles server errors and
-        response validation.
-
-        Args:
-            text (str): Input text to embed
-
-        Returns:
-            List[float]: Generated embedding vector
-
-        Raises:
-            RuntimeError: If not used as context manager
-            HTTPError: For non-200 responses or network issues
-            SchemaMismatchError: If response format is invalid
-        """
-        if not self.session:
-            raise RuntimeError("EmbeddingClient must be used as async context manager")
-
-        url = f"{self.base_url}/v1/embeddings"
-        logging.info(f"Sending embedding request for text length {len(text)} to '{url}'")
-        payload = {
-            "model": self.model,
-            "input": text
-        }
-
-        try:
-            async with self.session.post(url, json=payload) as response:
-                if response.status != 200:
-                    error_text = await response.text()
-                    raise HTTPError(response.status, error_text)
-
-                result = await response.json()
-
-                # Validate response structure
-                if "data" not in result or not result["data"]:
-                    raise SchemaMismatchError("Invalid embedding response format")
-
-                logging.info(f"Received embedding for text of length {len(text)}")
-                return result["data"][0]["embedding"]
-
-        except SchemaMismatchError:
-            raise
-        except aiohttp.ClientError as e:
-            raise HTTPError(0, f"Connection error: {str(e)}")
-        except asyncio.TimeoutError as e:
-            raise HTTPError(0, f"Timeout error: {str(e)}")
-        except Exception as e:
-            raise HTTPError(0, f"Network error: {str(e)}")
-
-
-class DatabaseManager:
-    """SQLite database manager with integrated rate limiting.
-
-    Handles storage, retrieval, and deletion of document chunks while enforcing
-    minimum query intervals via RateLimiter.
-
-    Attributes:
-        db_path (str): Path to SQLite database file
-        rate_limiter (RateLimiter): Rate limiting instance
-    """
-
-    def __init__(self, db_path: str = "rag_storage.db"):
-        self.db_path = db_path
-        self.db_name = pathlib.PurePath(db_path).name
-        self.rate_limiter = RateLimiter()
-        self._init_database()
-
-    def _init_database(self):
-        """Initialize database schema with required tables and indexes.
-
-        Creates 'chunks' table with columns for content, embedding, metadata,
-        and indexes for hash and timestamp.
-
-        Raises:
-            DatabaseNotAccessibleError: If initialization fails
-        """
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-
-            # Create chunks table
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS chunks (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    chunk_hash TEXT UNIQUE NOT NULL,
-                    content TEXT NOT NULL,
-                    embedding BLOB NOT NULL,
-                    timestamp INTEGER NOT NULL,
-                    actors TEXT NOT NULL,
-                    chunk_id TEXT,
-                    document_id TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-
-            # Create indexes for efficient queries
-            cursor.execute("""
-                           CREATE INDEX IF NOT EXISTS idx_chunk_hash ON chunks(chunk_hash)
-                           """)
-            cursor.execute("""
-                           CREATE INDEX IF NOT EXISTS idx_timestamp ON chunks(timestamp)
-                           """)
-
-            conn.commit()
-            conn.close()
-
-        except sqlite3.Error as e:
-            raise DatabaseNotAccessibleError(f"Failed to initialize database: {str(e)}")
-
-        logging.info(f"Database initialized successfully at '{self.db_path}'")
-
-    async def store_chunk(self, chunk: DocumentChunk) -> bool:
-        """Store a document chunk in the database.
-
-        Handles serialization of embedding and actors. Automatically generates
-        chunk_hash if missing. Enforces rate limiting via RateLimiter.
-
-        Args:
-            chunk (DocumentChunk): Chunk to store
-
-        Returns:
-            bool: True if storage succeeded
-
-        Raises:
-            DatabaseNotAccessibleError: If database operation fails
-        """
-        await self.rate_limiter.acquire()
-
-        try:
-            # Generate chunk hash if not provided
-            if not chunk.chunk_hash:
-                chunk.chunk_hash = hashlib.sha256(chunk.content.encode()).hexdigest()
-
-            logging.debug(f"{self.db_name}: Storing document chunk with hash: {chunk.chunk_hash}")
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-
-            # Serialize embedding and actors
-            embedding_blob = json.dumps(chunk.embedding).encode()
-            actors_json = json.dumps(chunk.metadata.actors)
-
-            cursor.execute("""
-                INSERT OR REPLACE INTO chunks 
-                (chunk_hash, content, embedding, timestamp, actors, chunk_id, document_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (
-                chunk.chunk_hash,
-                chunk.content,
-                embedding_blob,
-                chunk.metadata.timestamp,
-                actors_json,
-                chunk.metadata.chunk_id,
-                chunk.metadata.document_id
-            ))
-
-            conn.commit()
-            conn.close()
-            return True
-
-        except sqlite3.Error as e:
-            raise DatabaseNotAccessibleError(f"{self.db_name}: Failed to store chunk: {str(e)}")
-
-    async def get_all_chunks(self) -> List[DocumentChunk]:
-        """Retrieve all stored document chunks.
-
-        Handles deserialization of embedding and actors. Enforces rate limiting.
-
-        Returns:
-            List[DocumentChunk]: All stored chunks
-
-        Raises:
-            DatabaseNotAccessibleError: If retrieval fails
-        """
-        await self.rate_limiter.acquire()
-
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-
-            cursor.execute("""
-                           SELECT chunk_hash, content, embedding, timestamp, actors, chunk_id, document_id
-                           FROM chunks
-                           """)
-
-            chunks = []
-            for row in cursor.fetchall():
-                chunk_hash, content, embedding_blob, timestamp, actors_json, chunk_id, document_id = row
-
-                # Deserialize data
-                embedding = json.loads(embedding_blob.decode())
-                actors = json.loads(actors_json)
-
-                metadata = ChunkMetadata(
-                    timestamp=timestamp,
-                    actors=actors,
-                    chunk_id=chunk_id,
-                    document_id=document_id
-                )
-
-                chunk = DocumentChunk(
-                    content=content,
-                    metadata=metadata,
-                    embedding=embedding,
-                    chunk_hash=chunk_hash
-                )
-                chunks.append(chunk)
-
-            conn.close()
-            logging.debug(f"{self.db_name}: Retrieved all stored document chunks")
-            return chunks
-
-        except sqlite3.Error as e:
-            raise DatabaseNotAccessibleError(f"{self.db_name}: Failed to retrieve chunks. {str(e)}")
-
-    async def delete_chunk(self, chunk_hash: str) -> bool:
-        """Delete a chunk by its SHA-256 hash.
-
-        Enforces rate limiting before deletion.
-
-        Args:
-            chunk_hash (str): SHA-256 hash of the chunk to delete
-
-        Returns:
-            bool: True if chunk was deleted (false if not found)
-
-        Raises:
-            DatabaseNotAccessibleError: If deletion fails
-        """
-        await self.rate_limiter.acquire()
-
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-
-            cursor.execute("DELETE FROM chunks WHERE chunk_hash = ?", (chunk_hash,))
-            deleted = cursor.rowcount > 0
-
-            conn.commit()
-            conn.close()
-            logging.info(f"{self.db_name}: Deleted document chunk with hash: {chunk_hash}")
-            return deleted
-
-        except sqlite3.Error as e:
-            raise DatabaseNotAccessibleError(f"{self.db_name}: Failed to delete chunk. {str(e)}")
-
-
-def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
-    """Calculate cosine similarity between two vectors.
-
-    Measures vector orientation (range: -1 to 1), with 1 indicating identical direction.
-    Returns 0.0 for zero-magnitude vectors or mismatched dimensions.
-
-    Args:
-        vec1 (List[float]): First vector
-        vec2 (List[float]): Second vector
-
-    Returns:
-        float: Similarity score between -1 and 1
-    """
-    if len(vec1) != len(vec2):
-        return 0.0
-
-    dot_product = sum(a * b for a, b in zip(vec1, vec2))
-    magnitude1 = sum(a * a for a in vec1) ** 0.5
-    magnitude2 = sum(b * b for b in vec2) ** 0.5
-
-    if magnitude1 == 0 or magnitude2 == 0:
-        return 0.0
-
-    return dot_product / (magnitude1 * magnitude2)
-
-
 class DynamicRAGSystem:
     """Core system for document storage, indexing, and retrieval operations.
 
@@ -422,7 +43,7 @@ class DynamicRAGSystem:
     - System statistics collection
 
     Attributes:
-        db_manager (DatabaseManager): Database interaction handler
+        db_manager (database_manager.DatabaseManager): Database interaction handler
         embedding_server_url (str): URL of embedding server
         embedding_model (str): Embedding model name
         name (str): Unique system identifier
@@ -576,6 +197,89 @@ class DynamicRAGSystem:
 
         logging.info(f"{self.db_name}: Document stored with {len(chunk_hashes)} chunks")
         return chunk_hashes
+
+    async def store(self, data: str | list[str] | dict | list[dict]) -> bool:
+        """
+        Store data from files in the RAG database. Accepts multiple input types:
+            * Single string representing a file path
+            * List of strings, each representing a file path
+            * Dictionary with path strings for keys and actor strings or lists for values
+            * A list of dictionaries, each with a single 'path' key and actor string or list for values
+
+        :param data: Files to store
+        :return: True in case of valid input with no warnings, False otherwise
+
+        Side Effects:
+            * Raises a ValueError in case of invalid input format
+            * Logs a warning message if any file cannot be processed
+            * Logs a warning for each document that failed to store
+        """
+        doc_paths: list[str] = []
+        actors: list = []
+        stored_chunks = []
+        success: list[bool] = []
+
+        logging.info(f"{self.db_name}: Storing {len(data)} documents...")
+        if isinstance(data, dict):
+            doc_paths = [str(path) for path in data.keys()]
+            actors = [str(actor_list) for actor_list in data.values()]
+        elif isinstance(data, list):
+            for doc in data:
+                if isinstance(doc, dict):
+                    doc_paths.append(''.join([str(path) for path in doc.keys()]))
+                    actors.append(''.join([str(path) for path in doc.values()]))
+                if isinstance(doc, str):
+                    doc_paths.append(doc)
+                    actors.append([''])
+        elif isinstance(data, str):
+            doc_paths = [data]
+            actors = [['']]
+        else:
+            try:
+                raise ValueError(f"Unsupported data type: {type(data)}")
+            finally:
+                return False
+
+        for index in range(0, len(doc_paths)):
+            pure_path = pathlib.PurePath(doc_paths[index])
+            try:
+                with open(doc_paths[index]) as f:
+                    lines = f.readlines()
+                    content = "\n".join(lines)
+            except FileNotFoundError:
+                logging.warning(f"{self.db_name}: Document '{pure_path.name}' not found. Skipping.")
+                success.append(False)
+                continue
+            except IOError as e:
+                logging.warning(f"{self.db_name}: Failed to read document '{pure_path.name}': {str(e)}")
+                success.append(False)
+                continue
+
+            if isinstance(actors[index], list):
+                actor_list = actors[index]
+            elif isinstance(actors[index], str):
+                actor_list = re.split(r".\s",actors[index])
+            else:
+                actor_list = [str(actors[index])]
+
+            try:
+                chunk_hashes = await self.store_document(
+                    content=content,
+                    actors=actor_list
+                )
+                stored_chunks.extend(chunk_hashes)
+                success.append(True)
+            except Exception as e:
+                logging.error(f"{self.db_name}: Failed to store document '{pure_path.name}': {str(e)}")
+                success.append(False)
+                continue
+        logging.info(f"{self.name}: Total chunks stored: {len(stored_chunks)}")
+        failures = len(data) - sum(success)
+        logging.info(f"{self.name}: Documents stored: {sum(success)}/{len(data)}")
+        if failures:
+            logging.warning(f"{self.db_name}: {failures} document(s) failed to store.")
+            return False
+        return True
 
     async def retrieve_similar(self,
                                query: str,
@@ -778,50 +482,3 @@ class DynamicRAGSystem:
             "unique_actors": len(unique_actors),
             "actors": list(unique_actors)
         }
-
-
-if __name__ == "__main__":
-    # Example usage
-    async def main():
-        rag_system = DynamicRAGSystem(embedding_server_url="http://localhost:10000",
-                                      embedding_model="nomic-embed-text:latest")
-
-        try:
-            # Store a document
-            chunk_hashes = await rag_system.store_document(
-                content="This is a sample document about machine learning and artificial intelligence.",
-                actors=["user1", "system"],
-                document_id="doc_001"
-            )
-            print(f"Stored document with {len(chunk_hashes)} chunks")
-            await asyncio.sleep(0.5)
-
-            # Retrieve similar content
-            results = await rag_system.retrieve_similar(
-                query="machine learning",
-                similarity_threshold=0.5,
-                max_results=3
-            )
-
-            print(f"Found {len(results)} similar chunks:")
-            for result in results:
-                print(f"  Similarity: {result.similarity_score:.3f}")
-                print(f"  Content: {result.chunk.content[:100]}...")
-                print(f"  Actors: {result.chunk.metadata.actors}")
-                print()
-
-            # Get system stats
-            await asyncio.sleep(0.5)
-            stats = await rag_system.get_stats()
-            print("System stats:", stats)
-
-        except RAGException as e:
-            print(f"RAG Error {e.code}: {e.description}")
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-
-        # print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
-
-
-    # Run example
-    asyncio.run(main())
