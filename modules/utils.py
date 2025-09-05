@@ -160,3 +160,28 @@ async def until_empty(queue: Queue, interval: float = 0.1, timeout: float = 3) -
             await asyncio.sleep(interval)
     logging.warning(f"Queue {str(queue)} not empty after timeout")
     return False
+
+def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
+    """Calculate cosine similarity between two vectors.
+
+    Measures vector orientation (range: -1 to 1), with 1 indicating identical direction.
+    Returns 0.0 for zero-magnitude vectors or mismatched dimensions.
+
+    Args:
+        vec1 (List[float]): First vector
+        vec2 (List[float]): Second vector
+
+    Returns:
+        float: Similarity score between -1 and 1
+    """
+    if len(vec1) != len(vec2):
+        return 0.0
+
+    dot_product = sum(a * b for a, b in zip(vec1, vec2))
+    magnitude1 = sum(a * a for a in vec1) ** 0.5
+    magnitude2 = sum(b * b for b in vec2) ** 0.5
+
+    if magnitude1 == 0 or magnitude2 == 0:
+        return 0.0
+
+    return dot_product / (magnitude1 * magnitude2)
