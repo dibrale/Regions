@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 
 class BaseRegion:
@@ -94,8 +95,10 @@ class BaseRegion:
         while not self.inbox.empty():
             message = self.inbox.get_nowait()
             if message['role'] == 'request':
+                logging.info(f"{self.name}: Received request from {message['source']}: {message['content']}")
                 self._incoming_requests[message['source']] = message['content']
             elif message['role'] == 'reply':
+                logging.debug(f"{self.name}: Received reply from {message['source']}: {message['content']}")
                 self._incoming_replies[message['source']] = message['content']
             else:
                 raise AssertionError(f"{self.name}: Unknown message role: {message['role']}")
