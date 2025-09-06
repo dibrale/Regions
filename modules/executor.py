@@ -9,10 +9,20 @@ from region_registry import RegionRegistry
 from utils import until_empty
 
 
+async def _plan_delay(postmaster: Postmaster, timeout: float = 3) -> bool:
+    # Wait for at least one message interval before executing a layer, plus two emitter ticks after the delay.
+    await asyncio.sleep(postmaster.delay + 0.02)
+
+    # Then, wait for the postmaster queue to empty before moving on to the next layer.
+    is_empty = await until_empty(postmaster.messages, timeout=timeout)
+    return is_empty
+
+
 async def execute_layer(
         registry: RegionRegistry,
         orchestrator: Orchestrator,
         layer: int,
+        postmaster: Postmaster = None,
 ) -> bool:
     """
     Execute a single layer of the distributed region execution plan.
@@ -20,11 +30,14 @@ async def execute_layer(
     This function runs all chains within a specific execution layer concurrently,
     with each chain executing its region methods sequentially. Handles both
     synchronous and asynchronous region methods through proper coroutine wrapping.
+    If a postmaster is provided, it waits for the postmaster's message queue to empty
+    before proceeding to the next method within a given chain.
 
     Parameters:
         registry: Region registry containing all registered regions
         orchestrator: Orchestrator defining the execution plan structure
         layer: Index of the layer to execute (0-based)
+        postmaster: Instance handling inter-region communication (optional)
 
     Returns:
         True if all chains in the layer executed successfully, False otherwise
@@ -84,6 +97,7 @@ async def execute_layer(
 
             # Execute chain methods sequentially
             logging.info(f"Starting chain '{chain_name}' with {len(methods_in_chain)} methods.")
+            await asyncio.sleep(0)
             for method_name, region_name, method in methods_in_chain:
                 try:
                     logging.info(f"Executing '{method_name}' of region '{region_name}'.")
@@ -93,6 +107,9 @@ async def execute_layer(
                     else:
                         task = asyncio.create_task(method())
                         await task
+
+                    if postmaster:
+                        await _plan_delay(postmaster)
 
                 except Exception as e:
                     logging.error(
@@ -151,6 +168,7 @@ async def execute_plan(
     execution_order = orchestrator.execution_order or range(len(orchestrator.layer_config))
     success = True
 
+    logging.info("Begin Execution")
     # Start the postmaster
     try:
         await postmaster.start()
@@ -163,21 +181,22 @@ async def execute_plan(
         logging.info(f"Aborting execution.")
         return False
 
+    await _plan_delay(postmaster, timeout=timeout)
+
     # Execute layers in order
     for layer_idx in execution_order:
 
+        logging.info(f"Executing Layer {layer_idx}")
+
         try:
-            success = await execute_layer(registry, orchestrator, layer_idx)
+            success = await execute_layer(registry, orchestrator, layer_idx, postmaster)
             logging.debug(f"Layer {layer_idx} success: {success}.")
         except Exception as e:
             logging.error(f"{e}")
             success = False
 
-        # Wait for at least one message interval before executing a layer, plus two emitter ticks after the delay.
-        await asyncio.sleep(postmaster.delay + 0.02)
+        empty_in_time = await _plan_delay(postmaster, timeout=timeout)
 
-        # Then, wait for the postmaster queue to empty before moving on to the next layer.
-        empty_in_time = await until_empty(postmaster.messages, timeout=timeout)
         if empty_in_time or proceed_on_timeout:
             pass
         elif not empty_in_time and proceed_on_timeout:
@@ -200,7 +219,11 @@ async def execute_plan(
     except Exception as e:
         logging.error(f"Failed to stop Postmaster during cleanup: {e}")
         success = False
-
+    finally:
+        if success:
+            logging.info("Execution completed successfully")
+        else:
+            logging.error("Execution failed. See log for details.")
     return success
 
 
