@@ -1,8 +1,9 @@
 """
-Test script for RAG functionality - CORRECTED VERSION
+Test script for RAG functionality
 """
 import json
 import logging
+import os
 import statistics
 import pytest
 
@@ -413,3 +414,192 @@ async def test_no_matching_entry_error(test_rag_system, test_params):
             similarity_threshold=test_params['rag_similarity_threshold'],
             max_results=test_params['rag_max_results']
         )
+
+
+@pytest.mark.asyncio
+async def test_store_single_file(test_rag_system, tmp_path, caplog):
+    """Test storing a single valid file"""
+    # Create test file
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("Test content for single file storage")
+
+    # Store the file
+    result = await test_rag_system.store(str(test_file))
+
+    # Verify results
+    print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
+    assert result is True
+    assert "Document stored with 1 chunks" in caplog.text
+    assert f"Storing 1 documents" in caplog.text
+    assert f"Total chunks stored: 1" in caplog.text
+    assert f"Documents stored: 1/1" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_store_multiple_files(test_rag_system, tmp_path, caplog):
+    """Test storing multiple files via list input"""
+    # Create test files
+    files = []
+    for i in range(3):
+        file = tmp_path / f"test_{i}.txt"
+        file.write_text(f"Content for file {i}")
+        files.append(str(file))
+
+    # Store files
+    result = await test_rag_system.store(files)
+
+    # Verify results
+    assert result is True
+    assert "Document stored with 1 chunks" in caplog.text
+    assert f"Storing 3 documents" in caplog.text
+    assert f"Total chunks stored: 3" in caplog.text
+    assert f"Documents stored: 3/3" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_store_dict_input(test_rag_system, tmp_path, caplog):
+    """Test storing files using dictionary input format"""
+    # Create test files
+    file1 = tmp_path / "file1.txt"
+    file1.write_text("Content for dict test")
+    file2 = tmp_path / "file2.txt"
+    file2.write_text("More content")
+
+    # Create dictionary input
+    input_data = {
+        str(file1): ["actor1", "actor2"],
+        str(file2): "single_actor"
+    }
+
+    # Store files
+    result = await test_rag_system.store(input_data)
+
+    # Verify results
+    assert result is True
+    assert "Document stored with 1 chunks" in caplog.text
+    assert f"Storing 2 documents" in caplog.text
+    assert f"Total chunks stored: 2" in caplog.text
+    assert f"Documents stored: 2/2" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_store_list_of_dicts(test_rag_system, tmp_path, caplog):
+    """Test storing files using list of dictionaries input format"""
+    # Create test files
+    file1 = tmp_path / "file1.txt"
+    file1.write_text("Content for list of dicts")
+
+    # Create input data
+    input_data = [
+        {str(file1): ["actor1", "actor2"]}
+    ]
+
+    # Store files
+    result = await test_rag_system.store(input_data)
+
+    # Verify results
+    print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
+    assert result is True
+    assert "Document stored with 1 chunks" in caplog.text
+    assert f"Storing 1 documents" in caplog.text
+    assert f"Total chunks stored: 1" in caplog.text
+    assert f"Documents stored: 1/1" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_store_invalid_type(test_rag_system, caplog):
+    """Test handling of unsupported input types"""
+    # Test integer input
+    result = await test_rag_system.store(123)
+    print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
+    assert result is False
+    assert "Unsupported data type: <class 'int'>" in caplog.text
+
+    # Reset caplog
+    caplog.clear()
+
+    # Test tuple input
+    result = await test_rag_system.store((1, 2, 3))
+    print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
+    assert result is False
+    assert "Unsupported data type: <class 'tuple'>" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_store_missing_file(test_rag_system, tmp_path, caplog):
+    """Test handling of missing files"""
+    # Create valid file
+    valid_file = tmp_path / "valid.txt"
+    valid_file.write_text("Valid content")
+
+    # Test with missing file
+    result = await test_rag_system.store([str(valid_file), "/nonexistent/file.txt"])
+
+    # Verify results
+    assert result is False
+    assert "Document 'file.txt' not found" in caplog.text
+    assert "Documents stored: 1/2" in caplog.text
+    assert "1 document(s) failed to store" in caplog.text
+
+# Test with permission change not expected to work on all setups
+'''
+@pytest.mark.asyncio
+async def test_store_read_error(test_rag_system, tmp_path, caplog):
+    """Test handling of file read errors"""
+    # Create unreadable file (set permissions)
+    test_file = tmp_path / "unreadable.txt"
+    test_file.write_text("Content")
+    os.chmod(test_file, 0o333) # Make file unreadable
+
+    # Test storing the unreadable file
+    result = await test_rag_system.store(str(test_file))
+
+    # Verify results
+
+    print("\n=== CAPLOG ===\n" + caplog.text + "=== END CAPLOG ===")
+
+
+    assert result is False
+    assert "Failed to read document" in caplog.text
+    assert "Documents stored: 0/1" in caplog.text
+    assert "1 document(s) failed to store" in caplog.text
+'''
+
+@pytest.mark.asyncio
+async def test_store_document_failure(test_rag_system, tmp_path, caplog, monkeypatch):
+    """Test handling when store_document fails"""
+    # Create valid file
+    test_file = tmp_path / "valid.txt"
+    test_file.write_text("Valid content")
+
+    # Mock store_document to raise exception
+    async def mock_store_document(*args, **kwargs):
+        raise Exception("Failed to store document")
+
+    monkeypatch.setattr(test_rag_system, "store_document", mock_store_document)
+
+    # Test storing the file
+    result = await test_rag_system.store(str(test_file))
+
+    # Verify results
+    assert result is False
+    assert "Failed to store document" in caplog.text
+    assert "Documents stored: 0/1" in caplog.text
+    assert "1 document(s) failed to store" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_store_empty_input(test_rag_system, caplog):
+    """Test handling of empty input"""
+    # Test empty list
+    result = await test_rag_system.store([])
+    assert result is True  # Empty list is valid input (0 documents)
+    assert "Storing 0 documents" in caplog.text
+    assert "Total chunks stored: 0" in caplog.text
+    assert "Documents stored: 0/0" in caplog.text
+
+    # Test empty dict
+    caplog.clear()
+    result = await test_rag_system.store({})
+    assert result is True
+    assert "Storing 0 documents" in caplog.text
