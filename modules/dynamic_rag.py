@@ -250,7 +250,7 @@ class DynamicRAGSystem:
             try:
                 with open(doc_paths[index]) as f:
                     lines = f.readlines()
-                    content = "\n".join(lines)
+                    content = ''.join(lines)
             except FileNotFoundError:
                 logging.warning(f"{self.db_name}: Document '{pure_path.name}' not found. Skipping.")
                 success.append(False)
