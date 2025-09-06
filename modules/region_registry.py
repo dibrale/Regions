@@ -44,6 +44,7 @@ class RegionEntry:
     region: BaseRegion = None
     reply_with_actors: bool = None
     delay: float = None
+    threshold: float = None
 
     def __repr__(self):
         """Return debug-friendly representation showing region name.
@@ -102,6 +103,8 @@ class RegionEntry:
             self.reply_with_actors = region.reply_with_actors
         if hasattr(region, "delay"):
             self.delay = region.delay
+        if hasattr(region, "threshold"):
+            self.threshold = region.threshold
         self.region = region
 
     @classmethod
@@ -175,6 +178,8 @@ class RegionEntry:
             f = partial(f, llm=self.llm)
         if self.reply_with_actors:
             f = partial(f, reply_with_actors=self.reply_with_actors)
+        if self.threshold:
+            f = partial(f, threshold=self.threshold)
         if self.delay:
             f = partial(f, delay=self.delay)
 
@@ -528,7 +533,7 @@ class RegionRegistry:
         # Are there regions to verify?
         if not self.regions:
             logging.info("No regions registered")
-            return issues, warnings
+            return len(issues), len(warnings)
 
         # Is there the same number of names as regions?
         logging.info(f"Found {len(self.regions)} regions and {len(self.names)} names")
