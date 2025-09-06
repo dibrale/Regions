@@ -154,11 +154,11 @@ async def until_empty(queue: Queue, interval: float = 0.1, timeout: float = 3) -
     start_time = asyncio.get_event_loop().time()
     while asyncio.get_event_loop().time() - start_time < timeout:
         if queue.empty():
-            logging.debug(f"Queue {str(queue)} is now empty")
+            logging.debug(f"Queue is now empty")
             return True
         else:
             await asyncio.sleep(interval)
-    logging.warning(f"Queue {str(queue)} not empty after timeout")
+    logging.warning(f"Queue  not empty after timeout")
     return False
 
 def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
