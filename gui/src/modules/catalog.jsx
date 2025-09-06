@@ -18,6 +18,7 @@ export const REGION_CATALOG = {
             name: `RAG_${i}`,
             task: "Retrieve facts relevant to the request",
             reply_with_actors: true,
+            threshold: 0.5,
             connections: {},
         }),
         methods: {
