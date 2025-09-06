@@ -514,7 +514,6 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                 // setExecutionConfig([[]]);
                 // setExecutionOrder([0]);
                 // setChainColors([{}]);
-                alert('Regions imported successfully!');
             } catch (error) {
                 console.error("Error importing regions:", error);
                 alert('Error importing regions: ' + (error.message || 'Invalid JSON or unexpected format.'));
@@ -587,7 +586,6 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                 if (config.execution_order) {
                     setExecutionOrder(config.execution_order);
                 }
-                alert('Orchestrator configuration imported successfully!');
             } catch (error) {
                 alert('Error importing configuration: ' + error.message);
             } finally {
@@ -699,8 +697,6 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                 // --- Clear Selection ---
                 setSelectedNodeId(null);
                 setSelectedEdgeIds([]);
-
-                alert('Full application state imported successfully!');
 
             } catch (error) {
                 console.error("Error importing full state:", error);
