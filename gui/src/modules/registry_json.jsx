@@ -16,7 +16,9 @@ export function toRegistryJSON(nodes, edges) {
         const type = n.data.typeName;
         const task = n.data.params?.task || "";
         const connections = connectionsBySource[n.id] || {};
-        return { name, type, task, connections };
+        const reply_with_actors = n.data.params?.reply_with_actors || false;
+        const threshold = n.data.params?.threshold || null;
+        return { name, type, task, connections, reply_with_actors, threshold };
     }); // Return array directly, not wrapped in object
 }
 
