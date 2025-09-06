@@ -30,7 +30,8 @@ class RAGRegion(BaseRegion):
                  task: str,
                  rag: DynamicRAGSystem,
                  connections: dict[str,str] | None,
-                 reply_with_actors: bool = False
+                 reply_with_actors: bool = False,
+                 threshold: float = 0.5,
                  ):
 
         """
@@ -43,6 +44,7 @@ class RAGRegion(BaseRegion):
             connections (dict[str, str] | None): Mapping of region names to their task descriptions.
                 If None, initializes with empty connections dictionary.
             reply_with_actors (bool, optional): Whether to include actor metadata in replies. Defaults to False.
+            threshold (float, optional): Minimum similarity score. Defaults to 0.5.
 
         Note:
             - The region maintains separate queues for incoming/outgoing messages
@@ -53,6 +55,7 @@ class RAGRegion(BaseRegion):
         super().__init__(name, task, connections)
         self.rag = rag
         self.reply_with_actors = reply_with_actors
+        self.threshold = threshold
 
     async def make_replies(self) -> bool:
         """
@@ -77,9 +80,9 @@ class RAGRegion(BaseRegion):
             matches = None
             reply = ''
             try:
-                matches = await self.rag.retrieve_similar(question, 0.5)
+                matches = await self.rag.retrieve_similar(question, self.threshold)
             except Exception as e:
-                print(f"\n{self.name}: Processing failed. {e}")
+                print(f"{self.name}: Processing failed. {e.args}")
                 faultless = False
             if matches:
                 for match in matches:
@@ -128,7 +131,7 @@ class RAGRegion(BaseRegion):
             try:
                 results = await self.rag.retrieve_similar(update)
             except Exception as e:
-                print(f"\n{self.name}: Processing failed. {e}")
+                print(f"{self.name}: Processing failed. {e.args}")
                 faultless = False
 
             if results:
