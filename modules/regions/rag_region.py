@@ -55,7 +55,7 @@ class RAGRegion(BaseRegion):
         super().__init__(name, task, connections)
         self.rag = rag
         self.reply_with_actors = reply_with_actors
-        self.threshold = threshold
+        self.threshold = float(threshold)
 
     async def make_replies(self) -> bool:
         """
