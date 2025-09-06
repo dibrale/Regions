@@ -219,11 +219,12 @@ class DynamicRAGSystem:
         stored_chunks = []
         success: list[bool] = []
 
-        logging.info(f"{self.db_name}: Storing {len(data)} documents...")
         if isinstance(data, dict):
+            length = len(data)
             doc_paths = [str(path) for path in data.keys()]
             actors = [str(actor_list) for actor_list in data.values()]
         elif isinstance(data, list):
+            length = len(data)
             for doc in data:
                 if isinstance(doc, dict):
                     doc_paths.append(''.join([str(path) for path in doc.keys()]))
@@ -232,14 +233,18 @@ class DynamicRAGSystem:
                     doc_paths.append(doc)
                     actors.append([''])
         elif isinstance(data, str):
+            length = 1
             doc_paths = [data]
             actors = [['']]
         else:
             try:
                 raise ValueError(f"Unsupported data type: {type(data)}")
+            except Exception as e:
+                logging.error(f"{self.db_name}: {e}")
             finally:
                 return False
 
+        logging.info(f"{self.db_name}: Storing {length} documents...")
         for index in range(0, len(doc_paths)):
             pure_path = pathlib.PurePath(doc_paths[index])
             try:
@@ -274,8 +279,9 @@ class DynamicRAGSystem:
                 success.append(False)
                 continue
         logging.info(f"{self.name}: Total chunks stored: {len(stored_chunks)}")
-        failures = len(data) - sum(success)
-        logging.info(f"{self.name}: Documents stored: {sum(success)}/{len(data)}")
+
+        failures = length - sum(success)
+        logging.info(f"{self.name}: Documents stored: {sum(success)}/{length}")
         if failures:
             logging.warning(f"{self.db_name}: {failures} document(s) failed to store.")
             return False
