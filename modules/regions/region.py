@@ -70,6 +70,18 @@ class Region(BaseRegion):
         if think: prompt += f"{think}\n"
         return prompt
 
+    async def _parse_thinking(self, raw_reply: str) -> str:
+        # Parse out model thinking
+        # If there is no thinking block, pass the raw reply
+        try:
+            reply = re.findall(r"<think>.*</think>\n(.*)", raw_reply, flags=re.DOTALL)[0].strip()
+            logging.debug("Thinking block found in raw reply.")
+        except IndexError:
+            reply = raw_reply.strip()
+
+        logging.debug(f"{self.name}: Extracted reply: {str(reply)}")
+        return reply
+
     async def make_replies(self) -> bool:
         """
         Generate replies to all pending requests in _incoming_requests.
@@ -86,32 +98,33 @@ class Region(BaseRegion):
         """
         logging.debug(f"{self.name}: Initiating reply generation...")
         faultless = True
+        success = []
         self._run_inbox()
 
-        for source, question in self._incoming_requests.items():
-            logging.info(f"{self.name}: Received request from {source}: {question}")
-            prompt = self._make_prompt(question)
-            reply = None
-            try:
-                raw_reply = await self.llm.text(prompt)
-                logging.debug(f"{self.name}: Got reply from LLM: {raw_reply}")
+        if self._incoming_requests:
+            for source, question in self._incoming_requests.items():
 
-                # Parse out model thinking
-                # If there is no thinking block, pass the raw reply
+                prompt = self._make_prompt(question)
+                reply = None
                 try:
-                    reply = re.findall(r"<think>.*</think>\n(.*)", raw_reply, flags=re.DOTALL)[0].strip()
-                except IndexError:
-                    reply = raw_reply.strip()
+                    raw_reply = await self.llm.text(prompt)
+                    logging.debug(f"{self.name}: Got reply from LLM: {raw_reply}")
+                    reply = await self._parse_thinking(raw_reply)
 
-                logging.debug(f"{self.name}: Extracted reply: {reply}", False)
+                except Exception as e:
+                    print(f"\n{self.name}: Processing failed. {e.args}")
+                    faultless = False
+                    success.append(False)
+                if reply:
+                    self._reply(source, reply)
+                    success.append(True)
+        else:
+            logging.info(f"{self.name}: No incoming requests to process.")
+            return True
 
-            except Exception as e:
-                print(f"\n{self.name}: Processing failed. {e}")
-                faultless = False
-            if reply:
-                self._reply(source, reply)
-
-        logging.debug(f"{self.name}: Replied to {len(self._incoming_requests)} queries.")
+        logging.info(f"{self.name}: Replied to {sum(success)}/{len(self._incoming_requests)} queries.")
+        if sum(success) != len(self._incoming_requests):
+            logging.warning(f"{len(self._incoming_requests) - sum(success)} replies failed to generate.")
         self._incoming_requests.clear()  # Clear processed queries
         return faultless
 
@@ -140,20 +153,26 @@ class Region(BaseRegion):
         )
         prompt = self._make_prompt(user_prompt)
         try:
-            reply = await self.llm.text(prompt)
-            logging.debug(f"{self.name}: Got reply from LLM: {reply}")
-            questions = json.loads(re.findall(r"\[\s*?\n*?\s*?{.*?}\s*?\n*?\s*?]", reply, flags=re.DOTALL)[-1])
+            raw_reply = await self.llm.text(prompt)
+            logging.debug(f"{self.name}: Got reply from LLM: {raw_reply}")
+            reply = await self._parse_thinking(raw_reply)
+            questions = json.loads(re.findall(r"\[\s*?\n*?\s*?\{.*?}\s*?\n*?\s*?]", reply, flags=re.DOTALL)[-1])
             logging.debug(f"{self.name}: Extracted questions: {questions}")
         except Exception as e:
-            print(f"\n{self.name}: Processing failed. {e}")
+            print(f"\n{self.name}: Processing failed. {e.args}")
+            logging.warning(f"{self.name}: No questions generated.")
             faultless = False
             return faultless
-        for question in questions:
-            try:
-                if question['source'] not in self.connections:
-                    raise AssertionError(f"{self.name}: {question['source']} is not a valid recipient")
-                self._ask(question['source'], question['question'])
-            except Exception as e:
-                print(f"\n{self.name}: Error processing LLM reply. {e}")
-                faultless = False
+        if questions:
+            for question in questions:
+                try:
+                    if question['source'] not in self.connections:
+                        raise AssertionError(f"{self.name}: {question['source']} is not a valid recipient")
+                    self._ask(question['source'], question['question'])
+                except Exception as e:
+                    print(f"\n{self.name}: Error processing LLM reply. {e}")
+                    faultless = False
+        else:
+            logging.warning(f"{self.name}: No questions generated.")
+            return True
         return faultless
