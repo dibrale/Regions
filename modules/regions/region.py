@@ -121,9 +121,9 @@ class Region(BaseRegion):
                 reply = await self._parse_thinking(raw_reply)
 
             except Exception as e:
-                print(f"{self.name}: Processing failed. {e.args}")
-                print("Attempting to dump raw output...")
-                print(raw_reply)
+                logging.warning(f"{self.name}: Processing failed. {e.args}")
+                logging.debug("Attempting to dump raw output...")
+                logging.debug(raw_reply)
                 faultless = False
                 success.append(False)
             if reply:
@@ -167,9 +167,9 @@ class Region(BaseRegion):
             questions = json.loads(re.findall(r"\[\s*?\n*?\s*?\{.*?}\s*?\n*?\s*?]", reply, flags=re.DOTALL)[-1])
             logging.debug(f"{self.name}: Extracted questions: {questions}")
         except Exception as e:
-            print(f"{self.name}: Processing failed. {e.args}")
-            print("Attempting to dump raw output...")
-            print(raw_reply)
+            logging.warning(f"{self.name}: Processing failed. {e.args}")
+            logging.debug("Attempting to dump raw output...")
+            logging.debug(raw_reply)
             logging.warning(f"{self.name}: No questions generated.")
             faultless = False
             return faultless
@@ -180,7 +180,7 @@ class Region(BaseRegion):
                         raise AssertionError(f"{self.name}: {question['source']} is not a valid recipient")
                     self._ask(question['source'], question['question'])
                 except Exception as e:
-                    print(f"{self.name}: Error processing LLM reply. {e}")
+                    logging.error(f"{self.name}: Error processing LLM reply. {e}")
                     faultless = False
         else:
             logging.warning(f"{self.name}: No questions generated.")

@@ -81,7 +81,6 @@ class RAGRegion(BaseRegion):
         if self._incoming_requests.empty():
             logging.info(f"{self.name}: No incoming requests to process.")
             return True
-        initial_length = self._incoming_requests.qsize()
         while not self._incoming_requests.empty():
             request = self._incoming_requests.get_nowait()
             source, question = request.popitem()
@@ -91,7 +90,7 @@ class RAGRegion(BaseRegion):
             try:
                 matches = await self.rag.retrieve_similar(question, self.threshold)
             except Exception as e:
-                print(f"{self.name}: Processing failed. {e.args}")
+                logging.warning(f"{self.name}: Processing failed. {e.args}")
                 faultless = False
             if matches:
                 for match in matches:
@@ -104,7 +103,7 @@ class RAGRegion(BaseRegion):
                 if reply:
                     self._reply(source, reply)
             else:
-                print(f"{self.name}: No matches found.")
+                logging.info(f"{self.name}: No matches found.")
 
         return faultless
 
@@ -145,7 +144,7 @@ class RAGRegion(BaseRegion):
             try:
                 results = await self.rag.retrieve_similar(update)
             except Exception as e:
-                print(f"{self.name}: Processing failed. {e.args}")
+                logging.warning(f"{self.name}: Processing failed. {e.args}")
                 faultless = False
 
             if results:
@@ -165,12 +164,12 @@ class RAGRegion(BaseRegion):
                         success = await self.rag.delete_chunk(chunk_hash)
                         faultless = faultless and success
             else:
-                print(f"\n{self.name}: Processing failed - no results found.")
+                logging.info(f"\n{self.name}: Processing failed - no results found.")
                 faultless = False
             if updated:
-                print(f"\n{self.name}: Database update from {source} succeeded.")
+                logging.info(f"\n{self.name}: Database update from {source} succeeded.")
             if hashes_to_delete:
-                print(f"\n{self.name}: Consolidated {len(hashes_to_delete)+1} chunks.")
+                logging.info(f"\n{self.name}: Consolidated {len(hashes_to_delete)+1} chunks.")
 
         return faultless
 
