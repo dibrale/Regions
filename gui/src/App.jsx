@@ -1101,7 +1101,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                 </div>
                             )}
                             {/* Execution Timeline */}
-                            {executionConfig[selectedLayer]?.length > 0 && (
+                            {/*{executionConfig[selectedLayer]?.length > 0 && (
                                 <div className="mt-4">
                                     <div
                                         className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -1116,7 +1116,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                         ))}
                                     </div>
                                 </div>
-                            )}
+                            )}*/}
                         </CardContent>
                     </Card>
                 </TabsContent>
