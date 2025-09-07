@@ -36,8 +36,8 @@ class TestRAGRegion(unittest.TestCase):
         self.assertEqual(self.region.connections, {"other_region": "other knowledge task"})
         self.assertIsInstance(self.region.inbox, asyncio.Queue)
         self.assertIsInstance(self.region.outbox, asyncio.Queue)
-        self.assertEqual(self.region._incoming_replies, {})
-        self.assertEqual(self.region._incoming_requests, {})
+        self.assertIsInstance(self.region._incoming_replies, asyncio.Queue)
+        self.assertIsInstance(self.region._incoming_requests, asyncio.Queue)
         self.assertTrue(self.region.reply_with_actors)
 
         # Test initialization without reply_with_actors
@@ -90,8 +90,8 @@ class TestRAGRegion(unittest.TestCase):
 
         self.region._run_inbox()
 
-        self.assertEqual(self.region._incoming_replies, {"other_region": "knowledge update"})
-        self.assertEqual(self.region._incoming_requests, {"other_region": "question"})
+        self.assertEqual([*self.region._incoming_replies.__dict__['_queue']], [{"other_region": "knowledge update"}])
+        self.assertEqual([*self.region._incoming_requests.__dict__['_queue']], [{"other_region": "question"}])
 
     async def test_make_replies_success(self):
         """Test successful reply generation with matching fragments"""
@@ -121,7 +121,7 @@ class TestRAGRegion(unittest.TestCase):
         result = await self.region.make_replies()
 
         self.assertTrue(result)
-        self.assertEqual(len(self.region._incoming_requests), 0)
+        self.assertTrue(self.region._incoming_requests.empty())
 
         # Verify reply was sent
         message = await self.region.outbox.get()
@@ -151,7 +151,7 @@ class TestRAGRegion(unittest.TestCase):
         result = await self.region.make_replies()
 
         self.assertTrue(result)  # Should still return True even with empty reply
-        self.assertEqual(len(self.region._incoming_requests), 0)
+        self.assertTrue(self.region._incoming_requests.empty())
 
         # Check if outbox is empty (no reply was sent)
         self.assertTrue(self.region.outbox.empty(), "Expected no reply to be sent when no matches exist")
@@ -173,7 +173,7 @@ class TestRAGRegion(unittest.TestCase):
         result = await self.region.make_replies()
 
         self.assertFalse(result)
-        self.assertEqual(len(self.region._incoming_requests), 0)  # Queries still cleared
+        self.assertTrue(self.region._incoming_requests.empty())  # Queries still cleared
 
     async def test_make_replies_without_actors(self):
         """Test reply format when reply_with_actors=False"""
@@ -250,7 +250,7 @@ class TestRAGRegion(unittest.TestCase):
         result = await self.region.make_updates(consolidate_threshold=0.2)
 
         self.assertTrue(result)
-        self.assertEqual(len(self.region._incoming_replies), 0)
+        self.assertTrue(self.region._incoming_replies.empty())
 
         # Verify update_chunk was called with highest similarity
         self.mock_rag.update_chunk.assert_called_once_with(
@@ -279,7 +279,7 @@ class TestRAGRegion(unittest.TestCase):
         result = await self.region.make_updates()
 
         self.assertFalse(result)
-        self.assertEqual(len(self.region._incoming_replies), 0)
+        self.assertTrue(self.region._incoming_replies.empty())
 
     async def test_make_updates_failure(self):
         """Test handling of RAG failures during update processing"""
@@ -298,7 +298,7 @@ class TestRAGRegion(unittest.TestCase):
         result = await self.region.make_updates()
 
         self.assertFalse(result)
-        self.assertEqual(len(self.region._incoming_replies), 0)
+        self.assertTrue(self.region._incoming_replies.empty())
 
     async def test_make_updates_consolidation_threshold(self):
         """Test consolidation behavior with different thresholds"""

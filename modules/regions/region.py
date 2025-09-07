@@ -63,7 +63,10 @@ class Region(BaseRegion):
             - Uses delimiters to structure system/user/assistant sections
             - Includes thinking trace if provided
         """
-        raw_incoming_replies = [*self._incoming_replies.values()]
+        raw_incoming_replies = []
+        if not self._incoming_replies.empty():
+            raw_incoming_replies = [*self._incoming_replies.__dict__['_queue']]
+
         schema = {'focus': self.task, 'knowledge': [reply for reply in raw_incoming_replies if reply]}
         prefix = f"{bom}system\nReply to the user, given your focus and knowledge per the given schema:"
         prompt = f"{prefix}\n{schema}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
@@ -101,31 +104,35 @@ class Region(BaseRegion):
         success = []
         self._run_inbox()
 
-        if self._incoming_requests:
-            for source, question in self._incoming_requests.items():
-
-                prompt = self._make_prompt(question)
-                reply = None
-                try:
-                    raw_reply = await self.llm.text(prompt)
-                    logging.debug(f"{self.name}: Got reply from LLM: {raw_reply}")
-                    reply = await self._parse_thinking(raw_reply)
-
-                except Exception as e:
-                    print(f"\n{self.name}: Processing failed. {e.args}")
-                    faultless = False
-                    success.append(False)
-                if reply:
-                    self._reply(source, reply)
-                    success.append(True)
-        else:
+        if self._incoming_requests.empty():
             logging.info(f"{self.name}: No incoming requests to process.")
             return True
+        initial_length = self._incoming_requests.qsize()
+        while not self._incoming_requests.empty():
+            request = self._incoming_requests.get_nowait()
+            source, question = request.popitem()
 
-        logging.info(f"{self.name}: Replied to {sum(success)}/{len(self._incoming_requests)} queries.")
-        if sum(success) != len(self._incoming_requests):
-            logging.warning(f"{len(self._incoming_requests) - sum(success)} replies failed to generate.")
-        self._incoming_requests.clear()  # Clear processed queries
+            prompt = self._make_prompt(question)
+            reply = None
+            raw_reply = ""
+            try:
+                raw_reply = await self.llm.text(prompt)
+                logging.debug(f"{self.name}: Got reply from LLM: {raw_reply}")
+                reply = await self._parse_thinking(raw_reply)
+
+            except Exception as e:
+                print(f"{self.name}: Processing failed. {e.args}")
+                print("Attempting to dump raw output...")
+                print(raw_reply)
+                faultless = False
+                success.append(False)
+            if reply:
+                self._reply(source, reply)
+                success.append(True)
+
+        logging.info(f"{self.name}: Replied to {sum(success)}/{initial_length} queries.")
+        if sum(success) != initial_length:
+            logging.warning(f"{initial_length - sum(success)} replies failed to generate.")
         return faultless
 
     async def make_questions(self) -> bool:
@@ -144,10 +151,11 @@ class Region(BaseRegion):
         """
         faultless = True
         self._run_inbox()
+        raw_reply = ""
 
         user_prompt = (
                 "Below is a list of sources and their respective focus. Keeping your own focus in mind, ask each of them " +
-                "one question to update your knowledge.\n\n" + str(self.connections) +
+                "one or more questions to update your knowledge.\n\n" + str(self.connections) +
                 '\n\nReply with your questions in valid JSON format according to the template:\n' +
                 '[{"source": source1, "question": question1}, {"source": source2, "question": question2}, ... ]\n\n'
         )
@@ -159,7 +167,9 @@ class Region(BaseRegion):
             questions = json.loads(re.findall(r"\[\s*?\n*?\s*?\{.*?}\s*?\n*?\s*?]", reply, flags=re.DOTALL)[-1])
             logging.debug(f"{self.name}: Extracted questions: {questions}")
         except Exception as e:
-            print(f"\n{self.name}: Processing failed. {e.args}")
+            print(f"{self.name}: Processing failed. {e.args}")
+            print("Attempting to dump raw output...")
+            print(raw_reply)
             logging.warning(f"{self.name}: No questions generated.")
             faultless = False
             return faultless
@@ -170,7 +180,7 @@ class Region(BaseRegion):
                         raise AssertionError(f"{self.name}: {question['source']} is not a valid recipient")
                     self._ask(question['source'], question['question'])
                 except Exception as e:
-                    print(f"\n{self.name}: Error processing LLM reply. {e}")
+                    print(f"{self.name}: Error processing LLM reply. {e}")
                     faultless = False
         else:
             logging.warning(f"{self.name}: No questions generated.")

@@ -1,5 +1,7 @@
 import asyncio
 import json
+import logging
+
 from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
 from regions.base_region import BaseRegion
 
@@ -76,7 +78,14 @@ class RAGRegion(BaseRegion):
         faultless = True
         self._run_inbox()
 
-        for source, question in self._incoming_requests.items():
+        if self._incoming_requests.empty():
+            logging.info(f"{self.name}: No incoming requests to process.")
+            return True
+        initial_length = self._incoming_requests.qsize()
+        while not self._incoming_requests.empty():
+            request = self._incoming_requests.get_nowait()
+            source, question = request.popitem()
+
             matches = None
             reply = ''
             try:
@@ -97,7 +106,6 @@ class RAGRegion(BaseRegion):
             else:
                 print(f"{self.name}: No matches found.")
 
-        self._incoming_requests.clear()  # Clear processed queries
         return faultless
 
     async def make_updates(self, consolidate_threshold: float = 0.1):
@@ -124,7 +132,13 @@ class RAGRegion(BaseRegion):
         self._run_inbox()
         results: list[RetrievalResult] = []
 
-        for source, update in self._incoming_replies.items():
+        if self._incoming_replies.empty():
+            logging.info(f"{self.name}: No incoming replies to process.")
+            return True
+
+        while not self._incoming_replies.empty():
+            request = self._incoming_replies.get_nowait()
+            source, update = request.popitem()
             updated = False
             hashes_to_delete = []
 
@@ -158,7 +172,6 @@ class RAGRegion(BaseRegion):
             if hashes_to_delete:
                 print(f"\n{self.name}: Consolidated {len(hashes_to_delete)+1} chunks.")
 
-        self._incoming_replies.clear()
         return faultless
 
     async def request_summaries(self) -> None:

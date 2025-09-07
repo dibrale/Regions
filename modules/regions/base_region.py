@@ -39,8 +39,8 @@ class BaseRegion:
         self.connections = connections if connections is not None else {}
         self.inbox = asyncio.Queue()
         self.outbox = asyncio.Queue()
-        self._incoming_requests = {}  # Stores requests (keyed by source)
-        self._incoming_replies = {}  # Stores replies (keyed by source)
+        self._incoming_requests = asyncio.Queue()  # Stores requests (keyed by source)
+        self._incoming_replies = asyncio.Queue()  # Stores replies (keyed by source)
 
     def _post(self, destination: str, content: str, role: str) -> None:
         """
@@ -96,9 +96,9 @@ class BaseRegion:
             message = self.inbox.get_nowait()
             if message['role'] == 'request':
                 logging.info(f"{self.name}: Received request from {message['source']}: {message['content']}")
-                self._incoming_requests[message['source']] = message['content']
+                self._incoming_requests.put_nowait({message['source']: message['content']})
             elif message['role'] == 'reply':
                 logging.debug(f"{self.name}: Received reply from {message['source']}: {message['content']}")
-                self._incoming_replies[message['source']] = message['content']
+                self._incoming_replies.put_nowait({message['source']: message['content']})
             else:
                 raise AssertionError(f"{self.name}: Unknown message role: {message['role']}")
