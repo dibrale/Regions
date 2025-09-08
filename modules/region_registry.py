@@ -165,12 +165,13 @@ class RegionEntry:
         f = partial(
             class_from_str(self.type),
             name=self.name,
-            task=self.task,
         )
 
+        if self.type != 'ListenerRegion':
+            f = partial(f, task=self.task)
         if self.connections:
             f = partial(f, connections=self.connections)
-        else:
+        elif self.type != 'ListenerRegion':
             f = partial(f, connections={})
         if self.rag:
             f = partial(f, rag=self.rag)
