@@ -106,7 +106,6 @@ class Postmaster:
         self.collect = loop.create_task(self.collector())
         self.emit = loop.create_task(self.emitter())
 
-
     async def stop(self) -> bool:
         """
         Stops both the collector and emitter tasks (if running) and waits for the message
@@ -183,7 +182,6 @@ class Postmaster:
             logging.info("Collector task was not running")
 
         return success
-
 
     async def collector(self):
         """Background task that collects messages from region outboxes.
