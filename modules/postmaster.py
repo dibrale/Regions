@@ -207,15 +207,19 @@ class Postmaster:
             await asyncio.sleep(self.delay)
             for entry in self.registry:  # Process each region
                 # logging.debug(f"Processing outbox from '{entry.name}'")
-                while True:  # Drain region outbox completely
-                    try:
-                        msg = entry.region.outbox.get_nowait()  # Non-blocking pop
-                        logging.debug(f"Message received from '{entry.name}': {msg}")
-                    except asyncio.QueueEmpty:  # raised when pop attempted on empty queue
-                        # logging.debug(f"No messages left in '{entry.name}'")
-                        break  # breaks out of INNER loop
-                    self.messages.put_nowait(msg)
-                    # await asyncio.sleep(0)  # Yield to other tasks
+                if hasattr(entry.region, 'outbox'):
+                    while True:  # Drain region outbox completely
+                        msg = None
+                        try:
+                            msg = entry.region.outbox.get_nowait()  # Non-blocking pop
+                            logging.debug(f"Message received from '{entry.name}': {msg}")
+                        except asyncio.QueueEmpty:  # raised when pop attempted on empty queue
+                            # logging.debug(f"No messages left in '{entry.name}'")
+                            break  # breaks out of INNER loop
+                        except Exception as e:
+                            logging.error(f"Unexpected error occurred while processing region '{entry.name}': {e}")
+                        self.messages.put_nowait(msg)
+                        # await asyncio.sleep(0)  # Yield to other tasks
 
     async def resend(self, msg: dict, resend_delay: float = None):
         """Requeues a message after a configurable delay for retry delivery.
