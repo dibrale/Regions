@@ -565,7 +565,7 @@ class RegionRegistry:
                     class_from_str(region.type)
                 except TypeError or NameError as e:
                     issues.append(f"'{region.name}': {e}")
-            if not region.task:
+            if not region.task and region.type != 'ListenerRegion':
                 issues.append(f"No task given for region '{region.name}'")
             param_string = str(inspect.signature(class_from_str(region.type)).parameters)
             if 'DynamicRAGSystem' in param_string:
