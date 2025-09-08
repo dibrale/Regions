@@ -18,6 +18,9 @@ This repo also provides examples and a pytest suite to help you get started quic
 
 ## Features
 - Compose systems from Regions (Region, RAGRegion, ListenerRegion)
+
+![Literature critique example flow](examples/lit.gif)
+
 - Configure layered execution with Orchestrator (methods per region per layer)
 
 ```python
@@ -192,11 +195,12 @@ Note that test_params.json may need to be moved to the project directory for som
 
 
 ## Configuration & Examples
-- See examples\demo_params.json for LLM and embedding server settings used by examples\demo.py
-- Additional example datasets: examples\demo_historical.json, examples\demo_biography.json
 - A prebuilt registry example: examples\regions.json
 - Execution plan example: examples\demo_executions.json (used by the infrastructure demo)
-- Full infrastructure demo: examples\demo_with_infrastructure.py (loads params, regions, executions; wires two RAGs and an LLM; can be edited/inspected via the GUI)
+- RAG functionality example: examples\dynamic_rag_example.py
+- Basic demo implementation of Region and RAGRegion: demo.py (wires two RAGs and an LLM)
+- Demo implementation with infrastructure classes: examples\demo_with_infrastructure.py (loads params, regions, executions; 'examples\demo_full_state.json' can be edited/inspected via the GUI)
+- Literary critique workflow demo: examples\lit_demo.py (More complex configuration that also demonstrates a ListenerRegion instance)
 
 Run the infrastructure demo:
 ```powershell
