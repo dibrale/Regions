@@ -102,3 +102,44 @@ class BaseRegion:
                 self._incoming_replies.put_nowait({message['source']: message['content']})
             else:
                 raise AssertionError(f"{self.name}: Unknown message role: {message['role']}")
+
+    def _keep_last_reply_per_source(self) -> None:
+        if self._incoming_requests.empty():
+            logging.info(f"{self.name}: No incoming replies to prune.")
+            return
+        replies = {}
+        original_length = self._incoming_replies.qsize()
+        while not self._incoming_replies.empty():
+            replies.update(self._incoming_replies.get_nowait())
+            self._incoming_replies.task_done()
+        for reply in replies:
+            self._incoming_replies.put_nowait(reply)
+        logging.info(
+            f"{self.name}: Pruned {original_length - self._incoming_replies.qsize()} replies. {self._incoming_replies.qsize()} replies remaining.")
+
+    def _consolidate_replies(self) -> None:
+        if self._incoming_requests.empty():
+            logging.info(f"{self.name}: No incoming replies to consolidate.")
+            return
+        replies = {}
+        original_length = self._incoming_replies.qsize()
+        while not self._incoming_replies.empty():
+            source, content = self._incoming_replies.get_nowait()
+            if source in replies.keys():
+                new_content = replies[source] + '\n' + content
+            else:
+                new_content = content
+            replies.update({source: new_content})
+        for reply in replies:
+            self._incoming_replies.put_nowait(reply)
+        logging.info(
+            f"{self.name}: Consolidated {original_length} replies into {self._incoming_replies.qsize()} replies total.")
+
+    def clear_replies(self) -> None:
+        if self._incoming_requests.empty():
+            logging.info(f"{self.name}: Reply queue already empty.")
+            return
+        while not self._incoming_replies.empty():
+            self._incoming_replies.get_nowait()
+            self._incoming_replies.task_done()
+        logging.info(f"{self.name}: All replies cleared.")
