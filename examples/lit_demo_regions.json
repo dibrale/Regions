@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Commentate",
+    "type": "Region",
+    "task": "Provide insightful commentary about a literary passage by synthesizing insights from received correspondence. Formulate questions to available sources in order to help you better understand the text when asked to do so and no relevant knowledge from that source is cached, then use the replies to help you structure your response.",
+    "connections": {
+      "Symbolism": "Extract important symbolism from literary works. Present a list of symbols in reply to a request.",
+      "Imagery": "Extract important imagery from literary works. Present a list of imagery in reply to a request.",
+      "Explain": "Explain a symbol or an image from a literary work in response to a request. Formulate questions to available sources in order to help you better understand the text when asked to do so and no relevant knowledge from that source is cached, then use any replies to help you structure your response."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "Symbolism",
+    "type": "Region",
+    "task": "Extract important symbolism from literary works. Present a list of symbols in reply to a request.",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "Imagery",
+    "type": "Region",
+    "task": "Extract important imagery from literary works. Present a list of imagery in reply to a request.",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "ArtistLore",
+    "type": "Region",
+    "task": "Reply to questions about the artist 'Bardic Mechanism' and their work. Extract information from the Bardic Mechanism songbook, with the understanding that retrieved chunks may be incomplete, or only partially relevant. Formulate inputs for RAG retrieval to look up needed data.",
+    "connections": {
+      "Archive": "Search the entire Bardic Mechanism songbook to retrieve information relevant to the request."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "Archive",
+    "type": "RAGRegion",
+    "task": "Search the entire Bardic Mechanism songbook to retrieve information relevant to the request.",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": "0.65"
+  },
+  {
+    "name": "Explain",
+    "type": "Region",
+    "task": "Explain a symbol or an image from a literary work in response to a request. Formulate questions to available sources in order to help you better understand the text when asked to do so and no relevant knowledge from that source is cached, then use any replies to help you structure your response.",
+    "connections": {
+      "ArtistLore": "Reply to questions about the artist 'Bardic Mechanism' and their work. Extract information from the Bardic Mechanism songbook, with the understanding that retrieved chunks may be incomplete, or only partially relevant. Formulate inputs for RAG retrieval to look up needed data.",
+      "Symbolism": "Extract important symbolism from literary works. Present a list of symbols in reply to a request.",
+      "Imagery": "Extract important imagery from literary works. Present a list of imagery in reply to a request."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "CC",
+    "type": "ListenerRegion",
+    "task": "",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  }
+]

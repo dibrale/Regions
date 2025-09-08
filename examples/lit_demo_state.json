@@ -1,0 +1,495 @@
+{
+  "flowNodes": [
+    {
+      "id": "imported_2_Commentate",
+      "type": "regionNode",
+      "position": {
+        "x": -798.1235381501681,
+        "y": -68.81884767741462
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "Commentate",
+          "task": "Provide insightful commentary about a literary passage by synthesizing insights from received correspondence. Formulate questions to available sources in order to help you better understand the text when asked to do so and no relevant knowledge from that source is cached, then use the replies to help you structure your response.",
+          "connections": {
+            "Symbolism": "Extract important symbolism from literary works. Present a list of symbols in reply to a request.",
+            "Imagery": "Extract important imagery from literary works. Present a list of imagery in reply to a request.",
+            "Explain": "Explain a symbol or an image from a literary work in response to a request. Formulate questions to available sources in order to help you better understand the text when asked to do so, then use any replies to help you structure your response."
+          },
+          "type": "Region"
+        },
+        "nodeId": "imported_2_Commentate",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "final",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 262,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -798.1235381501681,
+        "y": -68.81884767741462
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_3_Symbolism",
+      "type": "regionNode",
+      "position": {
+        "x": -152.74860009933275,
+        "y": -171.7616542332146
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "Symbolism",
+          "task": "Extract important symbolism from literary works. Present a list of symbols in reply to a request.",
+          "connections": {},
+          "type": "Region"
+        },
+        "nodeId": "imported_3_Symbolism",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 134,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -152.74860009933275,
+        "y": -171.7616542332146
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_4_Imagery",
+      "type": "regionNode",
+      "position": {
+        "x": -151.72126226802914,
+        "y": -7.496877700888803
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "Imagery",
+          "task": "Extract important imagery from literary works. Present a list of imagery in reply to a request.",
+          "connections": {},
+          "type": "Region"
+        },
+        "nodeId": "imported_4_Imagery",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 134,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -151.72126226802914,
+        "y": -7.496877700888803
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_5_Context",
+      "type": "regionNode",
+      "position": {
+        "x": -156.45979892545978,
+        "y": 166.31827143374375
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "ArtistLore",
+          "task": "Reply to questions about the artist 'Bardic Mechanism' and their work. Extract information from the Bardic Mechanism songbook, with the understanding that retrieved chunks may be incomplete, or only partially relevant. Formulate inputs for RAG retrieval to look up needed data.",
+          "connections": {
+            "Archive": "Search the entire Bardic Mechanism songbook to retrieve information relevant to the request."
+          },
+          "type": "Region"
+        },
+        "nodeId": "imported_5_Context",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 230,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -156.45979892545978,
+        "y": 166.31827143374375
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_6_Archive",
+      "type": "regionNode",
+      "position": {
+        "x": 130.6576231966245,
+        "y": 207.24875245358172
+      },
+      "data": {
+        "typeName": "RAGRegion",
+        "params": {
+          "name": "Archive",
+          "task": "Search the entire Bardic Mechanism songbook to retrieve information relevant to the request.",
+          "reply_with_actors": false,
+          "threshold": "0.65",
+          "connections": {},
+          "type": "RAGRegion"
+        },
+        "nodeId": "imported_6_Archive",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 150,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 130.6576231966245,
+        "y": 207.24875245358172
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_7_Explain",
+      "type": "regionNode",
+      "position": {
+        "x": -483.1442094255956,
+        "y": 158.56097681126778
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "Explain",
+          "task": "Explain a symbol or an image from a literary work in response to a request. Formulate questions to available sources in order to help you better understand the text when asked to do so and no relevant knowledge from that source is cached, then use any replies to help you structure your response.",
+          "connections": {
+            "Context": "Provide additional context surrounding a request based on extracted information from the Bardic Mechanism songbook. Formulate inputs for RAG retrieval to look up needed data.",
+            "Symbolism": "Extract important symbolism from literary works. Present a list of symbols in reply to a request.",
+            "Imagery": "Extract important imagery from literary works. Present a list of imagery in reply to a request."
+          },
+          "type": "Region"
+        },
+        "nodeId": "imported_7_Explain",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "final",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 246,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -483.1442094255956,
+        "y": 158.56097681126778
+      },
+      "dragging": false
+    },
+    {
+      "id": "ListenerRegion_2",
+      "type": "regionNode",
+      "position": {
+        "x": -794.0615125657386,
+        "y": -230.59587391482512
+      },
+      "data": {
+        "typeName": "ListenerRegion",
+        "params": {
+          "name": "CC"
+        },
+        "nodeId": "ListenerRegion_2",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "final",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 82,
+      "selected": true,
+      "positionAbsolute": {
+        "x": -794.0615125657386,
+        "y": -230.59587391482512
+      },
+      "dragging": false
+    }
+  ],
+  "flowEdges": [
+    {
+      "id": "e_imported_2_Commentate_imported_3_Symbolism",
+      "source": "imported_2_Commentate",
+      "target": "imported_3_Symbolism",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_2_Commentate_imported_4_Imagery",
+      "source": "imported_2_Commentate",
+      "target": "imported_4_Imagery",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_2_Commentate_imported_7_Explain",
+      "source": "imported_2_Commentate",
+      "target": "imported_7_Explain",
+      "type": "default",
+      "selected": false
+    },
+    {
+      "id": "e_imported_5_Context_imported_6_Archive",
+      "source": "imported_5_Context",
+      "target": "imported_6_Archive",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_7_Explain_imported_5_Context",
+      "source": "imported_7_Explain",
+      "target": "imported_5_Context",
+      "type": "default",
+      "selected": false
+    },
+    {
+      "source": "imported_7_Explain",
+      "sourceHandle": "out",
+      "target": "imported_3_Symbolism",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_imported_7_Explain_imported_3_Symbolism"
+    },
+    {
+      "source": "imported_7_Explain",
+      "sourceHandle": "out",
+      "target": "imported_4_Imagery",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_imported_7_Explain_imported_4_Imagery"
+    }
+  ],
+  "layerConfig": [
+    {
+      "get_symbols_images": [
+        "CC",
+        "Commentate"
+      ]
+    },
+    {
+      "explain_questions": [
+        "Explain"
+      ]
+    },
+    {
+      "lore_questions": [
+        "ArtistLore"
+      ],
+      "symbol": [
+        "Symbolism"
+      ],
+      "image": [
+        "Imagery"
+      ]
+    },
+    {
+      "reply": [
+        "Archive",
+        "ArtistLore",
+        "Explain"
+      ]
+    },
+    {
+      "make_questions_2": [
+        "Commentate",
+        "Explain",
+        "ArtistLore"
+      ]
+    },
+    {
+      "lore_replies": [
+        "Archive",
+        "ArtistLore"
+      ],
+      "symbols_2": [
+        "Symbolism"
+      ],
+      "images_2": [
+        "Imagery"
+      ]
+    },
+    {
+      "final": [
+        "Explain",
+        "Commentate",
+        "CC"
+      ]
+    }
+  ],
+  "executionConfig": [
+    [
+      [
+        "CC",
+        "start"
+      ],
+      [
+        "Commentate",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Symbolism",
+        "make_replies"
+      ],
+      [
+        "Imagery",
+        "make_replies"
+      ],
+      [
+        "Explain",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "ArtistLore",
+        "make_questions"
+      ],
+      [
+        "Symbolism",
+        "make_replies"
+      ],
+      [
+        "Imagery",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Context",
+        "make_replies"
+      ],
+      [
+        "Explain",
+        "make_replies"
+      ],
+      [
+        "Commentate",
+        "make_replies"
+      ],
+      [
+        "Archive",
+        "make_replies"
+      ],
+      [
+        "ArtistLore",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Commentate",
+        "make_questions"
+      ],
+      [
+        "Explain",
+        "make_questions"
+      ],
+      [
+        "ArtistLore",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Archive",
+        "make_replies"
+      ],
+      [
+        "ArtistLore",
+        "make_replies"
+      ],
+      [
+        "Symbolism",
+        "make_replies"
+      ],
+      [
+        "Imagery",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Explain",
+        "make_replies"
+      ],
+      [
+        "Commentate",
+        "make_replies"
+      ],
+      [
+        "CC",
+        "stop"
+      ]
+    ]
+  ],
+  "executionOrder": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "chainColors": [
+    {
+      "get_symbols_images": 0
+    },
+    {
+      "explain_questions": 0
+    },
+    {
+      "lore_questions": 0,
+      "symbol": 1,
+      "image": 2
+    },
+    {
+      "reply": 0
+    },
+    {
+      "make_questions_2": 0
+    },
+    {
+      "lore_replies": 0,
+      "symbols_2": 1,
+      "images_2": 2
+    },
+    {
+      "final": 0
+    }
+  ]
+}

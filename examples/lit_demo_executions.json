@@ -1,0 +1,176 @@
+{
+  "layer_config": [
+    {
+      "get_symbols_images": [
+        "CC",
+        "Commentate"
+      ]
+    },
+    {
+      "explain_questions": [
+        "Explain"
+      ]
+    },
+    {
+      "lore_questions": [
+        "ArtistLore"
+      ],
+      "symbol": [
+        "Symbolism"
+      ],
+      "image": [
+        "Imagery"
+      ]
+    },
+    {
+      "reply": [
+        "Archive",
+        "ArtistLore",
+        "Explain"
+      ]
+    },
+    {
+      "make_questions_2": [
+        "Commentate",
+        "Explain",
+        "ArtistLore"
+      ]
+    },
+    {
+      "lore_replies": [
+        "Archive",
+        "ArtistLore"
+      ],
+      "symbols_2": [
+        "Symbolism"
+      ],
+      "images_2": [
+        "Imagery"
+      ]
+    },
+    {
+      "final": [
+        "Explain",
+        "Commentate",
+        "CC"
+      ]
+    }
+  ],
+  "execution_config": [
+    [
+      [
+        "CC",
+        "start"
+      ],
+      [
+        "Commentate",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Symbolism",
+        "make_replies"
+      ],
+      [
+        "Imagery",
+        "make_replies"
+      ],
+      [
+        "Explain",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "ArtistLore",
+        "make_questions"
+      ],
+      [
+        "Symbolism",
+        "make_replies"
+      ],
+      [
+        "Imagery",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Context",
+        "make_replies"
+      ],
+      [
+        "Explain",
+        "make_replies"
+      ],
+      [
+        "Commentate",
+        "make_replies"
+      ],
+      [
+        "Archive",
+        "make_replies"
+      ],
+      [
+        "ArtistLore",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Commentate",
+        "make_questions"
+      ],
+      [
+        "Explain",
+        "make_questions"
+      ],
+      [
+        "ArtistLore",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Archive",
+        "make_replies"
+      ],
+      [
+        "ArtistLore",
+        "make_replies"
+      ],
+      [
+        "Symbolism",
+        "make_replies"
+      ],
+      [
+        "Imagery",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Explain",
+        "make_replies"
+      ],
+      [
+        "Commentate",
+        "make_replies"
+      ],
+      [
+        "CC",
+        "stop"
+      ]
+    ]
+  ],
+  "execution_order": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ]
+}
