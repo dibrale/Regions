@@ -228,7 +228,8 @@ if __name__ == "__main__":
     # Cleanup when window is closed
     gui.stop()
     sender_process.join(timeout=2.0)
-    if sender_process.is_alive():
-        sender_process.terminate()
+
+    # if sender_process.is_alive():
+    #     sender_process.terminate()
 
     print("Application terminated.")
