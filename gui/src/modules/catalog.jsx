@@ -30,9 +30,7 @@ export const REGION_CATALOG = {
     ListenerRegion: {
         label: "ListenerRegion",
         defaults: (i) => ({
-            name: `Listener_${i}`,
-            task: "Listen and forward specific events/messages",
-            connections: {}
+            name: `Listener_${i}`
         }),
         methods: {
             start: { doc: "Launches the background forwarding task." },
