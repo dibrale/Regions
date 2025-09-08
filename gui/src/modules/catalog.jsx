@@ -10,6 +10,8 @@ export const REGION_CATALOG = {
         methods: {
             make_questions: { doc: "Generate questions for connected regions to update knowledge." },
             make_replies: { doc: "Generate replies to all pending requests in _incoming_requests." },
+            summarize_replies: { doc: "Summarize received replies into a single message per sender." },
+            clear_replies: { doc: "Clear all stored replies." },
         },
     },
     RAGRegion: {
@@ -34,9 +36,7 @@ export const REGION_CATALOG = {
         }),
         methods: {
             start: { doc: "Launches the background forwarding task." },
-            forward: { doc: "Background task that continuously drains ALL pending messages from inbox and forwards each message to output process via mp.Queue." },
             stop: { doc: "Cleanly stops forwarding and terminates output process." },
-            verify: { doc: "Verify correct configuration of ListenerRegion in the orchestrator via the region profile." }
         },
     },
 };
