@@ -1,8 +1,10 @@
 import asyncio
 import logging
 import multiprocessing as mp
+import threading
 from typing import Callable
 
+from listener_gui import ListenerGUI, handle_output
 from regions.base_region import BaseRegion
 from orchestrator import Orchestrator
 
@@ -55,7 +57,7 @@ class ListenerRegion(BaseRegion):
         - Always call stop() to prevent resource leaks
     """
 
-    def __init__(self, name: str, out_process: Callable, delay: float = 0.5):
+    def __init__(self, name: str, out_process: Callable = None, delay: float = 0.5):
         super().__init__(name, "Receive and forward all incoming messages.")
         del self.connections, self.outbox
 
@@ -84,9 +86,23 @@ class ListenerRegion(BaseRegion):
         """
         if self.p is not None:
             raise RuntimeError("Region already started")
-        self.p = mp.Process(target=self.out_process, args=(self.out_q,))
+        if self.out_process:
+            self.p = mp.Process(target=self.out_process, args=(self.out_q,))
+        else:
+            self.p = mp.Process(target=self.start_gui)
         self.p.start()  # Start mp process
         self.forward_task = asyncio.create_task(self.forward())
+
+    def start_gui(self):
+        gui = ListenerGUI(self.name)
+
+        # Start output handler in a thread
+        output_thread = threading.Thread(target=handle_output, args=(self.out_q, gui), daemon=True)
+        output_thread.start()
+
+        # Start the GUI in the main thread
+        gui.run()
+
 
     async def forward(self) -> None:
         """
