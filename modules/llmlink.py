@@ -204,7 +204,8 @@ class LLMLink:
                     self._chat_url,
                     headers=self.headers,
                     json=data,
-                    ssl=self.ssl
+                    ssl=self.ssl,
+                    timeout=None,
             ) as response:
                 response.raise_for_status()
                 return (await response.json())['choices'][0]['message']['content']
