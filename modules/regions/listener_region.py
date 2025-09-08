@@ -133,13 +133,30 @@ class ListenerRegion(BaseRegion):
 
     async def stop(self) -> None:
 
-        # 1. Drain inbox one last time
+        # Drain inbox one last time
         while not self.inbox.empty():
             msg = await self.inbox.get()
             self.out_q.put(msg)  # Blocking put (safe during shutdown)
 
+        # Signal output process to stop
+        if self.p and self.p.is_alive():
+            self.out_q.put(None)  # Sentinel value
+
+        # Output process responsible for its own cleanup - should not necessarily shut down when listener does
+        '''
+        # Clean up process
+        if self.p:
+            self.p.join(timeout=2.0)
+            if self.p.is_alive():
+                self.p.terminate()  # Force cleanup if unresponsive
+            self.p.close()
+            self.p = None
+        '''
+        # Close queue
+        self.out_q.close()
+
         """Cleanly stops forwarding and terminates output process."""
-        # 2. Cancel forwarding task
+        # Cancel forwarding task
         if self.forward_task:
             self.forward_task.cancel()
             try:
@@ -148,20 +165,7 @@ class ListenerRegion(BaseRegion):
                 pass
             self.forward_task = None
 
-        # 3. Signal output process to stop
-        if self.p and self.p.is_alive():
-            self.out_q.put(None)  # Sentinel value
 
-        # 4. Clean up process
-        if self.p:
-            self.p.join(timeout=2.0)
-            if self.p.is_alive():
-                self.p.terminate()  # Force cleanup if unresponsive
-            self.p.close()
-            self.p = None
-
-        # 5. Close queue
-        self.out_q.close()
 
     def verify(self, orchestrator: Orchestrator) -> bool:
         """
@@ -218,7 +222,7 @@ class ListenerRegion(BaseRegion):
 
         # Ensure that 'start' is called in layer 0
         try:
-            assert profile[0] == 'start'
+            assert 'start' in profile[0]
         except AssertionError:
             logging.error(
                 f"{self.name} Expected start method in layer 0 of execution configuration. Found {', '.join(profile[0])} instead."
@@ -227,7 +231,7 @@ class ListenerRegion(BaseRegion):
 
         # Ensure that 'stop' is called on the final layer
         try:
-            assert profile[last_layer] == 'stop'
+            assert 'stop' in profile[last_layer]
         except AssertionError:
             logging.error(
                 f"{self.name} Expected stop method in terminal layer of execution configuration. Found {', '.join(profile[last_layer])} instead."
