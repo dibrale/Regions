@@ -145,7 +145,7 @@ function ParamEditor({
                                 // update the node's explicit connections and sync edges
                                 updateParam("connections", obj);
                                 syncEdgesWithConnections(selectedNode.id, obj);
-                            } catch (err) {
+                            } catch {
                                 // while typing, JSON may be invalid — we keep the buffer and don't crash
                             }
                         }}
@@ -375,7 +375,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
         if (draggingSourceId && node.id !== draggingSourceId) setHoverTargetId(node.id);
     }, [draggingSourceId]);
 
-    const onNodeMouseLeave = useCallback((_, node) => {
+    const onNodeMouseLeave = useCallback(() => {
         if (draggingSourceId) setHoverTargetId(null);
     }, [draggingSourceId]);
 
@@ -490,7 +490,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                 return targetName && Object.prototype.hasOwnProperty.call(connectionsObj || {}, targetName);
             });
         });
-    }, []);
+    },);
 
     // --- New Import Functionality ---
     const importRegions = useCallback((event) => {
@@ -641,12 +641,12 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
 
                 // --- Validate basic structure (basic check) ---
                 if (
-                    !allState.hasOwnProperty('flowNodes') ||
-                    !allState.hasOwnProperty('flowEdges') ||
-                    !allState.hasOwnProperty('layerConfig') ||
-                    !allState.hasOwnProperty('executionConfig') ||
-                    !allState.hasOwnProperty('executionOrder') ||
-                    !allState.hasOwnProperty('chainColors')
+                    !Object.hasOwn(allState, 'flowNodes') ||
+                    !Object.hasOwn(allState, 'flowEdges') ||
+                    !Object.hasOwn(allState, 'layerConfig') ||
+                    !Object.hasOwn(allState, 'executionConfig') ||
+                    !Object.hasOwn(allState, 'executionOrder') ||
+                    !Object.hasOwn(allState, 'chainColors')
                 ) {
                     throw new Error('Invalid file format: Missing required state properties.');
                 }

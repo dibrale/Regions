@@ -58,7 +58,7 @@ export function fromRegistryJSON(jsonData, isDarkMode, idRef) {
                 params: mergedParams,
                 nodeId: nodeId, // Add nodeId to data for handle callbacks
                 isDarkMode,
-                onHandleEnter: (nid) => {}, // Will be updated by EditorImpl
+                onHandleEnter: () => {}, // Will be updated by EditorImpl
                 onHandleLeave: () => {},
             },
         };
