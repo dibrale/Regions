@@ -85,6 +85,22 @@ class Region(BaseRegion):
         logging.debug(f"{self.name}: Extracted reply: {str(reply)}")
         return reply
 
+    async def _get_from_llm(self, prompt: str) -> str:
+        raw_reply = ""
+        reply = ""
+        try:
+            raw_reply = await self.llm.text(prompt)
+            logging.debug(f"{self.name}: Got reply from LLM: {raw_reply}")
+            reply = await self._parse_thinking(raw_reply)
+
+        except Exception as e:
+            logging.warning(f"{self.name}: Processing failed. {e.args}")
+            logging.debug("Attempting to dump raw output...")
+            logging.debug(raw_reply)
+
+        finally:
+            return reply
+
     async def make_replies(self) -> bool:
         """
         Generate replies to all pending requests in _incoming_requests.
@@ -113,22 +129,15 @@ class Region(BaseRegion):
             source, question = request.popitem()
 
             prompt = self._make_prompt(question)
-            reply = None
-            raw_reply = ""
-            try:
-                raw_reply = await self.llm.text(prompt)
-                logging.debug(f"{self.name}: Got reply from LLM: {raw_reply}")
-                reply = await self._parse_thinking(raw_reply)
 
-            except Exception as e:
-                logging.warning(f"{self.name}: Processing failed. {e.args}")
-                logging.debug("Attempting to dump raw output...")
-                logging.debug(raw_reply)
-                faultless = False
-                success.append(False)
+            reply = await self._get_from_llm(prompt)
+
             if reply:
                 self._reply(source, reply)
                 success.append(True)
+            else:
+                faultless = False
+                success.append(False)
 
         logging.info(f"{self.name}: Replied to {sum(success)}/{initial_length} queries.")
         if sum(success) != initial_length:
@@ -160,16 +169,20 @@ class Region(BaseRegion):
                 '[{"source": source1, "question": question1}, {"source": source2, "question": question2}, ... ]\n\n'
         )
         prompt = self._make_prompt(user_prompt)
+
+        reply = await self._get_from_llm(prompt)
+
+        if not reply:
+            logging.warning(f"{self.name}: No questions generated.")
+            return False
+
         try:
-            raw_reply = await self.llm.text(prompt)
-            logging.debug(f"{self.name}: Got reply from LLM: {raw_reply}")
-            reply = await self._parse_thinking(raw_reply)
             questions = json.loads(re.findall(r"\[\s*?\n*?\s*?\{.*?}\s*?\n*?\s*?]", reply, flags=re.DOTALL)[-1])
             logging.debug(f"{self.name}: Extracted questions: {questions}")
         except Exception as e:
             logging.warning(f"{self.name}: Processing failed. {e.args}")
-            logging.debug("Attempting to dump raw output...")
-            logging.debug(raw_reply)
+            logging.debug("Attempting to dump output...")
+            logging.debug(reply)
             logging.warning(f"{self.name}: No questions generated.")
             faultless = False
             return faultless
@@ -186,3 +199,34 @@ class Region(BaseRegion):
             logging.warning(f"{self.name}: No questions generated.")
             return True
         return faultless
+
+    async def summarize_replies(self) -> bool:
+        faultless = True
+        original_length = self._incoming_replies.qsize()
+        if self._incoming_replies.empty():
+            logging.info(f"{self.name}: No replies to summarize.")
+            return True
+        self._run_inbox()
+        self._consolidate_replies()
+        replies = {}
+        prompt = 'Summarize the following replies into a single coherent paragraph without losing information:\n\n'
+        if not self._incoming_replies.empty():
+            while not self._incoming_replies.empty():
+                reply = ''
+                source, content = self._incoming_replies.get_nowait()
+                prompt += content
+                reply = await self._get_from_llm(prompt)
+                if not reply:
+                    logging.warning(f"{self.name}: Summarizing failed for replies from '{source}'. Restoring original content.")
+                    faultless = False
+                replies.update({source: reply})
+            for reply in replies:
+                self._incoming_replies.put_nowait(reply)
+            logging.info(
+                f"{self.name}: Summarized {original_length} replies to a total of {self._incoming_replies.qsize()} items.")
+            return faultless
+        else:
+            try:
+                raise AssertionError("Incoming reply queue empty after consolidation, but it should not be. Please bring this to the attention of the developer and proceed with caution.")
+            finally:
+                return False
