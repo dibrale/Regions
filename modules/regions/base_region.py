@@ -104,6 +104,17 @@ class BaseRegion:
                 raise AssertionError(f"{self.name}: Unknown message role: {message['role']}")
 
     def _keep_last_reply_per_source(self) -> None:
+        """
+                Prune incoming replies to retain only the most recent reply per source.
+
+                This method processes all replies in the `_incoming_replies` queue, keeping only the last reply received from each unique source.
+                The queue is then repopulated with the pruned replies.
+
+                Note:
+                    - Operates on the entire `_incoming_replies` queue
+                    - Overwrites previous replies from the same source with the latest one
+                    - Logs the number of pruned replies
+        """
         if self._incoming_requests.empty():
             logging.info(f"{self.name}: No incoming replies to prune.")
             return
@@ -118,6 +129,17 @@ class BaseRegion:
             f"{self.name}: Pruned {original_length - self._incoming_replies.qsize()} replies. {self._incoming_replies.qsize()} replies remaining.")
 
     def _consolidate_replies(self) -> None:
+        """
+                Consolidate multiple replies from the same source into a single reply.
+
+                For each source, combines all replies into one message by concatenating their content with newline separators.
+                The queue is then repopulated with the consolidated replies.
+
+                Note:
+                    - Processes all replies in `_incoming_replies` queue
+                    - Maintains source-specific reply grouping
+                    - Logs the consolidation statistics
+        """
         if self._incoming_requests.empty():
             logging.info(f"{self.name}: No incoming replies to consolidate.")
             return
@@ -136,6 +158,15 @@ class BaseRegion:
             f"{self.name}: Consolidated {original_length} replies into {self._incoming_replies.qsize()} replies total.")
 
     def clear_replies(self) -> None:
+        """
+        Clear all replies from the incoming replies queue.
+
+        Empties the `_incoming_replies` queue by removing all replies.
+
+        Note:
+            - Does not affect request queues
+            - Logs confirmation if queue was empty
+        """
         if self._incoming_requests.empty():
             logging.info(f"{self.name}: Reply queue already empty.")
             return
