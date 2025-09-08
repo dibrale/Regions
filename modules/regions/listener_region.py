@@ -140,7 +140,10 @@ class ListenerRegion(BaseRegion):
 
         # Signal output process to stop
         if self.p and self.p.is_alive():
-            self.out_q.put(None)  # Sentinel value
+            try:
+                self.out_q.put(None)  # Sentinel value
+            except ValueError:
+                pass
 
         # Output process responsible for its own cleanup - should not necessarily shut down when listener does
         '''
@@ -152,8 +155,6 @@ class ListenerRegion(BaseRegion):
             self.p.close()
             self.p = None
         '''
-        # Close queue
-        self.out_q.close()
 
         """Cleanly stops forwarding and terminates output process."""
         # Cancel forwarding task
@@ -165,7 +166,8 @@ class ListenerRegion(BaseRegion):
                 pass
             self.forward_task = None
 
-
+        # Close queue
+        self.out_q.close()
 
     def verify(self, orchestrator: Orchestrator) -> bool:
         """
