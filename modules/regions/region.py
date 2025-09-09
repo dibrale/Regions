@@ -264,10 +264,10 @@ class Region(BaseRegion):
         """
         faultless = True
         original_length = self._incoming_replies.qsize()
+        self._run_inbox()
         if self._incoming_replies.empty():
             logging.info(f"{self.name}: No replies to summarize.")
             return True
-        self._run_inbox()
         self._consolidate_replies()
         replies = {}
         prompt = 'Summarize the following replies into a single coherent paragraph without losing information:\n\n'
@@ -277,7 +277,11 @@ class Region(BaseRegion):
                 source = next(iter(item.keys()))
                 content = item[source]
                 prompt += content
-                reply = await self._get_from_llm(prompt)
+                try:
+                    reply = await self._get_from_llm(prompt)
+                except Exception as e:
+                    logging.warning(f"{self.name}: Processing failed. {e.args}")
+                    reply = ""
                 if not reply:
                     logging.warning(f"{self.name}: Summarizing failed for replies from '{source}'. Restoring original content.")
                     faultless = False
