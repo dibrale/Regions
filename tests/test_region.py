@@ -197,6 +197,147 @@ class TestRegion(unittest.TestCase):
         loop.run_until_complete(test_coroutine())
         loop.close()
 
+    async def test_parse_thinking_with_block(self):
+        """Test _parse_thinking correctly extracts content from thinking block"""
+        # Create a mock response with thinking block
+        raw_reply = "<think>Thinking trace here... until next line\n</think>\nActual reply content here"
+
+        # Call the method
+        result = await self.region._parse_thinking(raw_reply)
+
+        # Verify extraction
+        self.assertEqual(result, "Actual reply content here")
+        self.mock_llm.text.assert_not_called()  # No LLM interaction
+
+    async def test_parse_thinking_without_block(self):
+        """Test _parse_thinking returns raw reply when no thinking block exists"""
+        raw_reply = "Just a regular reply without delimiters"
+
+        result = await self.region._parse_thinking(raw_reply)
+
+        self.assertEqual(result, "Just a regular reply without delimiters")
+        self.mock_llm.text.assert_not_called()
+
+    async def test_parse_thinking_empty_input(self):
+        """Test _parse_thinking handles empty string input"""
+        result = await self.region._parse_thinking("")
+        self.assertEqual(result, "")
+
+    async def test_parse_thinking_malformed_block(self):
+        """Test _parse_thinking falls back to raw reply with malformed thinking block"""
+        # Missing closing delimiter
+        raw_reply = "<think>Incomplete thinking block"
+
+        result = await self.region._parse_thinking(raw_reply)
+
+        self.assertEqual(result, "<think>Incomplete thinking block")
+
+    async def test_get_from_llm_success(self):
+        """Test _get_from_llm successfully processes LLM response"""
+        # Mock LLM response with thinking block
+        self.mock_llm.text.return_value = "<think>Thinking...</think>\nProcessed reply"
+
+        prompt = "Test prompt"
+        result = await self.test_region._get_from_llm(prompt)
+
+        # Verify interaction
+        self.mock_llm.text.assert_awaited_once_with(prompt)
+        self.assertEqual(result, "Processed reply")
+
+    async def test_get_from_llm_failure(self):
+        """Test _get_from_llm handles LLM exceptions gracefully"""
+        # Mock LLM failure
+        self.mock_llm.text.side_effect = Exception("LLM service down")
+
+        result = await self.test_region._get_from_llm("Test prompt")
+
+        self.assertEqual(result, "")
+        self.mock_llm.text.assert_awaited_once()
+
+    async def test_get_from_llm_no_thinking_block(self):
+        """Test _get_from_llm processes raw reply without thinking block"""
+        self.mock_llm.text.return_value = "Direct reply without thinking block"
+
+        result = await self.test_region._get_from_llm("Test prompt")
+
+        self.assertEqual(result, "Direct reply without thinking block")
+
+    async def test_summarize_replies_success(self):
+        """Test summarize_replies successfully consolidates multiple replies"""
+        # Populate incoming replies
+        await self.test_region.inbox.put({
+            "source": "forecast_region",
+            "role": "reply",
+            "content": "The weather is sunny"
+        })
+        await self.test_region.inbox.put({
+            "source": "forecast_region",
+            "role": "reply",
+            "content": "Rain expected tomorrow"
+        })
+        with self.assertLogs(level='DEBUG') as cm:
+            self.test_region._run_inbox()
+
+        # Mock LLM summarization response
+            self.mock_llm.text.return_value = "The current weather is sunny with rain expected tomorrow"
+
+            result = await self.test_region.summarize_replies()
+
+        print("\n=== CAPLOG ===\n" + '\n'.join(cm.output) + "\n=== END CAPLOG ===")
+
+        self.assertTrue(result)
+        self.assertEqual(self.test_region._incoming_replies.qsize(), 1)
+        summarized = await self.test_region._incoming_replies.get()
+        self.assertEqual(summarized["forecast_region"], "The current weather is sunny with rain expected tomorrow")
+
+    async def test_summarize_replies_failure(self):
+        """Test summarize_replies handles LLM failures during summarization"""
+        # Populate incoming replies
+        await self.test_region.inbox.put({
+            "source": "weather_region",
+            "role": "reply",
+            "content": "The weather is sunny"
+        })
+        with self.assertLogs(level='DEBUG') as cm:
+            self.test_region._run_inbox()
+
+            # Mock LLM failure
+            self.mock_llm.text.side_effect = Exception("Summarization failed")
+
+            result = await self.test_region.summarize_replies()
+
+        print("\n=== CAPLOG ===\n" + '\n'.join(cm.output) + "\n=== END CAPLOG ===")
+
+        self.assertFalse(result)
+        # Original content should be restored
+        self.assertEqual(self.test_region._incoming_replies.qsize(), 1)
+
+    async def test_summarize_replies_empty_queue(self):
+        """Test summarize_replies returns True immediately with empty queue"""
+        result = await self.region.summarize_replies()
+        self.assertTrue(result)
+        self.assertTrue(self.region._incoming_replies.empty())
+
+
+    async def test_summarize_replies_single_reply(self):
+        """Test summarize_replies handles single reply case"""
+        await self.test_region.inbox.put({
+            "source": "weather_region",
+            "role": "reply",
+            "content": "The weather is sunny"
+        })
+        with self.assertLogs(level='DEBUG') as cm:
+            self.test_region._run_inbox()
+
+            self.mock_llm.text.return_value = "The weather is sunny"
+
+            result = await self.test_region.summarize_replies()
+
+        print("\n=== CAPLOG ===\n" + '\n'.join(cm.output) + "\n=== END CAPLOG ===")
+
+        self.assertTrue(result)
+        self.assertEqual(self.test_region._incoming_replies.qsize(), 1)
+
     def test_initialization_sync(self):
         self.run_async_test(self.test_initialization)
 
@@ -230,6 +371,38 @@ class TestRegion(unittest.TestCase):
     def test_make_questions_invalid_json_sync(self):
         self.run_async_test(self.test_make_questions_invalid_json)
 
+    def test_parse_thinking_sync(self):
+        self.run_async_test(self.test_parse_thinking_with_block)
+
+    def test_parse_thinking_without_block_sync(self):
+        self.run_async_test(self.test_parse_thinking_without_block)
+
+    def test_parse_thinking_empty_input_sync(self):
+        self.run_async_test(self.test_parse_thinking_empty_input)
+
+    def test_parse_thinking_malformed_block_sync(self):
+        self.run_async_test(self.test_parse_thinking_malformed_block)
+
+    def test_get_from_llm_success_sync(self):
+        self.run_async_test(self.test_get_from_llm_success)
+
+    def test_get_from_llm_failure_sync(self):
+        self.run_async_test(self.test_get_from_llm_failure)
+
+    def test_get_from_llm_no_thinking_block_sync(self):
+        self.run_async_test(self.test_get_from_llm_no_thinking_block)
+
+    def test_summarize_replies_success_sync(self):
+        self.run_async_test(self.test_summarize_replies_success)
+
+    def test_summarize_replies_failure_sync(self):
+        self.run_async_test(self.test_summarize_replies_failure)
+
+    def test_summarize_replies_empty_queue_sync(self):
+        self.run_async_test(self.test_summarize_replies_empty_queue)
+
+    def test_summarize_replies_single_reply_sync(self):
+        self.run_async_test(self.test_summarize_replies_single_reply)
 
 if __name__ == '__main__':
     unittest.main()
