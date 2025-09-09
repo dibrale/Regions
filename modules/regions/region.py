@@ -283,7 +283,7 @@ class Region(BaseRegion):
                     faultless = False
                 replies.update({source: reply})
             for source in replies:
-                self._incoming_replies.put_nowait({source, replies[source]})
+                self._incoming_replies.put_nowait({source: replies[source]})
             logging.info(
                 f"{self.name}: Summarized {original_length} replies to a total of {self._incoming_replies.qsize()} items.")
             return faultless

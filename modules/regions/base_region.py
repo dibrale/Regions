@@ -124,7 +124,7 @@ class BaseRegion:
             replies.update(self._incoming_replies.get_nowait())
             self._incoming_replies.task_done()
         for source in replies:
-            self._incoming_replies.put_nowait({source, replies[source]})
+            self._incoming_replies.put_nowait({source: replies[source]})
         logging.info(
             f"{self.name}: Pruned {original_length - self._incoming_replies.qsize()} replies. {self._incoming_replies.qsize()} replies remaining.")
 
@@ -155,7 +155,7 @@ class BaseRegion:
                 new_content = content
             replies.update({source: new_content})
         for source in replies:
-            self._incoming_replies.put_nowait({source, replies[source]})
+            self._incoming_replies.put_nowait({source: replies[source]})
         logging.info(
             f"{self.name}: Consolidated {original_length} replies into {self._incoming_replies.qsize()} replies total.")
 
