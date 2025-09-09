@@ -74,6 +74,26 @@ class Region(BaseRegion):
         return prompt
 
     async def _parse_thinking(self, raw_reply: str) -> str:
+        """
+            Extracts the thinking block from raw LLM replies using delimiter patterns.
+
+            Parses raw LLM responses to isolate the assistant's final reply by:
+            - Searching for content between '<think> ... </think>' delimiters (thinking block)
+            - Returning the cleaned reply if thinking block exists
+            - Falling back to raw reply (stripped) if no thinking block found
+
+            Args:
+                raw_reply (str): Raw response string from LLM, potentially containing
+                    thinking traces enclosed in '<think> ... </think>' delimiters
+
+            Returns:
+                str: Cleaned reply string with thinking block removed (if present),
+                    or stripped raw reply if no thinking block detected
+
+            Note:
+                - Logs debug messages about extraction status
+                - Returns stripped content to remove extraneous whitespace
+        """
         # Parse out model thinking
         # If there is no thinking block, pass the raw reply
         try:
@@ -86,6 +106,27 @@ class Region(BaseRegion):
         return reply
 
     async def _get_from_llm(self, prompt: str) -> str:
+        """
+        Sends prompt to LLM and processes raw response through thinking extraction.
+
+        Handles end-to-end LLM interaction by:
+        1. Generating raw reply via self.llm.text()
+        2. Parsing thinking blocks using _parse_thinking()
+        3. Managing exceptions and logging failures
+
+        Args:
+            prompt (str): Formatted prompt string ready for LLM processing
+
+        Returns:
+            str: Processed reply string from LLM (thinking block extracted),
+                or empty string if errors occur during processing
+
+        Note:
+            - Logs raw LLM responses at debug level
+            - Catches exceptions during LLM processing and logs warnings
+            - Returns empty string on failure but preserves raw output in logs
+            - Always returns a string (never raises exceptions)
+        """
         raw_reply = ""
         reply = ""
         try:
@@ -201,6 +242,26 @@ class Region(BaseRegion):
         return faultless
 
     async def summarize_replies(self) -> bool:
+        """
+        Consolidates incoming replies into a single coherent knowledge summary.
+
+        Generates concise summaries of accumulated replies by:
+        - Aggregating all reply content into a single LLM prompt
+        - Requesting summarization via _get_from_llm()
+        - Replacing queue contents with summarized knowledge
+
+        Returns:
+            bool: True if summarization succeeded for all replies,
+                  False if any LLM processing failed
+
+        Note:
+            - Processes _incoming_replies queue containing (source, content) tuples
+            - Constructs prompt with instruction: 'Summarize... into single paragraph'
+            - Replaces original queue items with summarized results
+            - Logs success/failure metrics (e.g., 'Summarized X replies to Y items')
+            - Returns True immediately if queue is empty
+            - Maintains knowledge coherence by preserving summarized information
+        """
         faultless = True
         original_length = self._incoming_replies.qsize()
         if self._incoming_replies.empty():
@@ -212,16 +273,17 @@ class Region(BaseRegion):
         prompt = 'Summarize the following replies into a single coherent paragraph without losing information:\n\n'
         if not self._incoming_replies.empty():
             while not self._incoming_replies.empty():
-                reply = ''
-                source, content = self._incoming_replies.get_nowait()
+                item = self._incoming_replies.get_nowait()
+                source = next(iter(item.keys()))
+                content = item[source]
                 prompt += content
                 reply = await self._get_from_llm(prompt)
                 if not reply:
                     logging.warning(f"{self.name}: Summarizing failed for replies from '{source}'. Restoring original content.")
                     faultless = False
                 replies.update({source: reply})
-            for reply in replies:
-                self._incoming_replies.put_nowait(reply)
+            for source in replies:
+                self._incoming_replies.put_nowait({source, replies[source]})
             logging.info(
                 f"{self.name}: Summarized {original_length} replies to a total of {self._incoming_replies.qsize()} items.")
             return faultless

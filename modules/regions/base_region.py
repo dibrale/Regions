@@ -115,7 +115,7 @@ class BaseRegion:
                     - Overwrites previous replies from the same source with the latest one
                     - Logs the number of pruned replies
         """
-        if self._incoming_requests.empty():
+        if self._incoming_replies.empty():
             logging.info(f"{self.name}: No incoming replies to prune.")
             return
         replies = {}
@@ -123,8 +123,8 @@ class BaseRegion:
         while not self._incoming_replies.empty():
             replies.update(self._incoming_replies.get_nowait())
             self._incoming_replies.task_done()
-        for reply in replies:
-            self._incoming_replies.put_nowait(reply)
+        for source in replies:
+            self._incoming_replies.put_nowait({source, replies[source]})
         logging.info(
             f"{self.name}: Pruned {original_length - self._incoming_replies.qsize()} replies. {self._incoming_replies.qsize()} replies remaining.")
 
@@ -140,20 +140,22 @@ class BaseRegion:
                     - Maintains source-specific reply grouping
                     - Logs the consolidation statistics
         """
-        if self._incoming_requests.empty():
+        if self._incoming_replies.empty():
             logging.info(f"{self.name}: No incoming replies to consolidate.")
             return
         replies = {}
         original_length = self._incoming_replies.qsize()
         while not self._incoming_replies.empty():
-            source, content = self._incoming_replies.get_nowait()
+            item = self._incoming_replies.get_nowait()
+            source = next(iter(item.keys()))
+            content = item[source]
             if source in replies.keys():
                 new_content = replies[source] + '\n' + content
             else:
                 new_content = content
             replies.update({source: new_content})
-        for reply in replies:
-            self._incoming_replies.put_nowait(reply)
+        for source in replies:
+            self._incoming_replies.put_nowait({source, replies[source]})
         logging.info(
             f"{self.name}: Consolidated {original_length} replies into {self._incoming_replies.qsize()} replies total.")
 
@@ -167,7 +169,7 @@ class BaseRegion:
             - Does not affect request queues
             - Logs confirmation if queue was empty
         """
-        if self._incoming_requests.empty():
+        if self._incoming_replies.empty():
             logging.info(f"{self.name}: Reply queue already empty.")
             return
         while not self._incoming_replies.empty():
