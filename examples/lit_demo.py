@@ -59,8 +59,6 @@ async def main():
     llm_4b_a = LLMLink('192.168.1.232:5001', name='Qwen3_4B-A', params=params['llm_params'])
     llm_4b_b = LLMLink('192.168.1.232:5002', name='Qwen3_4B-B', params=params['llm_params'])
     llm_30b_a3b = LLMLink('192.168.1.232:5000', name='Qwen3_30B-A3B', params=params['llm_params'])
-
-    # Testing with the higher-end Qwen3 was not successful, with the system erroring silently - clean and seemingly unprovoked cancellation of LLM task mid-reply. May be due to hardware limitations. Does not appear to be due to connection timeouts. May need further investigation.
     llm_235b_a22b = LLMLink('192.168.1.232:8080',name='Qwen3_235B-A22B', params=params['llm_params'])
 
     # === END SERVER CONFIGURATION ===
@@ -86,7 +84,7 @@ async def main():
     o.load("lit_demo_executions.json")
 
     # Assign RAGs and LLMs to regions
-    r.regions[r.names.index('Commentate')].llm = llm_30b_a3b
+    r.regions[r.names.index('Commentate')].llm = llm_235b_a22b
     r.regions[r.names.index('Symbolism')].llm = llm_4b_a
     r.regions[r.names.index('Imagery')].llm = llm_4b_b
     r.regions[r.names.index('ArtistLore')].llm = llm_30b_a3b

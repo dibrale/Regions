@@ -5,6 +5,8 @@ import aiohttp
 import logging
 import pathlib
 
+from aiohttp import ClientTimeout
+
 from modules.utils import assure_string, parse_host_port
 
 
@@ -29,7 +31,8 @@ class LLMLink:
                  params: dict = None,
                  headers: dict = None,
                  name: str = None,
-                 ssl: bool = False):
+                 ssl: bool = False,
+                 timeout: float = 1800):
         """Initialize the LLMLink client with optional configuration.
 
         Args:
@@ -43,17 +46,21 @@ class LLMLink:
                 }
             headers (dict, optional): HTTP headers. Defaults to {"Content-Type": "application/json"}.
             ssl (bool, optional): Whether to enable SSL verification. Defaults to False.
+            timeout (float, optional): Request timeout in seconds. Defaults to 1800.
 
         Note:
             - If no url is provided, defaults to local LLM server (for development)
             - All parameters use safe defaults to ensure immediate usability
             - SSL verification is disabled by default (use only for trusted local networks)
+            - The timeout value applies only to generation requests - text() and chat()
+            - Remaining requests use default timeout of 300 seconds
         """
         self.url = url
         self.params = params
         self.headers = headers
         self.name = name
         self.ssl = ssl
+        self.timeout = ClientTimeout(total=timeout)
 
         # Internal attribute to make sure init is done when any of the attributes are set
         self._initialized = True
@@ -199,7 +206,7 @@ class LLMLink:
         data = {"messages": message, **self.params}
 
         # Send request using aiohttp
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(timeout=self.timeout) as session:
             async with session.post(
                     self._chat_url,
                     headers=self.headers,
@@ -234,7 +241,7 @@ class LLMLink:
         """
         data = {"prompt": prompt, "max_tokens": max_tokens, **self.params}
 
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(timeout=self.timeout) as session:
             async with session.post(
                     self._text_url,
                     headers=self.headers,
