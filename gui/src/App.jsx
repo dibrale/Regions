@@ -23,6 +23,9 @@ import { nodeTypes } from "@/modules/region_node.jsx"
 import { toRegistryJSON, fromRegistryJSON } from "@/modules/registry_json.jsx";
 import { MethodList } from "@/modules/method_list.jsx";
 
+// Note: Fast refresh linter warnings are currently present, and may be fixed with future refactoring.
+// They are expected with the current configuration, and do not cause any problems
+
 // FIXED: ParamEditor component extracted outside to prevent recreation on every render
 function ParamEditor({
     selectedNode,
@@ -490,7 +493,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                 return targetName && Object.prototype.hasOwnProperty.call(connectionsObj || {}, targetName);
             });
         });
-    },);
+    },[setEdges, nodesRef]);
 
     // --- New Import Functionality ---
     const importRegions = useCallback((event) => {
