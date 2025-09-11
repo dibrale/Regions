@@ -224,4 +224,4 @@ python .\demo_with_infrastructure.py
 
 
 ## Contributing
-Issues and PRs are welcome! I've only been able to test the components of this framework on a limited number of machines. Any bug reports and feedback - both positive and negative - are heartily appreciated. If you are having difficulty running the framework, please let me know and I will do my best to help you. Consider running the test suite before submitting changes.
+Issues and PRs are welcome! I've only been able to test the components of this framework on a limited number of machines. Any bug reports and feedback - both positive and negative - are heartily appreciated. If you are having difficulty running the framework, please let me know and I will do my best to help you. Consider running the test suite before submitting changes, and adding unit tests for any major functionality you wish to include.
