@@ -577,10 +577,13 @@ class RegionRegistry:
                     warnings.append(f"No LLM given for region '{region.name}' - will set default on build")
             if region.connections:
                 for connection in region.connections.keys():
+                    if region.type == 'ListenerRegion':
+                        issues.append("Connection to '{connection}' specified for ListenerRegion '{region.name}', but ListenerRegion instances do not support outgoing connections")
                     if not connection in self.names:
                         issues.append(f"Connection to '{connection}' specified for '{region.name}', but no such region in name list")
             else:
-                warnings.append(f"No outgoing connections specified from region '{region.name}'")
+                if region.type != 'ListenerRegion':
+                    logging.info(f"No outgoing connections specified from region '{region.name}'")
 
         if issues:
             logging.error(f"Verification failed: {len(issues)} issues")
