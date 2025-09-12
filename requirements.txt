@@ -1,4 +1,4 @@
+networkx~=3.2
 pytest~=8.4.2
-networkx~=3.1
 aiohttp~=3.12.15
 attrs~=25.3.0
