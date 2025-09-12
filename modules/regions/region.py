@@ -263,8 +263,8 @@ class Region(BaseRegion):
             - Maintains knowledge coherence by preserving summarized information
         """
         faultless = True
-        original_length = self._incoming_replies.qsize()
         self._run_inbox()
+        original_length = self._incoming_replies.qsize()
         if self._incoming_replies.empty():
             logging.info(f"{self.name}: No replies to summarize.")
             return True
