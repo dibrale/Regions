@@ -12,6 +12,7 @@ export const REGION_CATALOG = {
             make_replies: { doc: "Generate replies to all pending requests in _incoming_requests." },
             summarize_replies: { doc: "Summarize received replies into a single message per sender." },
             clear_replies: { doc: "Clear all stored replies." },
+            keep_last_reply_per_source: { doc: "Keep only the last reply per sender in _incoming_replies." },
         },
     },
     RAGRegion: {
@@ -27,6 +28,7 @@ export const REGION_CATALOG = {
             make_replies: { doc: "Generate structured replies to all pending requests using RAG retrieval." },
             make_updates: { doc: "Process incoming knowledge updates and consolidate similar fragments in the RAG database." },
             request_summaries: { doc: "Request knowledge summaries from all connected regions." },
+            keep_last_reply_per_source: { doc: "Keep only the last reply per sender in _incoming_replies." },
         },
     },
     ListenerRegion: {
@@ -48,6 +50,7 @@ export const REGION_CATALOG = {
         }),
         methods: {
             broadcast: { doc: "Send collected messages to all connected regions." },
+            keep_last_reply_per_source: { doc: "Keep only the last reply per sender in _incoming_replies." },
         },
     },
 };

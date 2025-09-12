@@ -23,7 +23,7 @@ class TestBaseRegion:
         region._incoming_replies.put_nowait({"source2": "reply3"})
 
         # Test the method
-        region._keep_last_reply_per_source()
+        region.keep_last_reply_per_source()
 
         # Verify only the last reply per source remains
         assert region._incoming_replies.qsize() == 2
@@ -66,7 +66,7 @@ class TestBaseRegion:
 
     async def test_keep_last_no_replies(self, region, caplog):
         # Test with empty queue
-        region._keep_last_reply_per_source()
+        region.keep_last_reply_per_source()
         assert "No incoming replies to prune" in caplog.text
 
     async def test_consolidate_no_replies(self, region, caplog):
@@ -87,7 +87,7 @@ class TestBaseRegion:
         region._incoming_replies.put_nowait({"source2": "reply4"})
 
         # Test the method
-        region._keep_last_reply_per_source()
+        region.keep_last_reply_per_source()
 
         # Verify only the last reply per source remains
         assert region._incoming_replies.qsize() == 2

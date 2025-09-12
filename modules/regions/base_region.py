@@ -103,7 +103,7 @@ class BaseRegion:
             else:
                 raise AssertionError(f"{self.name}: Unknown message role: {message['role']}")
 
-    def _keep_last_reply_per_source(self) -> None:
+    def keep_last_reply_per_source(self) -> None:
         """
                 Prune incoming replies to retain only the most recent reply per source.
 
