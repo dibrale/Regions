@@ -1169,6 +1169,77 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                             </Button>
                             <Button
                                 size="sm"
+                                onClick={() => {
+                                    // === Below code is overabundantly commented for my own future learning ===
+
+                                    // Create copies of the state arrays
+                                    const newLayerConfig = [...layerConfig];
+                                    const newExecutionConfig = [...executionConfig];
+                                    const newExecutionOrder = [...executionOrder];
+                                    const newChainColors = [...chainColors];
+
+                                    // Insert new empty elements at the selectedLayer index using splice
+                                    newLayerConfig.splice(selectedLayer, 0, {}); // Insert empty object at selectedLayer
+                                    newExecutionConfig.splice(selectedLayer, 0, []); // Insert empty array at selectedLayer
+                                    // For executionOrder, we insert the new layer's index (selectedLayer).
+                                    // The indices of layers that come after it will effectively increase by 1.
+                                    newExecutionOrder.splice(selectedLayer, 0, selectedLayer);
+
+                                    // Adjust executionOrder entries:
+                                    // Any index >= selectedLayer should be incremented by 1
+                                    // because a new layer was inserted before them.
+                                    const adjustedExecutionOrder = newExecutionOrder.map(index => index >= selectedLayer ? index + 1 : index);
+                                    // The newly inserted layer itself should have its correct index (selectedLayer)
+                                    // which splice already handled. The map above correctly adjusts the *original* indices.
+
+                                    // Actually, the splice for executionOrder already puts `selectedLayer` in the right place.
+                                    // We just need to increment any original index that was >= selectedLayer.
+                                    // Let's re-calculate adjustedExecutionOrder correctly:
+                                    const adjustedExecutionOrderFinal = newExecutionOrder.map((index, i) => {
+                                         // The value at index `selectedLayer` is the new one, keep it as is (selectedLayer).
+                                         // All other original indices >= selectedLayer need to be incremented.
+                                         // However, splice modifies the array in place. The map runs on the *new* array.
+                                         // We need to adjust based on the *original* values relative to selectedLayer.
+                                         // It's simpler: iterate original executionOrder and adjust, then insert.
+                                         // Or, simpler logic for the map on the spliced array:
+                                         if (i === selectedLayer) {
+                                             // This is the newly inserted slot, its value should be selectedLayer.
+                                             // Splice already set this.
+                                             return index; // Which is selectedLayer
+                                         } else {
+                                             // This is a slot that was shifted. Its original value determines the adjustment.
+                                             // If the original value (before splice) was >= selectedLayer, it needs +1.
+                                             // The original value at this new index `i` was at index `i` if i < selectedLayer, or `i-1` if i > selectedLayer.
+                                             // This is getting complex. Better to adjust *before* splicing the executionOrder.
+
+                                             // Let's refactor this part entirely for clarity.
+                                         }
+                                    });
+                                    // --- Refactored and Corrected Logic ---
+                                    // 1. Adjust existing executionOrder values first
+                                    const adjustedExistingExecutionOrder = executionOrder.map(index => index >= selectedLayer ? index + 1 : index);
+                                    // 2. Then insert the new layer's index at the correct position
+                                    const finalExecutionOrder = [...adjustedExistingExecutionOrder];
+                                    finalExecutionOrder.splice(selectedLayer, 0, selectedLayer);
+
+                                    newChainColors.splice(selectedLayer, 0, {}); // Insert empty object at selectedLayer
+
+                                    // Update state with the new arrays
+                                    setLayerConfig(newLayerConfig);
+                                    setExecutionConfig(newExecutionConfig);
+                                    setExecutionOrder(finalExecutionOrder); // Use the corrected order
+                                    setChainColors(newChainColors);
+                                    // Optionally, keep the selectedLayer index the same or adjust if needed.
+                                    // Staying on the newly inserted layer is often expected.
+                                    // setSelectedLayer(selectedLayer); // Not strictly necessary as state update is synchronous here,
+                                                                      // but good for explicitness if logic changes.
+                                }}
+                                className="gap-1"
+                            >
+                                <Plus className="w-3 h-3" /> Insert Layer
+                            </Button>
+                            <Button
+                                size="sm"
                                 variant="destructive"
                                 disabled={layerConfig.length <= 1}
                                 onClick={() => {
