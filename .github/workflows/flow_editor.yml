@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           cache-dependency-path: gui/package-lock.json
-          node-version: lts/*
+          node-version: 20
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
