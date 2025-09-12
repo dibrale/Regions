@@ -128,7 +128,7 @@ def verify(
             logging.error(f"CC region '{cc_region}' is not defined in the registry name list")
             valid = False
         if cc_region not in orchestrator_regions:
-            logging.error(f"CC region '{cc_region}' is not included in the execution configuration.")
+            logging.warning(f"CC region '{cc_region}' is not included in the execution configuration.")
         else:
             cc_exists = True
             try:
