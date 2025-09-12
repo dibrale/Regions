@@ -77,7 +77,13 @@ class ListenerRegion(BaseRegion):
         raise NotImplementedError("ListenerRegion does not support sending replies.")
 
     def _run_inbox(self):
-        raise NotImplementedError("ListenerRegion does not need to sort messages.")
+        raise NotImplementedError("ListenerRegion does not sort messages.")
+
+    def keep_last_reply_per_source(self):
+        raise NotImplementedError("ListenerRegion does not prune replies.")
+
+    def _consolidate_replies(self) -> None:
+        raise NotImplementedError("ListenerRegion does not consolidate replies.")
 
     async def start(self) -> None:
         """
