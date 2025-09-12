@@ -1,3 +1,4 @@
+import json
 import pathlib
 from functools import partial
 import inspect
@@ -592,7 +593,6 @@ class RegionRegistry:
             for warning in warnings:
                 logging.warning(warning)
         return len(issues), len(warnings)
-
 
     def build_regions(self, overwrite: bool = False, verify = True) -> bool:
         """Instantiate live region objects from registry configurations.

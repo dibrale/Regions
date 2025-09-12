@@ -39,4 +39,15 @@ export const REGION_CATALOG = {
             stop: { doc: "Cleanly stops forwarding and terminates output process." },
         },
     },
+    BroadcastRegion: {
+        label: "BroadcastRegion",
+        defaults: (i) => ({
+            name: `Broadcast_${i}`,
+            task: "Forward all incoming messages to connected regions",
+            connections: {},
+        }),
+        methods: {
+            broadcast: { doc: "Send collected messages to all connected regions." },
+        },
+    },
 };

@@ -1,12 +1,14 @@
 from regions.listener_region import ListenerRegion
 from regions.rag_region import RAGRegion
-from regions.region import *
+from regions.region import Region
+from regions.broadcast_region import BroadcastRegion
 from tests.mock_regions import *
 
 region_dictionary = [
     {"name": "Region", "class": Region},
     {"name": "RAGRegion", "class": RAGRegion},
     {"name": "ListenerRegion", "class": ListenerRegion},
+    {"name": "BroadcastRegion", "class": BroadcastRegion},
     {"name": "MockRegion", "class": MockRegion},
     {"name": "MockRAGRegion", "class": MockRAGRegion},
     {"name": "MockListenerRegion", "class": MockListenerRegion}
