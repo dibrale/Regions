@@ -700,6 +700,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                 // --- Clear Selection ---
                 setSelectedNodeId(null);
                 setSelectedEdgeIds([]);
+                idRef.current = importedNodes.length
 
             } catch (error) {
                 console.error("Error importing full state:", error);
