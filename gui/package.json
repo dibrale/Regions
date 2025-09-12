@@ -57,7 +57,7 @@
     "recharts": "^2.15.3",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss": "^4.1.7",
+    "tailwindcss": "^4.1.13",
     "vaul": "^1.1.2",
     "zod": "^4.1.8"
   },
