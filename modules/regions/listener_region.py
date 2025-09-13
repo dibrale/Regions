@@ -95,11 +95,11 @@ class ListenerRegion(BaseRegion):
         if self.out_process:
             self.p = mp.Process(target=self.out_process, args=(self.out_q,))
         else:
-            self.p = mp.Process(target=self.start_gui)
+            self.p = mp.Process(target=self._start_gui)
         self.p.start()  # Start mp process
         self.forward_task = asyncio.create_task(self.forward())
 
-    def start_gui(self):
+    def _start_gui(self):
         gui = ListenerGUI(self.name)
 
         # Start output handler in a thread
