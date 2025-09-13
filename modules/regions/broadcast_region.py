@@ -5,7 +5,7 @@ from regions.base_region import BaseRegion
 
 class BroadcastRegion(BaseRegion):
     """
-    Specialized region that forwards all incoming messages to all connected regions without modification.
+    Specialized region that stores incoming messages, then forwards them to all connected regions without modification.
 
     This region acts as a message distributor that:
 
@@ -28,7 +28,7 @@ class BroadcastRegion(BaseRegion):
     Notes:
         - Message 'source' field remains unchanged during forwarding
         - Does not support standard region operations (sorting, outgoing messages)
-        - Intended for broadcast use cases only (e.g., event distribution)
+        - Intended for broadcast, caching and synchronized message injection use cases
         - Has an entirely synchronous implementation, since it operates quickly
     """
     def __init__(self, name: str, task: str | None = None, connections: dict[str, str] | None = None):
