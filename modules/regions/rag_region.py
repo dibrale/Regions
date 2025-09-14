@@ -152,7 +152,7 @@ class RAGRegion(BaseRegion):
 
                 for result in results:
                     if result.similarity_score == max_score and not updated:
-                        updated = self.rag.update_chunk(
+                        updated = await self.rag.update_chunk(
                             result.chunk.chunk_hash,
                             update,
                             result.chunk.metadata.actors
