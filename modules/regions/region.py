@@ -63,15 +63,27 @@ class Region(BaseRegion):
             - Uses delimiters to structure system/user/assistant sections
             - Includes thinking trace if provided
         """
-        raw_incoming_replies = []
         if not self._incoming_replies.empty():
             raw_incoming_replies = [*self._incoming_replies.__dict__['_queue']]
-
-        schema = {'focus': self.task, 'knowledge': [reply for reply in raw_incoming_replies if reply]}
-        prefix = f"{bom}system\nReply to the user, given your focus and knowledge per the given schema:"
-        prompt = f"{prefix}\n{schema}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
+            schema = {'focus': self.task, 'knowledge': [reply for reply in raw_incoming_replies if reply]}
+            prefix = f"{bom}system\nReply to the user, given your focus and knowledge per the given schema:"
+            prompt = f"{prefix}\n{schema}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
+        else:
+            prefix = f"{bom}system\nReply to the user."
+            prompt = f"{prefix}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
         if think: prompt += f"{think}\n"
         return prompt
+
+    def _requests_block(self) -> str:
+        if not self._incoming_requests.empty():
+            raw_incoming_requests = [*self._incoming_requests.__dict__['_queue']]
+        else:
+            return ''
+
+        schema = {'focus': self.task, 'query': [request for request in raw_incoming_requests if request]}
+        prefix = f"Below is a list of current incoming requests, which may contain useful information:\n\n"
+        block = f"{prefix}\n{schema}\n\n"
+        return block
 
     async def _parse_thinking(self, raw_reply: str) -> str:
         """
@@ -201,9 +213,9 @@ class Region(BaseRegion):
         """
         faultless = True
         self._run_inbox()
-        raw_reply = ""
 
         user_prompt = (
+                self._requests_block() +
                 "Below is a list of sources and their respective focus. Keeping your own focus in mind, ask each of them " +
                 "one or more questions to update your knowledge.\n\n" + str(self.connections) +
                 '\n\nReply with your questions in valid JSON format according to the template:\n' +
