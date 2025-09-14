@@ -107,6 +107,7 @@ class Addressograph:
             kwargs[self.injector_name] = injector
 
             # Call the function with the injector
-            return func(*args, **kwargs)
+            with injector:
+                return func(*args, **kwargs)
 
         return wrapper
