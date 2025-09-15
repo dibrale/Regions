@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Download, Moon, Plus, Sun, Trash2, Upload, X } from "lucide-react";
 import './App.css'
 import { REGION_CATALOG } from "@/modules/catalog.jsx"
-import { CHAIN_COLORS} from "@/modules/chain_colors.jsx";
+import { CHAIN_COLORS } from "@/modules/chain_colors.jsx";
 import { nodeTypes } from "@/modules/region_node.jsx"
 import { toRegistryJSON, fromRegistryJSON } from "@/modules/registry_json.jsx";
 import { MethodList } from "@/modules/method_list.jsx";
@@ -433,33 +433,177 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
     );
 
     const onNodeClick = useCallback((_, node) => setSelectedNodeId(node.id), []);
+
     const selectedNode = useMemo(() => nodes.find((n) => n.id === selectedNodeId) || null, [nodes, selectedNodeId]);
 
+    // --- Modified updateParam to handle name changes ---
     const updateParam = useCallback(
         (keyPath, value) => {
-            setNodes((ns) =>
-                ns.map((n) => {
+            setNodes((prevNodes) => {
+                // Find the node being updated
+                const nodeToUpdateIndex = prevNodes.findIndex((n) => n.id === selectedNodeId);
+                if (nodeToUpdateIndex === -1) return prevNodes;
+
+                const nodeToUpdate = prevNodes[nodeToUpdateIndex];
+                const oldParams = nodeToUpdate.data.params;
+                const oldName = oldParams.name;
+
+                // Update the parameter in the node
+                const updatedNodes = prevNodes.map((n) => {
                     if (n.id !== selectedNodeId) return n;
-                    const params = { ...n.data.params };
+                    const newParams = { ...n.data.params };
                     const parts = keyPath.split(".");
-                    let cur = params;
+                    let cur = newParams;
                     for (let i = 0; i < parts.length - 1; i++) {
                         const p = parts[i];
                         cur[p] = cur[p] ?? {};
                         cur = cur[p];
                     }
                     cur[parts[parts.length - 1]] = value;
-                    return { ...n, data: { ...n.data, params } };
-                })
-            );
+                    return { ...n, data: { ...n.data, params: newParams } };
+                });
+
+                // Check if the name parameter was changed
+                if (keyPath === 'name' && value !== oldName) {
+                    const newName = value;
+
+                    // 1. Update connections in other nodes that reference the old name
+                    const nodesWithUpdatedConnections = updatedNodes.map((n) => {
+                        // Skip the node whose name was just changed
+                        if (n.id === selectedNodeId) return n;
+
+                        if (n.data.params.connections && oldName in n.data.params.connections) {
+                            const newConnections = { ...n.data.params.connections };
+                            // Move the value from the old key to the new key
+                            newConnections[newName] = newConnections[oldName];
+                            delete newConnections[oldName];
+                            return {
+                                ...n,
+                                data: {
+                                    ...n.data,
+                                    params: {
+                                        ...n.data.params,
+                                        connections: newConnections,
+                                    },
+                                },
+                            };
+                        }
+                        return n;
+                    });
+
+                    // 2. Update executionConfig references
+                    setExecutionConfig((prevExecConfig) => {
+                        // Create a deep copy to avoid direct mutation
+                        const newExecConfig = JSON.parse(JSON.stringify(prevExecConfig));
+                        newExecConfig.forEach((layer, layerIndex) => {
+                            layer.forEach((entry, entryIndex) => {
+                                // entry[0] is region name, entry[1] is method name
+                                if (entry[0] === oldName) {
+                                    newExecConfig[layerIndex][entryIndex][0] = newName;
+                                }
+                            });
+                        });
+                        return newExecConfig;
+                    });
+
+                    // 3. Update layerConfig references
+                    setLayerConfig((prevLayerConfig) => {
+                        // Create a deep copy to avoid direct mutation
+                        const newLayerConfig = JSON.parse(JSON.stringify(prevLayerConfig));
+                        newLayerConfig.forEach((layer, layerIndex) => {
+                            Object.entries(layer).forEach(([chainName, regions]) => {
+                                const regionIndex = regions.indexOf(oldName);
+                                if (regionIndex !== -1) {
+                                    // Replace the old name with the new name in the chain
+                                    newLayerConfig[layerIndex][chainName][regionIndex] = newName;
+                                }
+                            });
+                        });
+                        return newLayerConfig;
+                    });
+
+                    // Return the nodes with updated connections
+                    return nodesWithUpdatedConnections;
+                }
+
+                // If name didn't change, return the updated nodes as usual
+                return updatedNodes;
+            });
         },
-        [setNodes, selectedNodeId]
+        [setNodes, selectedNodeId, setExecutionConfig, setLayerConfig] // Add setExecutionConfig and setLayerConfig to dependencies
     );
 
+
+    // --- Modified removeNode to handle reference cleanup ---
     const removeNode = useCallback(() => {
         if (!pendingDeleteId) return;
+
+        // Find the name of the node being deleted
+        const nodeToDelete = nodesRef.current.find(n => n.id === pendingDeleteId);
+        const deletedNodeName = nodeToDelete?.data?.params?.name;
+
+        if (!deletedNodeName) {
+            console.warn("Could not find name of node to delete:", pendingDeleteId);
+            return;
+        }
+
+        // 1. Remove the node and its edges (existing logic)
         setNodes((ns) => ns.filter((n) => n.id !== pendingDeleteId));
         setEdges((es) => es.filter((e) => e.source !== pendingDeleteId && e.target !== pendingDeleteId));
+
+        // 2. Clean up references in other nodes' connections
+        setNodes((prevNodes) => {
+            return prevNodes.map((node) => {
+                if (node.data.params.connections && deletedNodeName in node.data.params.connections) {
+                    const newConnections = { ...node.data.params.connections };
+                    delete newConnections[deletedNodeName];
+                    return {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            params: {
+                                ...node.data.params,
+                                connections: newConnections,
+                            },
+                        },
+                    };
+                }
+                return node;
+            });
+        });
+
+        // 3. Clean up references in executionConfig
+        setExecutionConfig((prevExecConfig) => {
+            // Create a deep copy to avoid direct mutation
+            const newExecConfig = JSON.parse(JSON.stringify(prevExecConfig));
+            newExecConfig.forEach((layer, layerIndex) => {
+                // Filter out entries where the region name matches the deleted node's name
+                newExecConfig[layerIndex] = layer.filter(([regionName, _]) => regionName !== deletedNodeName);
+            });
+            return newExecConfig;
+        });
+
+        // 4. Clean up references in layerConfig
+        setLayerConfig((prevLayerConfig) => {
+             // Create a deep copy to avoid direct mutation
+             const newLayerConfig = JSON.parse(JSON.stringify(prevLayerConfig));
+             newLayerConfig.forEach((layer, layerIndex) => {
+                 Object.entries(layer).forEach(([chainName, regions]) => {
+                     // Filter out the deleted node's name from the chain
+                     const newRegions = regions.filter(regionName => regionName !== deletedNodeName);
+                     // If the chain becomes empty, delete the chain
+                     if (newRegions.length === 0) {
+                         delete newLayerConfig[layerIndex][chainName];
+                     } else {
+                         // Otherwise, update the chain with the filtered list
+                         newLayerConfig[layerIndex][chainName] = newRegions;
+                     }
+                 });
+             });
+             return newLayerConfig;
+        });
+
+        // 5. Clear selection if necessary (existing logic)
         if (selectedNodeId === pendingDeleteId) setSelectedNodeId(null);
         setPendingDeleteId(null);
     }, [pendingDeleteId, selectedNodeId, setNodes, setEdges]);
