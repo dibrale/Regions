@@ -882,6 +882,20 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
         setConnectionsEditBuffer(JSON.stringify(starting || {}, null, 2));
     }, [selectedNodeId, selectedNode, edges, nodes, connectionsEditingNodeId]);
 
+    // Helper function to remove entries from executionConfig for a specific layer and a list of region names
+    const removeRegionsFromExecutionConfig = useCallback((layerIndex, regionNamesToRemove) => {
+        const regionSet = new Set(regionNamesToRemove);
+        setExecutionConfig((prevExecConfig) => {
+            const newExecConfig = [...prevExecConfig];
+            if (newExecConfig[layerIndex]) {
+                newExecConfig[layerIndex] = newExecConfig[layerIndex].filter(
+                    ([regionName, _]) => !regionSet.has(regionName)
+                );
+            }
+            return newExecConfig;
+        });
+    }, [setExecutionConfig]);
+
     const sidebar = (
         <div className={`h-full space-y-3 ${isDarkMode ? 'dark' : ''}`}>
             {/* Layer Selection Panel */}
@@ -940,6 +954,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                                 size="sm"
                                                 variant="ghost"
                                                 onClick={() => {
+                                                    const regionsInChain = layerConfig[selectedLayer][chainName] || [];
                                                     const newLayerConfig = [...layerConfig];
                                                     delete newLayerConfig[selectedLayer][chainName];
                                                     setLayerConfig(newLayerConfig);
@@ -949,6 +964,10 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                                         delete newChainColors[selectedLayer][chainName];
                                                     }
                                                     setChainColors(newChainColors);
+
+                                                    // --- Added: Remove regions in this chain from execution config ---
+                                                    removeRegionsFromExecutionConfig(selectedLayer, regionsInChain);
+                                                    // ---
                                                 }}
                                                 className="h-6 w-6 p-0"
                                             >
@@ -1389,6 +1408,10 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                 disabled={layerConfig.length <= 1}
                                 onClick={() => {
                                     if (confirm(`Delete Layer ${selectedLayer}? This will remove all chain assignments and method configurations for this layer.`)) {
+                                        // Collect all region names from all chains in the layer being deleted
+                                        const layerToDeleteConfig = layerConfig[selectedLayer] || {};
+                                        const allRegionsInLayer = Object.values(layerToDeleteConfig).flat();
+
                                         const newLayerConfig = layerConfig.filter((_, i) => i !== selectedLayer);
                                         const newExecutionConfig = executionConfig.filter((_, i) => i !== selectedLayer);
                                         const newExecutionOrder = executionOrder.filter(i => i !== selectedLayer).map(i => i > selectedLayer ? i - 1 : i);
@@ -1398,6 +1421,20 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                         setExecutionOrder(newExecutionOrder);
                                         setChainColors(newChainColors);
                                         setSelectedLayer(Math.min(selectedLayer, newLayerConfig.length - 1));
+
+                                        // --- Added: Remove *all* regions of the deleted layer from *all* remaining layers' execution configs ---
+                                        // This handles cases where regions from the deleted layer were called in other layers.
+                                        if (allRegionsInLayer.length > 0) {
+                                             const layersAffected = newLayerConfig.length; // Number of layers remaining after deletion
+                                             for (let i = 0; i < layersAffected; i++) {
+                                                 // The layer index `i` in the new arrays corresponds to the old index `i` if i < selectedLayer
+                                                 // or `i + 1` if i >= selectedLayer. However, we iterate the *new* structure.
+                                                 // The removeRegionsFromExecutionConfig hook uses the current state indices.
+                                                 // Since we've already updated the state, `i` correctly refers to the new layer index.
+                                                 removeRegionsFromExecutionConfig(i, allRegionsInLayer);
+                                             }
+                                        }
+                                        // ---
                                     }
                                 }}
                                 className="gap-1"
