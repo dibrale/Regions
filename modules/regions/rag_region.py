@@ -102,6 +102,7 @@ class RAGRegion(BaseRegion):
                     reply += '},\n'
                 if reply:
                     self._reply(source, reply)
+                    self.connections.update({source: 'Previously replied to'})
             else:
                 logging.info(f"{self.name}: No matches found.")
 

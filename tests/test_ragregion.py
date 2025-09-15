@@ -133,6 +133,7 @@ class TestRAGRegion(unittest.TestCase):
                 '{"memory_fragment": "World War II ended in 1945", "actors": [\"historian\", \"archivist\"]},\n'
         )
         self.assertEqual(message["content"], expected_reply)
+        self.assertIn("other_region", self.region.connections.keys())
 
     async def test_make_replies_no_matches(self):
         """Test reply generation with no matching fragments"""
