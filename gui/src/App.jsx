@@ -23,6 +23,7 @@ import {nodeTypes} from "@/modules/region_node.jsx"
 import {fromRegistryJSON, toRegistryJSON} from "@/modules/registry_json.jsx";
 import {MethodList} from "@/modules/method_list.jsx";
 import {ParamEditor} from "@/modules/param_editor.jsx";
+import {ChainColors} from "@/modules/chain_colors_helper.jsx";
 
 // Note: Fast refresh linter warnings are currently present, and may be fixed with future refactoring.
 // They are expected with the current configuration, and do not cause any problems
@@ -877,13 +878,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                         newLayerConfig[selectedLayer][chainName] = [];
                                         setLayerConfig(newLayerConfig);
                                         // Assign default color (cycle through colors based on chain count)
-                                        const newChainColors = [...chainColors];
-                                        if (!newChainColors[selectedLayer]) {
-                                            newChainColors[selectedLayer] = {};
-                                        }
-                                        const existingChainCount = Object.keys(newLayerConfig[selectedLayer]).length - 1;
-                                        newChainColors[selectedLayer][chainName] = existingChainCount % CHAIN_COLORS.length;
-                                        setChainColors(newChainColors);
+                                        ChainColors(chainColors, selectedLayer, newLayerConfig, chainName, setChainColors);
                                         e.target.value = '';
                                     }
                                 }
@@ -900,13 +895,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                         newLayerConfig[selectedLayer][chainName] = [];
                                         setLayerConfig(newLayerConfig);
                                         // Assign default color (cycle through colors based on chain count)
-                                        const newChainColors = [...chainColors];
-                                        if (!newChainColors[selectedLayer]) {
-                                            newChainColors[selectedLayer] = {};
-                                        }
-                                        const existingChainCount = Object.keys(newLayerConfig[selectedLayer]).length - 1;
-                                        newChainColors[selectedLayer][chainName] = existingChainCount % CHAIN_COLORS.length;
-                                        setChainColors(newChainColors);
+                                        ChainColors(chainColors, selectedLayer, newLayerConfig, chainName, setChainColors)
                                         input.value = '';
                                     }
                                 }
