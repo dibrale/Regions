@@ -1,7 +1,7 @@
 # Regions
 
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![CodeFactor](https://www.codefactor.io/repository/github/dibrale/regions/badge)](https://www.codefactor.io/repository/github/dibrale/regions) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11169/badge)](https://www.bestpractices.dev/projects/11169)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Pylint](https://github.com/dibrale/Regions/actions/workflows/pylint.yml/badge.svg)](https://github.com/dibrale/Regions/actions/workflows/pylint.yml) [![CodeFactor](https://www.codefactor.io/repository/github/dibrale/regions/badge)](https://www.codefactor.io/repository/github/dibrale/regions) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11169/badge)](https://www.bestpractices.dev/projects/11169)
 
 Modular framework for building message‑passing "regions" that collaborate through configurable execution plans. It includes:
 
