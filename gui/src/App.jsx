@@ -578,7 +578,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
             const newExecConfig = JSON.parse(JSON.stringify(prevExecConfig));
             newExecConfig.forEach((layer, layerIndex) => {
                 // Filter out entries where the region name matches the deleted node's name
-                newExecConfig[layerIndex] = layer.filter(([regionName, _]) => regionName !== deletedNodeName);
+                newExecConfig[layerIndex] = layer.filter(([regionName]) => regionName !== deletedNodeName);
             });
             return newExecConfig;
         });
@@ -889,7 +889,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
             const newExecConfig = [...prevExecConfig];
             if (newExecConfig[layerIndex]) {
                 newExecConfig[layerIndex] = newExecConfig[layerIndex].filter(
-                    ([regionName, _]) => !regionSet.has(regionName)
+                    ([regionName]) => !regionSet.has(regionName)
                 );
             }
             return newExecConfig;
@@ -1349,37 +1349,6 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                     // The indices of layers that come after it will effectively increase by 1.
                                     newExecutionOrder.splice(selectedLayer, 0, selectedLayer);
 
-                                    // Adjust executionOrder entries:
-                                    // Any index >= selectedLayer should be incremented by 1
-                                    // because a new layer was inserted before them.
-                                    const adjustedExecutionOrder = newExecutionOrder.map(index => index >= selectedLayer ? index + 1 : index);
-                                    // The newly inserted layer itself should have its correct index (selectedLayer)
-                                    // which splice already handled. The map above correctly adjusts the *original* indices.
-
-                                    // Actually, the splice for executionOrder already puts `selectedLayer` in the right place.
-                                    // We just need to increment any original index that was >= selectedLayer.
-                                    // Let's re-calculate adjustedExecutionOrder correctly:
-                                    const adjustedExecutionOrderFinal = newExecutionOrder.map((index, i) => {
-                                         // The value at index `selectedLayer` is the new one, keep it as is (selectedLayer).
-                                         // All other original indices >= selectedLayer need to be incremented.
-                                         // However, splice modifies the array in place. The map runs on the *new* array.
-                                         // We need to adjust based on the *original* values relative to selectedLayer.
-                                         // It's simpler: iterate original executionOrder and adjust, then insert.
-                                         // Or, simpler logic for the map on the spliced array:
-                                         if (i === selectedLayer) {
-                                             // This is the newly inserted slot, its value should be selectedLayer.
-                                             // Splice already set this.
-                                             return index; // Which is selectedLayer
-                                         } else {
-                                             // This is a slot that was shifted. Its original value determines the adjustment.
-                                             // If the original value (before splice) was >= selectedLayer, it needs +1.
-                                             // The original value at this new index `i` was at index `i` if i < selectedLayer, or `i-1` if i > selectedLayer.
-                                             // This is getting complex. Better to adjust *before* splicing the executionOrder.
-
-                                             // Let's refactor this part entirely for clarity.
-                                         }
-                                    });
-                                    // --- Refactored and Corrected Logic ---
                                     // 1. Adjust existing executionOrder values first
                                     const adjustedExistingExecutionOrder = executionOrder.map(index => index >= selectedLayer ? index + 1 : index);
                                     // 2. Then insert the new layer's index at the correct position
