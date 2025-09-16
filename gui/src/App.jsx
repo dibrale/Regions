@@ -846,19 +846,19 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                                 key={index}
                                                 className={`text-xs px-2 py-1 rounded ${isDarkMode ? colorConfig.dark : colorConfig.light} ${colorConfig.text}`}
                                             >
-                      {regionName}
-                                                <button
-                                                    onClick={() => {
-                                                        const newLayerConfig = [...layerConfig];
-                                                        newLayerConfig[selectedLayer][chainName] = regions.filter((_, i) => i !== index);
-                                                        // Don't delete the chain even if it becomes empty - preserve empty chains
-                                                        setLayerConfig(newLayerConfig);
-                                                    }}
-                                                    className="ml-1 hover:text-red-500"
-                                                >
-                        ×
-                      </button>
-                    </span>
+                                            {regionName}
+                                            <button
+                                                onClick={() => {
+                                                    const newLayerConfig = [...layerConfig];
+                                                    newLayerConfig[selectedLayer][chainName] = regions.filter((_, i) => i !== index);
+                                                    // Don't delete the chain even if it becomes empty - preserve empty chains
+                                                    setLayerConfig(newLayerConfig);
+                                                }}
+                                                className="ml-1 hover:text-red-500"
+                                            >
+                                              ×
+                                            </button>
+                                            </span>
                                         ))}
                                     </div>
                                 </div>
@@ -1056,10 +1056,10 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                                                         {currentMethods.map(([, method], index) => (
                                                             <div key={index}
                                                                  className="flex items-center justify-between">
-                                <span
-                                    className={`text-xs px-2 py-1 rounded ${isDarkMode ? 'bg-green-600 text-white' : 'bg-green-100 text-green-800'}`}>
-                                  {index + 1}. {method}()
-                                </span>
+                                                                <span
+                                                                    className={`text-xs px-2 py-1 rounded ${isDarkMode ? 'bg-green-600 text-white' : 'bg-green-100 text-green-800'}`}>
+                                                                  {index + 1}. {method}()
+                                                                </span>
                                                                 <Button
                                                                     size="sm"
                                                                     variant="ghost"
