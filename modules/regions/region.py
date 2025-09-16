@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import re
@@ -303,8 +302,5 @@ class Region(BaseRegion):
             logging.info(
                 f"{self.name}: Summarized {original_length} replies to a total of {self._incoming_replies.qsize()} items.")
             return faultless
-        else:
-            try:
-                raise AssertionError("Incoming reply queue empty after consolidation, but it should not be. Please bring this to the attention of the developer and proceed with caution.")
-            finally:
-                return False
+        raise AssertionError(
+            "Incoming reply queue empty after consolidation, but it should not be. Please bring this to the attention of the developer and proceed with caution.")
