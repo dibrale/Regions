@@ -11,18 +11,6 @@ def assure_string(txt) -> str:
         return ''
     return str(txt)
 
-# Handle strings and string lists equally, assuring a string as output
-def list_or_str_to_str(txt: str | list[str], join_string='\n', if_blank='') -> str:
-    if type(txt) is str:
-        out = txt.strip()
-    elif type(txt) is list[str]:
-        out = join_string.join(txt).strip()
-    elif not txt:
-        return if_blank
-    else:
-        out = str(txt)
-    return out
-
 # Parse a string for boolean output, returning None for inconsistent replies
 def bool_from_str(text_in: str, true_str='true', false_str='false', case_sensitive=False) -> bool | None:
 
@@ -46,17 +34,6 @@ def bool_from_str(text_in: str, true_str='true', false_str='false', case_sensiti
     else:
         return None
 
-# Extract question from an arbitrary string
-async def parse_question(input_string: str):
-    result = re.search(r"Question\s*\d*\s*:\s*\d*\s*(?P<QUESTION>(.*?)[.?])", input_string)
-
-    try:
-        question = result.group('QUESTION')
-        print(f'Question: {question}')
-        return question
-    except AttributeError:
-        return None
-
 #Get host and port from string
 def parse_host_port(s: str) -> tuple[str | Any, int] | tuple[str | Any, None] | None:
     pattern_with_port = r'([a-zA-Z0-9.-]+):(\d+)'
@@ -73,14 +50,6 @@ def parse_host_port(s: str) -> tuple[str | Any, int] | tuple[str | Any, None] | 
         return host, None
 
     return None
-
-# Verify that all tuple elements are truthy. Return list of falsy indices
-def falsy_elements(tuple_to_check: tuple) -> list[int]:
-    empty_indices = []
-    for index, element in enumerate(tuple_to_check):
-        if not element:
-            empty_indices.append(index)
-    return empty_indices
 
 # Initialize a list
 def set_list(list_input: list) -> list:

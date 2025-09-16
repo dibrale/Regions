@@ -415,9 +415,8 @@ class RegionRegistry:
             self.regions.append(region)
             logging.info(f"Region '{region.name}' registered")
             return True
-        else:
-            logging.warning(f"Region '{region.name}' already registered")
-            return False
+        logging.warning(f"Region '{region.name}' already registered")
+        return False
 
     def update(self, region: RegionEntry):
         """Update an existing region configuration in the registry.
@@ -439,11 +438,10 @@ class RegionRegistry:
         if region.name not in self.names:
             logging.warning(f"Region '{region.name}' not found in registry")
             return False
-        else:
-            self.deregister(region.name)
-            self.register(region)
-            logging.info(f"Region '{region.name}' updated")
-            return True
+        self.deregister(region.name)
+        self.register(region)
+        logging.info(f"Region '{region.name}' updated")
+        return True
 
     def deregister(self, name: str) -> bool:
         """Remove a region from the registry.
@@ -621,7 +619,7 @@ class RegionRegistry:
                 """
         # Verify before building
         if verify:
-            issues, warnings = self.verify()
+            issues = self.verify()
         else:
             issues = None
         if issues:
