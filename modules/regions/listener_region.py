@@ -70,10 +70,10 @@ class ListenerRegion(BaseRegion):
     def _post(self, destination: str, content: str, role: str) -> None:
         raise NotImplementedError("ListenerRegion does not support outgoing messages.")
 
-    def _ask(self, destination: str, message: str) -> None:
+    def _ask(self, destination: str, query_text: str) -> None:
         raise NotImplementedError("ListenerRegion does not support sending requests.")
 
-    def _reply(self, source: str, content: str) -> None:
+    def _reply(self, destination: str, reply_text: str) -> None:
         raise NotImplementedError("ListenerRegion does not support sending replies.")
 
     def _run_inbox(self):
@@ -138,6 +138,10 @@ class ListenerRegion(BaseRegion):
             raise  # Propagate cancellation
 
     async def stop(self) -> None:
+        """
+        Stops the background forwarding task and gracefully shuts down the output process.
+        :return:
+        """
 
         # Drain inbox one last time
         while not self.inbox.empty():
@@ -162,7 +166,7 @@ class ListenerRegion(BaseRegion):
             self.p = None
         '''
 
-        """Cleanly stops forwarding and terminates output process."""
+        # Cleanly stops forwarding and terminates output process.
         # Cancel forwarding task
         if self.forward_task:
             self.forward_task.cancel()
@@ -216,7 +220,7 @@ class ListenerRegion(BaseRegion):
             assert layers == expected_layers
         except AssertionError:
             unexpected_layers = list(set(layers) - set(expected_layers))
-            if not 0 in layers:
+            if 0 not in layers:
                 logging.error(f"{self.name}: Missing from layer 0 execution configuration")
                 faultless = False
             if not last_layer in layers:

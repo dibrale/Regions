@@ -1,9 +1,8 @@
-import asyncio
 import json
 import logging
 
-from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
 from regions.base_region import BaseRegion
+from modules.dynamic_rag import DynamicRAGSystem, RetrievalResult
 
 
 class RAGRegion(BaseRegion):

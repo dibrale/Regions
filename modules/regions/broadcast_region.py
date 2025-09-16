@@ -51,10 +51,10 @@ class BroadcastRegion(BaseRegion):
     def _post(self, destination: str, content: str, role: str) -> None:
         raise NotImplementedError("BroadcastRegion does not support outgoing messages")
 
-    def _ask(self, destination: str, message: str) -> None:
+    def _ask(self, destination: str, query_text: str) -> None:
         raise NotImplementedError("BroadcastRegion cannot generate requests")
 
-    def _reply(self, source: str, content: str) -> None:
+    def _reply(self, destination: str, reply_text: str) -> None:
         raise NotImplementedError("BroadcastRegion cannot generate replies")
 
     def _run_inbox(self):

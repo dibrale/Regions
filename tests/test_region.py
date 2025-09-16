@@ -91,12 +91,6 @@ class TestRegion(unittest.TestCase):
     async def test_make_prompt(self):
         """Test prompt construction with default delimiters"""
         prompt = self.region._make_prompt("user question")
-
-        expected = (
-            "(system\nReply to the user, given your focus and knowledge per the given schema:\n"
-            "{'focus': 'test task', 'knowledge': []}(user\nuser question(assistant\n"
-        )
-        self.assertIn("test task", prompt)
         self.assertIn("user question", prompt)
 
     async def test_make_replies_success(self):

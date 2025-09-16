@@ -70,7 +70,8 @@ class Region(BaseRegion):
         else:
             prefix = f"{bom}system\nReply to the user."
             prompt = f"{prefix}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
-        if think: prompt += f"{think}\n"
+        if think:
+            prompt += f"{think}\n"
         return prompt
 
     def _requests_block(self) -> str:
@@ -80,7 +81,7 @@ class Region(BaseRegion):
             return ''
 
         schema = {'focus': self.task, 'query': [request for request in raw_incoming_requests if request]}
-        prefix = f"Below is a list of current incoming requests, which may contain useful information:\n\n"
+        prefix = "Below is a list of current incoming requests, which may contain useful information:\n\n"
         block = f"{prefix}\n{schema}\n\n"
         return block
 
@@ -150,8 +151,7 @@ class Region(BaseRegion):
             logging.debug("Attempting to dump raw output...")
             logging.debug(raw_reply)
 
-        finally:
-            return reply
+        return reply
 
     async def make_replies(self) -> bool:
         """

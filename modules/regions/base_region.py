@@ -19,7 +19,7 @@ class BaseRegion:
         _incoming_replies (dict): Stores received replies (keyed by source)
     """
 
-    def __init__(self, name: str, task: str, connections: dict[str, str] | None = None, **kwargs):
+    def __init__(self, name: str, task: str, connections: dict[str, str] | None = None):
         """
         Initialize common communication infrastructure.
 
