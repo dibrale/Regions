@@ -327,29 +327,26 @@ class Postmaster:
                             if message['destination'] == self.reroute_destination:
                                 logging.warning(f"Reroute destination '{message['destination']}' unavailable. Dropping message.")
                                 continue
-
-                            else:
-                                message['destination'] = self.reroute_destination
-                                logging.info(f"Rerouting from '{message['source']}' to '{message['destination']}'")
-                                self.messages.put_nowait(message)
-                                continue
+                            message['destination'] = self.reroute_destination
+                            logging.info(f"Rerouting from '{message['source']}' to '{message['destination']}'")
+                            self.messages.put_nowait(message)
+                            continue
 
                         case 'return':
                             if message['source'] == self.rts_source:
                                 logging.warning(f"Could not return message to sender '{message['destination']}'. Message dropped.")
                                 continue
-                            else:
-                                original = message
-                                message['role'] = 'reply'       # Role is now reply, not request, to avoid feedback effects
-                                if self.rts_prepend:
-                                    message['content'] = \
-                                        f"Could not deliver message to '{message['destination']}'. Content: {original['content']}"
-                                message['destination'] = original['source']
-                                if self.rts_source:
-                                    message['source'] = self.rts_source
+                            original = message
+                            message['role'] = 'reply'       # Role is now reply, not request, to avoid feedback effects
+                            if self.rts_prepend:
+                                message['content'] = \
+                                    f"Could not deliver message to '{message['destination']}'. Content: {original['content']}"
+                            message['destination'] = original['source']
+                            if self.rts_source:
+                                message['source'] = self.rts_source
 
-                                self.messages.put_nowait(message)
-                                continue
+                            self.messages.put_nowait(message)
+                            continue
 
                         case 'error':
                             raise RuntimeError(f"Could not deliver message to '{message['destination']}'")

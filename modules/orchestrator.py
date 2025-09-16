@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import pathlib
@@ -241,9 +240,8 @@ class Orchestrator:
             self.execution_config[layer].append(new_tuple)
             logging.info(f"Method '{method}' added for region '{region}' in layer {layer}")
             return True
-        else:
-            logging.error(f"'{method}' for region '{region}' already in layer {layer}, not appending")
-            return False
+        logging.error(f"'{method}' for region '{region}' already in layer {layer}, not appending")
+        return False
 
     def replace_method(self, layer: int, region: str, method_to_replace: str, new_method: str) -> bool:
         """
@@ -272,26 +270,25 @@ class Orchestrator:
             logging.error(f"Region '{region}' not found in execution configuration for layer {layer}")
             return False
 
-        elif method_to_replace == new_method:
+        if method_to_replace == new_method:
             logging.error(f"Attempted to replace '{method_to_replace}' with itself")
             return False
 
-        elif method_to_replace not in original_methods:
+        if method_to_replace not in original_methods:
             logging.error(f"'{method_to_replace}' not found for region '{region}' in layer {layer}")
             return False
 
-        elif new_method in original_methods:
+        if new_method in original_methods:
             logging.error(f"'{new_method}' already exists for region '{region}' in layer {layer}")
             return False
 
-        else:
-            for idx, exec_tuple in enumerate(self.execution_config[layer]):
-                if exec_tuple == old_tuple:
-                    self.execution_config[layer][idx] = new_tuple
-                    logging.info(
-                        f"Replaced '{method_to_replace}' with '{new_method}' for region '{region}' in layer {layer}")
-                    return True
-            raise RuntimeError("Method should have been replaced but was not")
+        for idx, exec_tuple in enumerate(self.execution_config[layer]):
+            if exec_tuple == old_tuple:
+                self.execution_config[layer][idx] = new_tuple
+                logging.info(
+                    f"Replaced '{method_to_replace}' with '{new_method}' for region '{region}' in layer {layer}")
+                return True
+        raise RuntimeError("Method should have been replaced but was not")
 
     def region_profile(self, region: str) -> dict:
         """
@@ -400,9 +397,8 @@ class Orchestrator:
                 if layers_trimmed:
                     logging.info(f"Removed {layers_trimmed} empty layers from the layer configuration")
             return True
-        else:
-            logging.error(f"Region '{region}' not found in layer {layer_index}")
-            return False
+        logging.error(f"Region '{region}' not found in layer {layer_index}")
+        return False
 
     def save(self, output_path: str):
         """
@@ -445,8 +441,7 @@ class Orchestrator:
 
         if not 'layer_config' in data and not 'execution_config' in data and not 'execution_order' in data:
             logging.error(
-                f"None of layer_config, execution_config or execution_order keys found. Unable to load the data."
-            )
+                "None of layer_config, execution_config or execution_order keys found. Unable to load the data.")
             return False
         if 'layer_config' in data:
             self.layer_config = data['layer_config']
@@ -620,10 +615,3 @@ class Orchestrator:
         # Validate each entry for each layer in execution_config using check_execution_entry
 
     # SUGGEST: Add options to clean silent elements and invalid entries from configuration
-
-async def main():
-    pass
-    return
-
-if __name__ == "__main__":
-    asyncio.run(main())
