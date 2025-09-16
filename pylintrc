@@ -1,0 +1,2 @@
+[MASTER]
+init-hook='import sys; sys.path.append("."); sys.path.append("./modules"); sys.path.append("./tests"); sys.path.append("./examples"); ; sys.path.append("./modules/regions")'
