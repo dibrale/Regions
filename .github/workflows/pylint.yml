@@ -15,10 +15,10 @@ jobs:
       matrix:
         python-version: ["3.12"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@latest
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@latest
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -32,7 +32,7 @@ jobs:
           pylint $(git ls-files '*.py') --additional-builtins=logging --output=lint.txt || true
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@latest
         with:
           name: lint.txt
           path: lint.txt
