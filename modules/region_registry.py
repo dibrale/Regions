@@ -619,16 +619,19 @@ class RegionRegistry:
                 """
         # Verify before building
         if verify:
-            issues = self.verify()
+            issues, warnings = self.verify()
         else:
-            issues = None
+            issues, warnings = None, None
         if issues:
             logging.error(f"Build cancelled due to verification issues. Address these before proceeding, or disable verification.")
+            return False
         if not self.regions:
             logging.error("No regions registered")
             return False
 
         # Start build
+        if warnings:
+            logging.info(f"Proceeding despite {warnings}")
         logging.info(f"Attempting to build {len(self.regions)} regions...")
         built = 0
         skipped = 0
