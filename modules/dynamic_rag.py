@@ -1,7 +1,7 @@
 import asyncio
+import os
 import pathlib
 import re
-import uuid
 
 import json
 import time
@@ -75,17 +75,27 @@ class DynamicRAGSystem:
         Raises:
             ValueError: If chunk_size <= 0, overlap < 0, or max_results < 1
         """
-        self.db_manager = DatabaseManager(db_path)
-        self.db_name = pathlib.PurePath(db_path).name
+        self.db_path = pathlib.PurePath(os.path.join(os.getcwd(), pathlib.PurePath(db_path)))
+
+
         self.embedding_server_url = embedding_server_url
         self.embedding_model = embedding_model
+        self.initialized = False
         if name is None:
-            self.name = str(uuid.uuid4())
+            self.name = self.db_path.name
         else:
             self.name = name
         self._default_chunk_size = chunk_size
         self._default_overlap = overlap
         self._default_max_results = max_results
+
+    def __getattribute__(self, name):
+        attr = super().__getattribute__(name)
+        if callable(attr):
+            if not self.initialized and attr != '__init__':
+                self.db_manager = DatabaseManager(str(self.db_path))
+                self.initialized = True
+        return attr
 
     def save(self, path: str) -> None:
         """Save current configuration to a JSON file."""
@@ -105,9 +115,9 @@ class DynamicRAGSystem:
                     "overlap": self._default_overlap,
                     "max_results": self._default_max_results
                 }, f, indent=4)
-            logging.info(f"{self.db_name}: RAG configuration saved to {pure_path}")
+            logging.info(f"{self.db_path.name}: RAG configuration saved to {pure_path}")
         except IOError as e:
-            logging.error(f"{self.db_name}: Failed to save RAG configuration: {str(e)}")
+            logging.error(f"{self.db_path.name}: Failed to save RAG configuration: {str(e)}")
 
     @classmethod
     def load(cls, path: str) -> 'DynamicRAGSystem | None':
@@ -195,7 +205,7 @@ class DynamicRAGSystem:
                 if i < len(chunks) - 1:
                     await asyncio.sleep(0.5)
 
-        logging.info(f"{self.db_name}: Document stored with {len(chunk_hashes)} chunks")
+        logging.info(f"{self.db_path.name}: Document stored with {len(chunk_hashes)} chunks")
         return chunk_hashes
 
     async def store(self, data: str | list[str] | dict | list[dict]) -> bool:
@@ -240,11 +250,11 @@ class DynamicRAGSystem:
             try:
                 raise ValueError(f"Unsupported data type: {type(data)}")
             except Exception as e:
-                logging.error(f"{self.db_name}: {e}")
+                logging.error(f"{self.db_path.name}: {e}")
             finally:
                 return False
 
-        logging.info(f"{self.db_name}: Storing {length} documents...")
+        logging.info(f"{self.db_path.name}: Storing {length} documents...")
         for index in range(0, len(doc_paths)):
             pure_path = pathlib.PurePath(doc_paths[index])
             try:
@@ -252,11 +262,11 @@ class DynamicRAGSystem:
                     lines = f.readlines()
                     content = ''.join(lines)
             except FileNotFoundError:
-                logging.warning(f"{self.db_name}: Document '{pure_path.name}' not found. Skipping.")
+                logging.warning(f"{self.db_path.name}: Document '{pure_path.name}' not found. Skipping.")
                 success.append(False)
                 continue
             except IOError as e:
-                logging.warning(f"{self.db_name}: Failed to read document '{pure_path.name}': {str(e)}")
+                logging.warning(f"{self.db_path.name}: Failed to read document '{pure_path.name}': {str(e)}")
                 success.append(False)
                 continue
 
@@ -275,7 +285,7 @@ class DynamicRAGSystem:
                 stored_chunks.extend(chunk_hashes)
                 success.append(True)
             except Exception as e:
-                logging.error(f"{self.db_name}: Failed to store document '{pure_path.name}': {str(e)}")
+                logging.error(f"{self.db_path.name}: Failed to store document '{pure_path.name}': {str(e)}")
                 success.append(False)
                 continue
         logging.info(f"{self.name}: Total chunks stored: {len(stored_chunks)}")
@@ -283,7 +293,7 @@ class DynamicRAGSystem:
         failures = length - sum(success)
         logging.info(f"{self.name}: Documents stored: {sum(success)}/{length}")
         if failures:
-            logging.warning(f"{self.db_name}: {failures} document(s) failed to store.")
+            logging.warning(f"{self.db_path.name}: {failures} document(s) failed to store.")
             return False
         return True
 
@@ -338,13 +348,13 @@ class DynamicRAGSystem:
         results = results[:max_results]
 
         if not results:
-            error_msg = f"{self.db_name}: No chunks found. Similarity threshold: {similarity:.2f}"
+            error_msg = f"{self.db_path.name}: No chunks found. Similarity threshold: {similarity:.2f}"
             if method_name:
                 error_msg += f" ({method_name})"
             logging.error(error_msg)
             return []
 
-        log_msg = f"{self.db_name}: Retrieved {len(results)} chunks. Similarity threshold: {similarity:.2f}"
+        log_msg = f"{self.db_path.name}: Retrieved {len(results)} chunks. Similarity threshold: {similarity:.2f}"
         if method_name:
             log_msg += f" ({method_name})"
         logging.info(log_msg)
@@ -410,13 +420,13 @@ class DynamicRAGSystem:
         else:
             raise TypeError("chunk must be DocumentChunk or str")
 
-        logging.debug(f"{self.db_name}: Deleting chunk with hash {chunk_hash}")
+        logging.debug(f"{self.db_path.name}: Deleting chunk with hash {chunk_hash}")
         deleted = await self.db_manager.delete_chunk(chunk_hash)
         if not deleted:
-            logging.warning(f"{self.db_name}: Chunk {chunk_hash} could not be deleted")
+            logging.warning(f"{self.db_path.name}: Chunk {chunk_hash} could not be deleted")
             return False
         else:
-            logging.info(f"{self.db_name}: Deleted chunk {chunk_hash}")
+            logging.info(f"{self.db_path.name}: Deleted chunk {chunk_hash}")
             return True
 
     async def update_chunk(self, chunk_hash: str, new_content: str, actors: List[str]) -> bool:
@@ -461,7 +471,7 @@ class DynamicRAGSystem:
 
         # Store updated chunk
         await self.db_manager.store_chunk(chunk)
-        logging.info(f"{self.db_name}: Updated chunk with hash {chunk_hash}")
+        logging.info(f"{self.db_path.name}: Updated chunk with hash {chunk_hash}")
         return True
 
     async def get_stats(self) -> Dict[str, Any]:
