@@ -4,26 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Remove a debugging string">
-      <change afterPath="$PROJECT_DIR$/examples/lit_crit/lit_demo.py" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Updated demo descriptions">
+      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_demo.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_executions.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_regions.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_state.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_workflow.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/double_hegel/sample_results/readme_crit.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/double_hegel/sample_results/readme_trace.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/Regions.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Regions.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/bm_rag.db" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared/bm_rag.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup_synthesis/lookup_synthesis_demo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/demo_biography.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared/demo_biography_docs.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/demo_executions.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup_synthesis/demo_executions.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/demo_full_state.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup_synthesis/demo_full_state.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/demo_historical.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared/demo_historical_docs.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/demo_params.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared/demo_params.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/demo_regions.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup_synthesis/demo_regions.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/demo_with_infrastructure.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup_synthesis/lookup_synthesis_infra_demo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/dynamic_rag_example.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/dynamic_rag_example.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/i_know_poem.txt" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lit_crit/i_know_poem.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/lit_demo.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/lit_demo_executions.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lit_crit/lit_demo_executions.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/lit_demo_regions.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lit_crit/lit_demo_regions.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/lit_demo_state.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lit_crit/lit_demo_state.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/demo_executions.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_executions.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/demo_full_state.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_full_state.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/demo_regions.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_regions.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/lookup_synthesis_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_demo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/lookup_synthesis_infra_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_infra_demo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -243,7 +241,7 @@
     "javascript.nodejs.core.library.configured.version": "22.19.0",
     "javascript.nodejs.core.library.typings.version": "22.18.1",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "C:/Users/adibrov/PycharmProjects/Regions/examples",
+    "last_opened_file_path": "C:/Users/adibrov/PycharmProjects/Regions/examples/double_hegel/sample_results",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
@@ -256,7 +254,7 @@
     "npm.lint.executor": "Run",
     "npm.preview.executor": "Run",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "Errors",
+    "settings.editor.selected.configurable": "ml.llm.LLMThirdPartyAiProvidersConfigurable",
     "to.speed.mode.migration.done": "true",
     "ts.external.directory.path": "C:\\Users\\adibrov\\AppData\\Roaming\\JetBrains\\PyCharm2025.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
@@ -269,17 +267,17 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\double_hegel\sample_results" />
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions" />
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\double_hegel" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\gui" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Regions" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Regions\modules" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Morphea" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\lookup_synthesis" />
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\scratch" />
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\scratch\demos_old" />
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\double_hegel" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\lit_crit" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Regions" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\results" />
     </key>
     <key name="es6.move.members.recent.items">
@@ -290,11 +288,34 @@
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\gui\src\modules\param_editor.jsx" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.lit_demo (1)">
+  <component name="RunManager" selected="Python.double_hegel_demo">
     <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:4173/Regions/gui/dist/index.html">
       <method v="2">
         <option name="RunConfigurationTask" enabled="true" run_configuration_name="preview" run_configuration_type="js.build_tools.npm" />
       </method>
+    </configuration>
+    <configuration name="double_hegel_demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Regions" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/examples/double_hegel" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/double_hegel/double_hegel_demo.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
     <configuration name="lit_demo (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
@@ -404,38 +425,22 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests in test_ragregion.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
-      <module name="Regions" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_ragregion.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
     <list>
       <item itemvalue="npm.preview" />
       <item itemvalue="npm.dev" />
+      <item itemvalue="Python.double_hegel_demo" />
       <item itemvalue="Python.lit_demo" />
       <item itemvalue="Python.lit_demo (1)" />
       <item itemvalue="Python tests.Python tests in test_database.py" />
       <item itemvalue="Python tests.Python tests in test_dynamicrag.py" />
-      <item itemvalue="Python tests.Python tests in test_ragregion.py" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.double_hegel_demo" />
         <item itemvalue="Python.lit_demo (1)" />
         <item itemvalue="Python tests.Python tests in test_dynamicrag.py" />
         <item itemvalue="Python.lit_demo" />
         <item itemvalue="Python tests.Python tests in test_database.py" />
-        <item itemvalue="Python tests.Python tests in test_ragregion.py" />
       </list>
     </recent_temporary>
   </component>
@@ -494,23 +499,7 @@
       <workItem from="1757031877788" duration="18672000" />
       <workItem from="1757126621882" duration="93821000" />
       <workItem from="1757364956751" duration="55782000" />
-      <workItem from="1757633523177" duration="140220000" />
-    </task>
-    <task id="LOCAL-00156" summary="Delete unused components">
-      <option name="closed" value="true" />
-      <created>1757632059619</created>
-      <option name="number" value="00156" />
-      <option name="presentableId" value="LOCAL-00156" />
-      <option name="project" value="LOCAL" />
-      <updated>1757632059619</updated>
-    </task>
-    <task id="LOCAL-00157" summary="Fixed some warnings and noted others.">
-      <option name="closed" value="true" />
-      <created>1757632121744</created>
-      <option name="number" value="00157" />
-      <option name="presentableId" value="LOCAL-00157" />
-      <option name="project" value="LOCAL" />
-      <updated>1757632121744</updated>
+      <workItem from="1757633523177" duration="160719000" />
     </task>
     <task id="LOCAL-00158" summary="Dependency update">
       <option name="closed" value="true" />
@@ -888,7 +877,23 @@
       <option name="project" value="LOCAL" />
       <updated>1758161930579</updated>
     </task>
-    <option name="localTasksCounter" value="205" />
+    <task id="LOCAL-00205" summary="Refactored demos">
+      <option name="closed" value="true" />
+      <created>1758163212590</created>
+      <option name="number" value="00205" />
+      <option name="presentableId" value="LOCAL-00205" />
+      <option name="project" value="LOCAL" />
+      <updated>1758163212590</updated>
+    </task>
+    <task id="LOCAL-00206" summary="Updated demo descriptions">
+      <option name="closed" value="true" />
+      <created>1758164118765</created>
+      <option name="number" value="00206" />
+      <option name="presentableId" value="LOCAL-00206" />
+      <option name="project" value="LOCAL" />
+      <updated>1758164118765</updated>
+    </task>
+    <option name="localTasksCounter" value="207" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -906,8 +911,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Updated README.md with region table and internal links" />
-    <MESSAGE value="Fixed decorator" />
     <MESSAGE value="Accounted for update_chunk() being async" />
     <MESSAGE value="Enabled awareness of request queue when asking downstream questions." />
     <MESSAGE value="Create a temporary connection to a region after sending it a reply for the first time in a run" />
@@ -931,7 +934,9 @@
     <MESSAGE value="Add logging standard method" />
     <MESSAGE value="Path parsing and init fixes" />
     <MESSAGE value="Remove a debugging string" />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove a debugging string" />
+    <MESSAGE value="Refactored demos" />
+    <MESSAGE value="Updated demo descriptions" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated demo descriptions" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Regions$lit_demo.coverage" NAME="lit_demo Coverage Results" MODIFIED="1758159826895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
@@ -981,7 +986,7 @@
     <SUITE FILE_PATH="coverage/Regions$pytest_for_test_postmaster_TestPostmasterCollector.coverage" NAME="pytest for test_postmaster.TestPostmasterCollector Coverage Results" MODIFIED="1757306634324" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$tools_test.coverage" NAME="tools_test Coverage Results" MODIFIED="1753822899523" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Regions$lit_demo__1_.coverage" NAME="lit_demo (1) Coverage Results" MODIFIED="1758161680680" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples/lit_crit" />
-    <SUITE FILE_PATH="coverage/Regions$double_hegel_demo.coverage" NAME="double_hegel_demo Coverage Results" MODIFIED="1757806939223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/Regions$double_hegel_demo.coverage" NAME="double_hegel_demo Coverage Results" MODIFIED="1758222307066" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples/double_hegel" />
     <SUITE FILE_PATH="coverage/Regions$pytest_for_test_executor_test_execute_plan_postmaster_stop_failure.coverage" NAME="pytest for test_executor.test_execute_plan_postmaster_stop_failure Coverage Results" MODIFIED="1756080456068" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Morphea$llamacpp_api_test.coverage" NAME="llamacpp_api_test Coverage Results" MODIFIED="1754777977732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
   </component>
