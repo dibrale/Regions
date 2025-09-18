@@ -103,7 +103,6 @@ class DynamicRAGSystem:
             if not self.initialized and name not in ['__init__','__new__','__class__']:
                 self.db_manager = DatabaseManager(str(self.db_path))
                 self.initialized = True
-                print(f"This thing called {name}")
                 logging.info(f"{self.db_path.name}: Database manager initialized")
         return attr
 
