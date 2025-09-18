@@ -1,0 +1,91 @@
+[
+  {
+    "name": "Analysis",
+    "type": "Region",
+    "task": "Analyze two opinions by reviewing the accuracy of the claims each one makes.",
+    "connections": {
+      "AnalysisRouter": "Forward incoming messages for opinion generation."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "OpinionA",
+    "type": "Region",
+    "task": "Provide a critical opinion.",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "OpinionB",
+    "type": "Region",
+    "task": "Provide a thoughtful opinion.",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "Synthesis",
+    "type": "Region",
+    "task": "Synthesize two opinions into a big-picture evaluation of the text.",
+    "connections": {
+      "AnalysisRouter": "Forward incoming messages for opinion generation."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "Judge",
+    "type": "Region",
+    "task": "Given a big-picture opinion and some specific comments, provide a final considered reply regarding the request.",
+    "connections": {
+      "Synthesis": "Synthesize two opinions into a big-picture evaluation of the text.",
+      "Analysis": "Analyze two opinions by reviewing the accuracy of the claims each one makes."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "CC",
+    "type": "ListenerRegion",
+    "task": "",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "AnalysisRouter",
+    "type": "BroadcastRegion",
+    "task": "Forward incoming messages for opinion generation.",
+    "connections": {
+      "OpinionA": "Provide a thoughtful opinion.",
+      "OpinionB": "Provide a critical opinion."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "MessageSubordinate",
+    "type": "BroadcastRegion",
+    "task": "Forward all incoming messages to connected regions",
+    "connections": {
+      "Synthesis": "Synthesize two opinions into a big-picture evaluation of the text.",
+      "Analysis": "Analyze two opinions by reviewing the accuracy of the claims each one makes.",
+      "OpinionA": "Provide a thoughtful opinion.",
+      "OpinionB": "Provide a critical opinion."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "InstructionCache",
+    "type": "BroadcastRegion",
+    "task": "Forward all incoming messages to connected regions",
+    "connections": {
+      "Judge": "Given a big-picture opinion and some specific comments, provide a final considered reply regarding the request."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  }
+]

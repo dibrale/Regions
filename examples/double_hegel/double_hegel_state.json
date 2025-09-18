@@ -1,0 +1,566 @@
+{
+  "flowNodes": [
+    {
+      "id": "imported_1_Analysis",
+      "type": "regionNode",
+      "position": {
+        "x": 192.8669902256596,
+        "y": 319.370689522284
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "Analysis",
+          "task": "Analyze two opinions by reviewing the accuracy of the claims each one makes.",
+          "connections": {
+            "AnalysisRouter": "Forward incoming messages for opinion generation."
+          },
+          "type": "Region",
+          "reply_with_actors": false,
+          "threshold": null
+        },
+        "nodeId": "imported_1_Analysis",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 134,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 192.8669902256596,
+        "y": 319.370689522284
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_2_OpinionA",
+      "type": "regionNode",
+      "position": {
+        "x": 747.7347002607171,
+        "y": 76.43894128296904
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "OpinionA",
+          "task": "Provide a critical opinion.",
+          "connections": {},
+          "type": "Region",
+          "reply_with_actors": false,
+          "threshold": null
+        },
+        "nodeId": "imported_2_OpinionA",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 102,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 747.7347002607171,
+        "y": 76.43894128296904
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_3_OpinionB",
+      "type": "regionNode",
+      "position": {
+        "x": 745.9871043346786,
+        "y": 193.43756406630848
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "OpinionB",
+          "task": "Provide a thoughtful opinion.",
+          "connections": {},
+          "type": "Region",
+          "reply_with_actors": false,
+          "threshold": null
+        },
+        "nodeId": "imported_3_OpinionB",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 102,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 745.9871043346786,
+        "y": 193.43756406630848
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_4_Synthesis",
+      "type": "regionNode",
+      "position": {
+        "x": 193.01034722596194,
+        "y": 184.45144507225783
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "Synthesis",
+          "task": "Synthesize two opinions into a big-picture evaluation of the text.",
+          "connections": {
+            "AnalysisRouter": "Forward incoming messages for opinion generation."
+          },
+          "type": "Region",
+          "reply_with_actors": false,
+          "threshold": null
+        },
+        "nodeId": "imported_4_Synthesis",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 193.01034722596194,
+        "y": 184.45144507225783
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_5_Judge",
+      "type": "regionNode",
+      "position": {
+        "x": -116.93256239794829,
+        "y": 230.72378064538987
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "Judge",
+          "task": "Given a big-picture opinion and some specific comments, provide a final considered reply regarding the request.",
+          "connections": {
+            "Synthesis": "Synthesize two opinions into a big-picture evaluation of the text.",
+            "Analysis": "Analyze two opinions by reviewing the accuracy of the claims each one makes."
+          },
+          "type": "Region",
+          "reply_with_actors": false,
+          "threshold": null
+        },
+        "nodeId": "imported_5_Judge",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 150,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -116.93256239794829,
+        "y": 230.72378064538987
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_6_CC",
+      "type": "regionNode",
+      "position": {
+        "x": -114.29491051033466,
+        "y": 401.0140309483369
+      },
+      "data": {
+        "typeName": "ListenerRegion",
+        "params": {
+          "name": "CC",
+          "type": "ListenerRegion",
+          "task": "",
+          "connections": {},
+          "reply_with_actors": false,
+          "threshold": null
+        },
+        "nodeId": "imported_6_CC",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "listener_stop",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 82,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -114.29491051033466,
+        "y": 401.0140309483369
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_7_AnalysisRouter",
+      "type": "regionNode",
+      "position": {
+        "x": 481.22861060869593,
+        "y": 276.53894772729666
+      },
+      "data": {
+        "typeName": "BroadcastRegion",
+        "params": {
+          "name": "AnalysisRouter",
+          "task": "Forward incoming messages for opinion generation.",
+          "connections": {
+            "OpinionA": "Provide a critical opinion.",
+            "OpinionB": "Provide a thoughtful opinion."
+          },
+          "type": "BroadcastRegion",
+          "reply_with_actors": false,
+          "threshold": null
+        },
+        "nodeId": "imported_7_AnalysisRouter",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 481.22861060869593,
+        "y": 276.53894772729666
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_8_MessageSubordinate",
+      "type": "regionNode",
+      "position": {
+        "x": -115.41342007808237,
+        "y": 64.70044418776905
+      },
+      "data": {
+        "typeName": "BroadcastRegion",
+        "params": {
+          "name": "MessageSubordinate",
+          "task": "Forward all incoming messages to connected regions",
+          "connections": {
+            "Synthesis": "Synthesize two opinions into a big-picture evaluation of the text.",
+            "Analysis": "Analyze two opinions by reviewing the accuracy of the claims each one makes.",
+            "OpinionA": "Provide a critical opinion.",
+            "OpinionB": "Provide a thoughtful opinion."
+          },
+          "type": "BroadcastRegion",
+          "reply_with_actors": false,
+          "threshold": null
+        },
+        "nodeId": "imported_8_MessageSubordinate",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": true,
+      "positionAbsolute": {
+        "x": -115.41342007808237,
+        "y": 64.70044418776905
+      },
+      "dragging": false
+    },
+    {
+      "id": "imported_9_InstructionCache",
+      "type": "regionNode",
+      "position": {
+        "x": -367.996354805526,
+        "y": 247.61491825089183
+      },
+      "data": {
+        "typeName": "BroadcastRegion",
+        "params": {
+          "name": "InstructionCache",
+          "task": "Forward all incoming messages to connected regions",
+          "connections": {
+            "Judge": "Given a big-picture opinion and some specific comments, provide a final considered reply regarding the request."
+          },
+          "type": "BroadcastRegion",
+          "reply_with_actors": false,
+          "threshold": null
+        },
+        "nodeId": "imported_9_InstructionCache",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -367.996354805526,
+        "y": 247.61491825089183
+      },
+      "dragging": false
+    }
+  ],
+  "flowEdges": [
+    {
+      "id": "e_imported_1_Analysis_imported_7_AnalysisRouter",
+      "source": "imported_1_Analysis",
+      "target": "imported_7_AnalysisRouter",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_4_Synthesis_imported_7_AnalysisRouter",
+      "source": "imported_4_Synthesis",
+      "target": "imported_7_AnalysisRouter",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_5_Judge_imported_4_Synthesis",
+      "source": "imported_5_Judge",
+      "target": "imported_4_Synthesis",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_5_Judge_imported_1_Analysis",
+      "source": "imported_5_Judge",
+      "target": "imported_1_Analysis",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_7_AnalysisRouter_imported_2_OpinionA",
+      "source": "imported_7_AnalysisRouter",
+      "target": "imported_2_OpinionA",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_7_AnalysisRouter_imported_3_OpinionB",
+      "source": "imported_7_AnalysisRouter",
+      "target": "imported_3_OpinionB",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_8_MessageSubordinate_imported_4_Synthesis",
+      "source": "imported_8_MessageSubordinate",
+      "target": "imported_4_Synthesis",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_8_MessageSubordinate_imported_1_Analysis",
+      "source": "imported_8_MessageSubordinate",
+      "target": "imported_1_Analysis",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_8_MessageSubordinate_imported_2_OpinionA",
+      "source": "imported_8_MessageSubordinate",
+      "target": "imported_2_OpinionA",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_8_MessageSubordinate_imported_3_OpinionB",
+      "source": "imported_8_MessageSubordinate",
+      "target": "imported_3_OpinionB",
+      "type": "default"
+    },
+    {
+      "id": "e_imported_9_InstructionCache_imported_5_Judge",
+      "source": "imported_9_InstructionCache",
+      "target": "imported_5_Judge",
+      "type": "default"
+    }
+  ],
+  "layerConfig": [
+    {
+      "init": [
+        "CC",
+        "MessageSubordinate"
+      ]
+    },
+    {
+      "judge": [
+        "Judge"
+      ]
+    },
+    {
+      "evaluator": [
+        "Synthesis"
+      ]
+    },
+    {
+      "analysis": [
+        "Analysis"
+      ]
+    },
+    {
+      "route_to_opinions": [
+        "AnalysisRouter"
+      ]
+    },
+    {
+      "op_a": [
+        "OpinionA"
+      ],
+      "op_b": [
+        "OpinionB"
+      ]
+    },
+    {
+      "synthesis_reply": [
+        "Synthesis"
+      ]
+    },
+    {
+      "analysis_reply": [
+        "Analysis"
+      ]
+    },
+    {
+      "judge_reply": [
+        "Judge"
+      ]
+    },
+    {
+      "judge_reply_summary": [
+        "InstructionCache",
+        "Judge"
+      ]
+    },
+    {
+      "listener_stop": [
+        "CC"
+      ]
+    }
+  ],
+  "executionConfig": [
+    [
+      [
+        "CC",
+        "start"
+      ],
+      [
+        "MessageSubordinate",
+        "broadcast"
+      ]
+    ],
+    [
+      [
+        "Judge",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Synthesis",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Analysis",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "AnalysisRouter",
+        "broadcast"
+      ]
+    ],
+    [
+      [
+        "OpinionA",
+        "make_replies"
+      ],
+      [
+        "OpinionB",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Synthesis",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Analysis",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Judge",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "InstructionCache",
+        "broadcast"
+      ],
+      [
+        "Judge",
+        "summarize_replies"
+      ],
+      [
+        "Judge",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "CC",
+        "stop"
+      ]
+    ]
+  ],
+  "executionOrder": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "chainColors": [
+    {}
+  ]
+}

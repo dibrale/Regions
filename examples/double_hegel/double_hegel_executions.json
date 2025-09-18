@@ -1,0 +1,161 @@
+{
+  "layer_config": [
+    {
+      "init": [
+        "CC",
+        "MessageSubordinate"
+      ]
+    },
+    {
+      "judge": [
+        "Judge"
+      ]
+    },
+    {
+      "evaluator": [
+        "Synthesis"
+      ]
+    },
+    {
+      "analysis": [
+        "Analysis"
+      ]
+    },
+    {
+      "route_to_opinions": [
+        "AnalysisRouter"
+      ]
+    },
+    {
+      "op_a": [
+        "OpinionA"
+      ],
+      "op_b": [
+        "OpinionB"
+      ]
+    },
+    {
+      "synthesis_reply": [
+        "Synthesis"
+      ]
+    },
+    {
+      "analysis_reply": [
+        "Analysis"
+      ]
+    },
+    {
+      "judge_reply": [
+        "Judge"
+      ]
+    },
+    {
+      "judge_reply_summary": [
+        "InstructionCache",
+        "Judge"
+      ]
+    },
+    {
+      "listener_stop": [
+        "CC"
+      ]
+    }
+  ],
+  "execution_config": [
+    [
+      [
+        "CC",
+        "start"
+      ],
+      [
+        "MessageSubordinate",
+        "broadcast"
+      ]
+    ],
+    [
+      [
+        "Judge",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Synthesis",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "Analysis",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "AnalysisRouter",
+        "broadcast"
+      ]
+    ],
+    [
+      [
+        "OpinionA",
+        "make_replies"
+      ],
+      [
+        "OpinionB",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Synthesis",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Analysis",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "Judge",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "InstructionCache",
+        "broadcast"
+      ],
+      [
+        "Judge",
+        "summarize_replies"
+      ],
+      [
+        "Judge",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "CC",
+        "stop"
+      ]
+    ]
+  ],
+  "execution_order": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ]
+}
