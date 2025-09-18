@@ -75,7 +75,15 @@ class DynamicRAGSystem:
         Raises:
             ValueError: If chunk_size <= 0, overlap < 0, or max_results < 1
         """
-        self.db_path = pathlib.PurePath(os.path.join(os.getcwd(), pathlib.PurePath(db_path)))
+        entered_path = pathlib.PurePath(db_path)
+        if entered_path.name == "":
+            raise ValueError("Database path cannot be empty")
+        if entered_path.is_absolute():
+            self.db_path = entered_path
+        else:
+            self.db_path = pathlib.PurePath(os.path.join(os.getcwd(), pathlib.PurePath(db_path)))
+
+        logging.info(f"Will use database at {self.db_path}")
 
 
         self.embedding_server_url = embedding_server_url
@@ -92,9 +100,11 @@ class DynamicRAGSystem:
     def __getattribute__(self, name):
         attr = super().__getattribute__(name)
         if callable(attr):
-            if not self.initialized and attr != '__init__':
+            if not self.initialized and name not in ['__init__','__new__','__class__']:
                 self.db_manager = DatabaseManager(str(self.db_path))
                 self.initialized = True
+                print(f"This thing called {name}")
+                logging.info(f"{self.db_path.name}: Database manager initialized")
         return attr
 
     def save(self, path: str) -> None:
