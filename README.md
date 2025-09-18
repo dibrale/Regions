@@ -18,6 +18,72 @@ Modular framework for building message‑passing "regions" that collaborate thro
 This repo also provides [examples](README.md#configuration--examples) and a [pytest suite](README.md#running-tests) to help you get started quickly.
 
 
+## Architecture Overview
+Regions workflows are comprised of 'region' node definitions and an execution plan.
+
+### Region Nodes
+While region nodes are autonomous and self-contained, they can share LLMLink and DynamicRAGSystem resources. Regions are linked to one another via unidirectional address ('connection') directories. For simple tasks, region nodes can be instantiated individually. More complex node configurations are maintained and verified using a RegionRegistry instance. The RegionRegistry can load a configuration file, verify the configuration, then build all the region instances defined by it.
+
+#### Region Types
+
+| **Class**           | **Initialization**                                                     | **Exposed Methods**                                       | **Role**                                                      |
+|---------------------|------------------------------------------------------------------------|-----------------------------------------------------------|---------------------------------------------------------------|
+| *BaseRegion*        | `name`, `task`, *connections*                                          | `clear_replies`, `keep_last_reply_per_source`             | Superclass for other region classes                           |
+| **Region**          | `name`, `task`, `llm`, *connections*                                   | `make_replies`, `make_questions`, `summarize_replies`     | Core LLM-using class generating questions, replies, summaries |
+| **RAGRegion**       | `name`, `task`, `rag`, *connections*, *reply_with_actors*, *threshold* | `make_replies`, `make_updates`, `request_summaries`       | Makes an SQLite database available to the workflow            |
+| **ListenerRegion**  | `name`, *out_process*, *delay*                                         | `start`, `stop`, `verify`, ~~keep_last_reply_per_source~~ | Traffic monitoring                                            |
+| **BroadcastRegion** | `name`, *task*, *connections*                                          | `broadcast`                                               | Broadcast, caching and synchronized message injection         |
+
+The classes **MockRegion**, **MockListenerRegion** and **MockRAGRegion** are available for testing purposes as well (tests/mock_regions.py), but are stored separately from the others.
+
+### Message Passing
+While message passing can be accomplished with hardcoded queue operations, this is not ideal for complex workflows. Therefore, message passing should usually be automated using a Postmaster instance, which runs an asynchronous coroutine for this task. The Postmaster requires region definitions to be maintained in a RegionRegistry instance so that it knows what outboxes to poll and inboxes to send to. The RegionRegistry is accepted as an initialization argument.
+
+Once a Postmaster instance is configured, it can be used by the Injector class and associated helpers to pass messages into the workflow. This is usually used to set the initial state of inboxes within the configuration. However, the asynchronous nature of the framework allows for runtime message injection as well.
+
+### Execution Plans
+As with message passing, region method calls can be hardcoded if desired. However, the Regions framework is primarily intended for resource-aware, explicit task scheduling. Execution plans are managed by an Orchestrator instance, which can load an execution plan from a file and verify it.
+The execution plan is split into indexed concurrency groups termed 'layers'. Regions with methods that are to run within the layer are grouped into 'chains'. All chains within a layer run simultaneously, while the methods within a chain run sequentially. 
+The current behavior allows for a region to be assigned to one chain in a given layer. All the methods a given region is planned to execute run when that region is called – interleaving methods from different regions is not permitted. This behavior is intended to reduce maximum layer complexity, but may be modified in the future.
+
+### Verification
+Both RegionRegistry and Orchestrator classes have internal, independent verification methods. The ListenerRegion class has its own internal verification method which is called during the RegionRegistry verification step when a ListenerRegion is detected. The Regions framework also defines a module-level `verify()` method. 
+
+This method accepts configured RegionRegistry, Orchestrator and Postmaster instances. It optionally calls the RegionRegistry and Orchestrator internal verification logic prior to running the rest of its logic. `verify()` then validates consistency between its three arguments.
+
+### Execution
+The plan is then effected by an Executor instance. An Executor requires a RegionRegistry, Orchestrator and Postmaster as initialization arguments. It can run the entire execution plan, or one layer at a time.
+
+### Resource Classes
+- **DynamicRAGSystem** *(modules/dynamic_rag.py)*: sqlite storage, chunking, retrieval, update/delete, simple cosine similarity re‑ranking
+- **LLMLink** *(modules/llmlink.py)*: text/chat/model/health calls against an HTTP LLM server
+
+
+## Requirements
+- Python 3.10 or newer (tested with modern type hints like list[str], | unions)
+- Windows, macOS, or Linux (examples below use Windows PowerShell)
+
+Install dependencies:
+
+```powershell
+# From the project root
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+Optional runtime services:
+- An embedding server for DynamicRAGSystem. You can change host/model in your code or in example params.
+- An LLM HTTP endpoint for LLMLink (configurable via parameters).
+
+
+## Project Structure
+- `modules\`: core framework (orchestrator, executor, postmaster, registry, RAG, LLM link)
+- `modules\regions\`: Region implementations (base, region, rag_region, listener_region)
+- `examples\`: runnable demo and params
+- `tests\`: unit tests for core modules
+
+
 ## Feature Gallery
 - Compose systems from Regions (**Region**, **RAGRegion**, **ListenerRegion**)
 
@@ -71,22 +137,33 @@ def test_scenario(user):
 - Extensive unit tests for core components
 
 
-## Requirements
-- Python 3.10 or newer (tested with modern type hints like list[str], | unions)
-- Windows, macOS, or Linux (examples below use Windows PowerShell)
+## GUI: Visual Flow Editor
+A React-based editor for composing Regions, configuring connections, and assigning methods to layered execution plans. You can load and save JSON plans to use with the Python orchestrator/executor.
 
-Install dependencies:
+![GUI Screenshot](gui/gui_screenshot.png)
+
+Install and run the GUI (React + Vite):
 
 ```powershell
 # From the project root
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+cd gui
+
+# Option A: pnpm
+# If pnpm isn't installed, install once:
+npm install -g pnpm
+pnpm install
+pnpm dev
+
+# Option B: npm
+npm install
+npm run dev
 ```
 
-Optional runtime services:
-- An embedding server for DynamicRAGSystem. You can change host/model in your code or in example params.
-- An LLM HTTP endpoint for LLMLink (configurable via parameters).
+Then open http://localhost:5173 in your browser. To build a production bundle:
+
+```powershell
+pnpm build
+```
 
 
 ## Quick-ish Start
@@ -140,73 +217,22 @@ asyncio.run(main())
 ```
 
 
-## GUI: Visual Flow Editor
-A React-based editor for composing Regions, configuring connections, and assigning methods to layered execution plans. You can load and save JSON plans to use with the Python orchestrator/executor.
+## Configuration & Examples
+A number of sample scripts, configuration files and GUI savestates are provided in the `examples/` directory.
+- A bare-bones registry example illustrating format: `regions.json`
+- RAG functionality example: `dynamic_rag_example.py`
+- Basic demo implementation of Region and RAGRegion: `lookup/lookup_demo.py` (wires two RAGs and an LLM)
+- Demo implementation with infrastructure classes: `lookup/lookup_infra_demo.py` (loads params, regions, executions)
+- Literary critique workflow demo: `lit_crit/lit_demo.py` (More complex configuration that also demonstrates a ListenerRegion instance)
+- Double Hegel workflow demo: `double_hegel/double_hegel_demo.py` (Demonstrates broadcast region usage)
 
-![GUI Screenshot](gui/gui_screenshot.png)
-
-Install and run the GUI (React + Vite):
-
+Run the infrastructure demo:
 ```powershell
 # From the project root
-cd gui
-
-# Option A: pnpm
-# If pnpm isn't installed, install once:
-npm install -g pnpm
-pnpm install
-pnpm dev
-
-# Option B: npm
-npm install
-npm run dev
+$env:PYTHONPATH = ".;.\modules"
+cd examples
+python .\demo_with_infrastructure.py
 ```
-
-Then open http://localhost:5173 in your browser. To build a production bundle:
-
-```powershell
-pnpm build
-```
-
-## Architecture Overview
-Regions workflows are comprised of 'region' node definitions and an execution plan.
-
-### Region Nodes
-While region nodes are autonomous and self-contained, they can share LLMLink and DynamicRAGSystem resources. Regions are linked to one another via unidirectional address ('connection') directories. For simple tasks, region nodes can be instantiated individually. More complex node configurations are maintained and verified using a RegionRegistry instance. The RegionRegistry can load a configuration file, verify the configuration, then build all the region instances defined by it.
-
-#### Region Types
-
-| **Class**           | **Initialization**                                                     | **Exposed Methods**                                       | **Role**                                                      |
-|---------------------|------------------------------------------------------------------------|-----------------------------------------------------------|---------------------------------------------------------------|
-| *BaseRegion*        | `name`, `task`, *connections*                                          | `clear_replies`, `keep_last_reply_per_source`             | Superclass for other region classes                           |
-| **Region**          | `name`, `task`, `llm`, *connections*                                   | `make_replies`, `make_questions`, `summarize_replies`     | Core LLM-using class generating questions, replies, summaries |
-| **RAGRegion**       | `name`, `task`, `rag`, *connections*, *reply_with_actors*, *threshold* | `make_replies`, `make_updates`, `request_summaries`       | Makes an SQLite database available to the workflow            |
-| **ListenerRegion**  | `name`, *out_process*, *delay*                                         | `start`, `stop`, `verify`, ~~keep_last_reply_per_source~~ | Traffic monitoring                                            |
-| **BroadcastRegion** | `name`, *task*, *connections*                                          | `broadcast`                                               | Broadcast, caching and synchronized message injection         |
-
-The classes **MockRegion**, **MockListenerRegion** and **MockRAGRegion** are available for testing purposes as well (tests/mock_regions.py), but are stored separately from the others.
-
-### Message Passing
-While message passing can be accomplished with hardcoded queue operations, this is not ideal for complex workflows. Therefore, message passing should usually be automated using a Postmaster instance, which runs an asynchronous coroutine for this task. The Postmaster requires region definitions to be maintained in a RegionRegistry instance so that it knows what outboxes to poll and inboxes to send to. The RegionRegistry is accepted as an initialization argument.
-
-Once a Postmaster instance is configured, it can be used by the Injector class and associated helpers to pass messages into the workflow. This is usually used to set the initial state of inboxes within the configuration. However, the asynchronous nature of the framework allows for runtime message injection as well.
-
-### Execution Plans
-As with message passing, region method calls can be hardcoded if desired. However, the Regions framework is primarily intended for resource-aware, explicit task scheduling. Execution plans are managed by an Orchestrator instance, which can load an execution plan from a file and verify it.
-The execution plan is split into indexed concurrency groups termed 'layers'. Regions with methods that are to run within the layer are grouped into 'chains'. All chains within a layer run simultaneously, while the methods within a chain run sequentially. 
-The current behavior allows for a region to be assigned to one chain in a given layer. All the methods a given region is planned to execute run when that region is called – interleaving methods from different regions is not permitted. This behavior is intended to reduce maximum layer complexity, but may be modified in the future.
-
-### Verification
-Both RegionRegistry and Orchestrator classes have internal, independent verification methods. The ListenerRegion class has its own internal verification method which is called during the RegionRegistry verification step when a ListenerRegion is detected. The Regions framework also defines a module-level `verify()` method. 
-
-This method accepts configured RegionRegistry, Orchestrator and Postmaster instances. It optionally calls the RegionRegistry and Orchestrator internal verification logic prior to running the rest of its logic. `verify()` then validates consistency between its three arguments.
-
-### Execution
-The plan is then effected by an Executor instance. An Executor requires a RegionRegistry, Orchestrator and Postmaster as initialization arguments. It can run the entire execution plan, or one layer at a time.
-
-### Resource Classes
-- **DynamicRAGSystem** *(modules/dynamic_rag.py)*: sqlite storage, chunking, retrieval, update/delete, simple cosine similarity re‑ranking
-- **LLMLink** *(modules/llmlink.py)*: text/chat/model/health calls against an HTTP LLM server
 
 
 ## Running Tests
@@ -219,30 +245,6 @@ python -m pytest -q
 ```
 
 Note that test_params.json may need to be moved to the project directory for some configurations. Some tests interact with async code; pytest.ini already sets `asyncio_mode = auto`.
-
-
-## Configuration & Examples
-A number of sample scripts, configuration files and GUI savestates are provided in the `examples/` directory.
-- A bare-bones registry example illustrating format: `regions.json`
-- RAG functionality example: `dynamic_rag_example.py`
-- Basic demo implementation of Region and RAGRegion: `lookup_synthesis/lookup_synthesis_demo.py` (wires two RAGs and an LLM)
-- Demo implementation with infrastructure classes: `lookup_synthesis/lookup_synthesis_infra_demo.py` (loads params, regions, executions)
-- Literary critique workflow demo: `lit_crit/lit_demo.py` (More complex configuration that also demonstrates a ListenerRegion instance)
-
-Run the infrastructure demo:
-```powershell
-# From the project root
-$env:PYTHONPATH = ".;.\modules"
-cd examples
-python .\demo_with_infrastructure.py
-```
-
-
-## Project Structure
-- modules\: core framework (orchestrator, executor, postmaster, registry, RAG, LLM link)
-- modules\regions\: Region implementations (base, region, rag_region, listener_region)
-- examples\: runnable demo and params
-- tests\: unit tests for core modules
 
 
 ## Notes
