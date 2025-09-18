@@ -154,3 +154,12 @@ def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
         return 0.0
 
     return dot_product / (magnitude1 * magnitude2)
+
+def use_logging_standard() -> None:
+    """Configure logging preferences in a standard way throughout the Regions package."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        force=True
+    )
