@@ -77,8 +77,8 @@ async def main():
     p = Postmaster(r)
 
     # Load regions and execution plan from JSON
-    r.load("demo_regions.json")
-    o.load("demo_executions.json")
+    r.load("lookup_regions.json")
+    o.load("lookup_executions.json")
 
     # Assign RAGs to regions.
     r.regions[r.names.index('Biography')].rag = biography_rag
