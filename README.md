@@ -21,7 +21,7 @@ This repo also provides [examples](README.md#configuration--examples) and a [pyt
 ## Feature Gallery
 - Compose systems from Regions (**Region**, **RAGRegion**, **ListenerRegion**)
 
-![Literature critique example flow](examples/lit.gif)
+![Literature critique example flow](examples/lit_crit/lit.gif)
 
 - Configure layered execution with **Orchestrator** (methods per region per layer)
 
@@ -180,7 +180,7 @@ While region nodes are autonomous and self-contained, they can share LLMLink and
 |---------------------|------------------------------------------------------------------------|-----------------------------------------------------------|---------------------------------------------------------------|
 | *BaseRegion*        | `name`, `task`, *connections*                                          | `clear_replies`, `keep_last_reply_per_source`             | Superclass for other region classes                           |
 | **Region**          | `name`, `task`, `llm`, *connections*                                   | `make_replies`, `make_questions`, `summarize_replies`     | Core LLM-using class generating questions, replies, summaries |
-| **RAGRegion**       | `name`, `task`, `rag`, *connections*, *reply_with_actors*, *threshold* | `make_replies`, `make_updates`, `request_summaries`       | Makes an sqlite database available to the workflow            |
+| **RAGRegion**       | `name`, `task`, `rag`, *connections*, *reply_with_actors*, *threshold* | `make_replies`, `make_updates`, `request_summaries`       | Makes an SQLite database available to the workflow            |
 | **ListenerRegion**  | `name`, *out_process*, *delay*                                         | `start`, `stop`, `verify`, ~~keep_last_reply_per_source~~ | Traffic monitoring                                            |
 | **BroadcastRegion** | `name`, *task*, *connections*                                          | `broadcast`                                               | Broadcast, caching and synchronized message injection         |
 
@@ -222,12 +222,12 @@ Note that test_params.json may need to be moved to the project directory for som
 
 
 ## Configuration & Examples
-- A prebuilt registry example: examples\regions.json
-- Execution plan example: examples\demo_executions.json (used by the infrastructure demo)
-- RAG functionality example: examples\dynamic_rag_example.py
-- Basic demo implementation of Region and RAGRegion: demo.py (wires two RAGs and an LLM)
-- Demo implementation with infrastructure classes: examples\demo_with_infrastructure.py (loads params, regions, executions; 'examples\demo_full_state.json' can be edited/inspected via the GUI)
-- Literary critique workflow demo: examples\lit_demo.py (More complex configuration that also demonstrates a ListenerRegion instance)
+A number of sample scripts, configuration files and GUI savestates are provided in the `examples/` directory.
+- A bare-bones registry example illustrating format: `regions.json`
+- RAG functionality example: `dynamic_rag_example.py`
+- Basic demo implementation of Region and RAGRegion: `lookup_synthesis/lookup_synthesis_demo.py` (wires two RAGs and an LLM)
+- Demo implementation with infrastructure classes: `lookup_synthesis/lookup_synthesis_infra_demo.py` (loads params, regions, executions)
+- Literary critique workflow demo: `lit_crit/lit_demo.py` (More complex configuration that also demonstrates a ListenerRegion instance)
 
 Run the infrastructure demo:
 ```powershell
@@ -246,8 +246,8 @@ python .\demo_with_infrastructure.py
 
 
 ## Notes
-- The demo uses HTTP (not HTTPS) for simplicity. Configure SSL in your own deployments if required.
-- The Dynamic RAG system uses sqlite files in the working directory; demos will create and (often) clean them up.
+- The demos use HTTP (not HTTPS) for simplicity. Configure SSL in your own deployments if required.
+- The Dynamic RAG system uses SQLite files in the working directory; demos will create and (often) clean them up.
 
 
 ## Contributing
