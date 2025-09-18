@@ -1,23 +1,30 @@
+"""
+Demo script to demonstrate the usage of Regions and RAGRegions.
+Reads embedding and text model server configurations from 'demo_params.json'.
+
+Note: Hardcoded to http - change to https if SSL is truly desired for a demo
+"""
+
 import asyncio
 import json
 import os
 
-from modules.llmlink import LLMLink
 from regions.region import Region
 from regions.rag_region import RAGRegion
+from modules.llmlink import LLMLink
 from modules.dynamic_rag import DynamicRAGSystem
+from utils import use_logging_standard
 
-'''
-Demo script to demonstrate the usage of Regions and RAGRegions. Reads embedding and text model server configurations
-from 'demo_params.json'.
-
-Note: Hardcoded to http - change to https if SSL is truly desired for a demo
-'''
 
 async def store(rag: DynamicRAGSystem, data: list[dict]):
+    """
+    Helper function to store documents presented as a list of strings into a RAG system.
+    :param rag: (DynamicRAGSystem) RAG System to store the document into
+    :param data: (list[dict]) The documents to be stored
+    :return:
+    """
     stored_chunks = []
     for doc in data:
-        await asyncio.sleep(0.5)  # Rate limiting delay
         chunk_hashes = await rag.store_document(
             content=doc["content"],
             actors=doc["actors"],
@@ -26,16 +33,25 @@ async def store(rag: DynamicRAGSystem, data: list[dict]):
     print(f"{rag.name}: Total chunks stored: {len(stored_chunks)}\n")
 
 async def main():
+    """
+    Example usage of Regions and RAGRegions
+    :return:
+    """
+    use_logging_standard()
+
     # Load parameters and data
 
     print("Loading parameters from 'demo_params.json'")
-    params = json.loads(open('demo_params.json','r').read())
+    with open('../shared/demo_params.json', encoding="utf-8") as json_file:
+        params = json.loads(json_file.read())
 
-    print("Loading historical facts from 'demo_historical.json'")
-    historical_knowledge = json.loads(open('demo_historical.json','r').read())
+    print("Loading historical facts from 'demo_historical_docs.json'")
+    with open('../shared/demo_historical_docs.json', encoding="utf-8") as json_file:
+        historical_knowledge = json.loads(json_file.read())
 
-    print("Loading biography facts from 'demo_biography.json'")
-    biography_knowledge = json.loads(open('demo_biography.json','r').read())
+    print("Loading biography facts from 'demo_biography_docs.json'")
+    with open('../shared/demo_biography_docs.json', encoding="utf-8") as json_file:
+        biography_knowledge = json.loads(json_file.read())
 
     # initialize the LLM
     llm = LLMLink(
@@ -47,7 +63,6 @@ async def main():
         db_path="historical_rag.db",
         embedding_server_url=f"http://{params['rag_host']}:{params['rag_port']}",
         embedding_model=params['rag_model'],
-        name='historical_rag.db',
         chunk_size = 128,
         overlap = 24
     )
@@ -56,7 +71,6 @@ async def main():
         db_path="biography_rag.db",
         embedding_server_url=f"http://{params['rag_host']}:{params['rag_port']}",
         embedding_model=params['rag_model'],
-        name='biography_rag.db',
         chunk_size = 128,
         overlap = 24
     )
@@ -87,7 +101,8 @@ async def main():
     # Initialize HistorianRegion
     historian_region = Region(
         name='Historian',
-        task='Synthesize historical information from multiple sources. You are interested in the Zebra-Kiwia conflict and the leaders involved.',
+        task='Synthesize historical information from multiple sources.' +
+             'You are interested in the Zebra-Kiwia conflict and the leaders involved.',
         llm=llm,
         connections={
             'HistoricalFacts': 'Provide historical event information',

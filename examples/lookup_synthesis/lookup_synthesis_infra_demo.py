@@ -38,13 +38,13 @@ async def main():
     # Load parameters and data
 
     print("Loading parameters from 'demo_params.json'")
-    params = json.loads(open('demo_params.json','r').read())
+    params = json.loads(open('../shared/demo_params.json', 'r').read())
 
-    print("Loading historical facts from 'demo_historical.json'")
-    historical_knowledge = json.loads(open('demo_historical.json','r').read())
+    print("Loading historical facts from 'demo_historical_docs.json'")
+    historical_knowledge = json.loads(open('../shared/demo_historical_docs.json', 'r').read())
 
-    print("Loading biography facts from 'demo_biography.json'")
-    biography_knowledge = json.loads(open('demo_biography.json','r').read())
+    print("Loading biography facts from 'demo_biography_docs.json'")
+    biography_knowledge = json.loads(open('../shared/demo_biography_docs.json', 'r').read())
 
     # RAG and LLM configurations are not presently GUI configurable, so we just define them here
     # initialize the LLM
