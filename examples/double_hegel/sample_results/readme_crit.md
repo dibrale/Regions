@@ -4,7 +4,7 @@
 
 The below text is compiled from the output of the double Hegel demo workflow when asked to critique the documentations of the Regions Framework.
 
-This workflow comprises three nodes utilizing Qwen3-235B-A22B-Thinking-2507 (Q2K_S), and two that use Qwen3-30B-A3B-Thinking-2507-GGUF (Q4_K_M). The demo starts with three LLM-utilizing steps of question formation. The pre-summary review is produced after five LLM steps, while the summary performs four more. In terms of expense, these responses can be thought of as analogous to 8 and 12-shot replies, respectively. In both cases, only two of these steps used the cheaper model.
+This workflow comprises three nodes utilizing Qwen3-235B-A22B-Thinking-2507 (Q2K_S), and two that use Qwen3-30B-A3B-Thinking-2507-GGUF (Q4_K_M). The demo starts with three LLM-utilizing steps of question formation. Assuming one query per recipient from 'Judge', 'Synthesis' and 'Analysis', the reply is produced after 7 LLM steps, while the summary requires 4 more. In terms of expense, these responses can be thought of as analogous to at least 10 and 14-shot replies, respectively. In both cases, only 4 of these steps used the cheaper model.
 
 ### Summary
 
