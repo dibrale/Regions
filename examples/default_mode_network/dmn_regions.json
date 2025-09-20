@@ -1,0 +1,142 @@
+[
+  {
+    "name": "PCC",
+    "type": "Region",
+    "task": "Think about yourself, given what you remember.",
+    "connections": {
+      "amPFC": "Integrate what you know about yourself with your personal goals.",
+      "vmPFC": "Retrieve autobiographical memories or imagine future scenarios.",
+      "pIPL": "Summarize episodic memories.",
+      "RSC": "Clarify the spatial and contextual aspects of a memory.",
+      "dmPFC": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "amPFC",
+    "type": "Region",
+    "task": "Integrate what you know about yourself with your personal goals.",
+    "connections": {
+      "vmPFC": "Retrieve autobiographical memories or imagine future scenarios.",
+      "dmPFC": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "dmPFC",
+    "type": "Region",
+    "task": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
+    "connections": {
+      "TPJ": "Make judgements about the mental states of others.",
+      "LTC": "Explore the the social and conceptual aspects of a request.",
+      "vmPFC": "Retrieve autobiographical memories or imagine future scenarios."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "vmPFC",
+    "type": "Region",
+    "task": "Retrieve autobiographical memories or imagine future scenarios.",
+    "connections": {
+      "pIPL": "Summarize episodic memories.",
+      "RSC": "Clarify the spatial and contextual aspects of a memory."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "TPJ",
+    "type": "Region",
+    "task": "Make judgements about the mental states of others.",
+    "connections": {
+      "LTC": "Explore the the social and conceptual aspects of a request.",
+      "TempP": "Retrieve facts surrounding the social context of the request.",
+      "pIPL": "Summarize episodic memories."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "pIPL",
+    "type": "Region",
+    "task": "Summarize episodic memories.",
+    "connections": {
+      "PHC": "Spatial and contextual processing, particularly in scene recognition."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "LTC",
+    "type": "Region",
+    "task": "Explore the the social and conceptual aspects of a request.",
+    "connections": {
+      "TempP": "Retrieve facts surrounding the social context of the request.",
+      "RSC": "Clarify the spatial and contextual aspects of a memory."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "RSC",
+    "type": "Region",
+    "task": "Clarify the spatial and contextual aspects of a memory.",
+    "connections": {
+      "PHC": "Spatial and contextual processing, particularly in scene recognition."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "PHC",
+    "type": "Region",
+    "task": "Spatial and contextual processing, particularly in scene recognition.",
+    "connections": {
+      "HF": "Retrieve episodic memories."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "TempP",
+    "type": "RAGRegion",
+    "task": "Retrieve facts surrounding the social context of the request.",
+    "connections": {
+      "LTC": "Explore the the social and conceptual aspects of a request.",
+      "TPJ": "Make judgements about the mental states of others."
+    },
+    "reply_with_actors": true,
+    "threshold": "0.65"
+  },
+  {
+    "name": "HF",
+    "type": "RAGRegion",
+    "task": "Retrieve episodic memories.",
+    "connections": {
+      "PHC": "Spatial and contextual processing, particularly in scene recognition."
+    },
+    "reply_with_actors": false,
+    "threshold": "0.65"
+  },
+  {
+    "name": "CC",
+    "type": "ListenerRegion",
+    "task": "",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "InstructionCache",
+    "type": "BroadcastRegion",
+    "task": "Forward cached instruction.",
+    "connections": {
+      "PCC": "Think about yourself, given what you remember."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  }
+]

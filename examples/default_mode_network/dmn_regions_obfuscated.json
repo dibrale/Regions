@@ -1,0 +1,137 @@
+[
+  {
+    "name": "SelfThinker",
+    "type": "Region",
+    "task": "Think about the implications to yourself based on what your sources and knowledge can tell you.",
+    "connections": {
+      "GoalThinker": "Integrate what you know about yourself with your personal goals.",
+      "ClarifyPlace": "Clarify the spatial and contextual aspects of a memory.",
+      "JudgeInfer": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
+      "RememberImagine": "Retrieve memories involving yourself or imagine future scenarios.",
+      "SummarizeMemory": "Summarize memories and reply with these summaries."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "GoalThinker",
+    "type": "Region",
+    "task": "Integrate what you know about yourself with your personal goals.",
+    "connections": {
+      "JudgeInfer": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
+      "RememberImagine": "Retrieve memories involving yourself or imagine future scenarios."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "JudgeInfer",
+    "type": "Region",
+    "task": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
+    "connections": {
+      "JudgeOthers": "Make judgements about the mental states of others.",
+      "OthersConcept": "Explore the the social and conceptual aspects of a request.",
+      "RememberImagine": "Retrieve memories involving yourself or imagine future scenarios."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "RememberImagine",
+    "type": "Region",
+    "task": "Retrieve memories involving yourself or imagine future scenarios.",
+    "connections": {
+      "ClarifyPlace": "Clarify the spatial and contextual aspects of a memory.",
+      "SummarizeMemory": "Summarize memories and reply with these summaries."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "JudgeOthers",
+    "type": "Region",
+    "task": "Make judgements about the mental states of others.",
+    "connections": {
+      "PeopleFacts": "Retrieve facts surrounding the social context of the request.",
+      "OthersConcept": "Explore the the social and conceptual aspects of a request.",
+      "SummarizeMemory": "Summarize memories and reply with these summaries."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "SummarizeMemory",
+    "type": "Region",
+    "task": "Summarize memories and reply with these summaries.",
+    "connections": {
+      "UnderstandScene": "Spatial and contextual processing, particularly in scene recognition."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "OthersConcept",
+    "type": "Region",
+    "task": "Explore the the social and conceptual aspects of a request.",
+    "connections": {
+      "PeopleFacts": "Retrieve facts surrounding the social context of the request.",
+      "ClarifyPlace": "Clarify the spatial and contextual aspects of a memory."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "ClarifyPlace",
+    "type": "Region",
+    "task": "Clarify the spatial and contextual aspects of a memory.",
+    "connections": {
+      "UnderstandScene": "Spatial and contextual processing, particularly in scene recognition."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "UnderstandScene",
+    "type": "Region",
+    "task": "Spatial and contextual processing, particularly in scene recognition.",
+    "connections": {
+      "GetMemories": "Retrieve episodic memories."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "PeopleFacts",
+    "type": "RAGRegion",
+    "task": "Retrieve facts surrounding the social context of the request.",
+    "connections": {},
+    "reply_with_actors": true,
+    "threshold": "0.5"
+  },
+  {
+    "name": "GetMemories",
+    "type": "RAGRegion",
+    "task": "Retrieve episodic memories.",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": "0.5"
+  },
+  {
+    "name": "CC",
+    "type": "ListenerRegion",
+    "task": "",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "InstructionCache",
+    "type": "BroadcastRegion",
+    "task": "Forward cached instruction.",
+    "connections": {
+      "SelfThinker": "Think about the implications to yourself based on what your sources and knowledge can tell you."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  }
+]

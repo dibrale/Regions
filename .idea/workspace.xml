@@ -4,24 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Updated demo descriptions">
-      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_demo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_executions.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_regions.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_state.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/double_hegel/double_hegel_workflow.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/double_hegel/sample_results/readme_crit.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/double_hegel/sample_results/readme_trace.md" afterDir="false" />
+    <list default="true" id="fc7a0d27-0b2f-4be4-ac62-cfc7c06badc7" name="Changes" comment="Roll back formatting attempt.">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Regions.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Regions.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/demo_executions.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_executions.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/demo_full_state.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_full_state.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/demo_regions.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_regions.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/lookup_synthesis_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_demo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/lookup_synthesis/lookup_synthesis_infra_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/lookup/lookup_infra_demo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -205,6 +190,7 @@
     "Python.config.executor": "Run",
     "Python.demo.executor": "Run",
     "Python.demo_with_infrastructure.executor": "Run",
+    "Python.dmn.executor": "Run",
     "Python.dmn_demo.executor": "Run",
     "Python.double_hegel_demo.executor": "Run",
     "Python.dynamic_rag.executor": "Run",
@@ -241,7 +227,7 @@
     "javascript.nodejs.core.library.configured.version": "22.19.0",
     "javascript.nodejs.core.library.typings.version": "22.18.1",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "C:/Users/adibrov/PycharmProjects/Regions/examples/double_hegel/sample_results",
+    "last_opened_file_path": "C:/Users/adibrov/PycharmProjects/Regions/examples/default_mode_network",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
@@ -267,11 +253,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\default_mode_network" />
+      <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\double_hegel" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\double_hegel\sample_results" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples\double_hegel" />
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\examples" />
-      <recent name="C:\Users\adibrov\PycharmProjects\Regions\gui" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\scratch" />
@@ -288,11 +274,29 @@
       <recent name="C:\Users\adibrov\PycharmProjects\Regions\gui\src\modules\param_editor.jsx" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.double_hegel_demo">
-    <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:4173/Regions/gui/dist/index.html">
-      <method v="2">
-        <option name="RunConfigurationTask" enabled="true" run_configuration_name="preview" run_configuration_type="js.build_tools.npm" />
-      </method>
+  <component name="RunManager" selected="Python.dmn">
+    <configuration name="dmn" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Regions" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/examples/default_mode_network" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/default_mode_network/dmn.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
     <configuration name="double_hegel_demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
@@ -393,22 +397,6 @@
       <envs />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests in test_database.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
-      <module name="Regions" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_database.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
     <configuration name="Python tests in test_dynamicrag.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Regions" />
       <option name="ENV_FILES" value="" />
@@ -428,19 +416,19 @@
     <list>
       <item itemvalue="npm.preview" />
       <item itemvalue="npm.dev" />
+      <item itemvalue="Python.dmn" />
       <item itemvalue="Python.double_hegel_demo" />
       <item itemvalue="Python.lit_demo" />
       <item itemvalue="Python.lit_demo (1)" />
-      <item itemvalue="Python tests.Python tests in test_database.py" />
       <item itemvalue="Python tests.Python tests in test_dynamicrag.py" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.dmn" />
         <item itemvalue="Python.double_hegel_demo" />
         <item itemvalue="Python.lit_demo (1)" />
         <item itemvalue="Python tests.Python tests in test_dynamicrag.py" />
         <item itemvalue="Python.lit_demo" />
-        <item itemvalue="Python tests.Python tests in test_database.py" />
       </list>
     </recent_temporary>
   </component>
@@ -499,95 +487,7 @@
       <workItem from="1757031877788" duration="18672000" />
       <workItem from="1757126621882" duration="93821000" />
       <workItem from="1757364956751" duration="55782000" />
-      <workItem from="1757633523177" duration="160719000" />
-    </task>
-    <task id="LOCAL-00158" summary="Dependency update">
-      <option name="closed" value="true" />
-      <created>1757633964249</created>
-      <option name="number" value="00158" />
-      <option name="presentableId" value="LOCAL-00158" />
-      <option name="project" value="LOCAL" />
-      <updated>1757633964249</updated>
-    </task>
-    <task id="LOCAL-00159" summary="OpenSSF passing">
-      <option name="closed" value="true" />
-      <created>1757634105706</created>
-      <option name="number" value="00159" />
-      <option name="presentableId" value="LOCAL-00159" />
-      <option name="project" value="LOCAL" />
-      <updated>1757634105707</updated>
-    </task>
-    <task id="LOCAL-00160" summary="Doesn't seem to work">
-      <option name="closed" value="true" />
-      <created>1757636730354</created>
-      <option name="number" value="00160" />
-      <option name="presentableId" value="LOCAL-00160" />
-      <option name="project" value="LOCAL" />
-      <updated>1757636730354</updated>
-    </task>
-    <task id="LOCAL-00161" summary="Doesn't seem to work">
-      <option name="closed" value="true" />
-      <created>1757637632380</created>
-      <option name="number" value="00161" />
-      <option name="presentableId" value="LOCAL-00161" />
-      <option name="project" value="LOCAL" />
-      <updated>1757637632380</updated>
-    </task>
-    <task id="LOCAL-00162" summary="Added BroadcastRegion">
-      <option name="closed" value="true" />
-      <created>1757653230846</created>
-      <option name="number" value="00162" />
-      <option name="presentableId" value="LOCAL-00162" />
-      <option name="project" value="LOCAL" />
-      <updated>1757653230846</updated>
-    </task>
-    <task id="LOCAL-00163" summary="Added docstrings">
-      <option name="closed" value="true" />
-      <created>1757653954062</created>
-      <option name="number" value="00163" />
-      <option name="presentableId" value="LOCAL-00163" />
-      <option name="project" value="LOCAL" />
-      <updated>1757653954062</updated>
-    </task>
-    <task id="LOCAL-00164" summary="Added package-lock.json">
-      <option name="closed" value="true" />
-      <created>1757655575439</created>
-      <option name="number" value="00164" />
-      <option name="presentableId" value="LOCAL-00164" />
-      <option name="project" value="LOCAL" />
-      <updated>1757655575439</updated>
-    </task>
-    <task id="LOCAL-00165" summary="Removed flow_editor.yml">
-      <option name="closed" value="true" />
-      <created>1757656693688</created>
-      <option name="number" value="00165" />
-      <option name="presentableId" value="LOCAL-00165" />
-      <option name="project" value="LOCAL" />
-      <updated>1757656693688</updated>
-    </task>
-    <task id="LOCAL-00166" summary="Title change">
-      <option name="closed" value="true" />
-      <created>1757707161847</created>
-      <option name="number" value="00166" />
-      <option name="presentableId" value="LOCAL-00166" />
-      <option name="project" value="LOCAL" />
-      <updated>1757707161847</updated>
-    </task>
-    <task id="LOCAL-00167" summary="Update dependencies">
-      <option name="closed" value="true" />
-      <created>1757707189104</created>
-      <option name="number" value="00167" />
-      <option name="presentableId" value="LOCAL-00167" />
-      <option name="project" value="LOCAL" />
-      <updated>1757707189104</updated>
-    </task>
-    <task id="LOCAL-00168" summary="Add 'Insert Layer'">
-      <option name="closed" value="true" />
-      <created>1757707217347</created>
-      <option name="number" value="00168" />
-      <option name="presentableId" value="LOCAL-00168" />
-      <option name="project" value="LOCAL" />
-      <updated>1757707217347</updated>
+      <workItem from="1757633523177" duration="204201000" />
     </task>
     <task id="LOCAL-00169" summary="Update to current settings">
       <option name="closed" value="true" />
@@ -893,7 +793,95 @@
       <option name="project" value="LOCAL" />
       <updated>1758164118765</updated>
     </task>
-    <option name="localTasksCounter" value="207" />
+    <task id="LOCAL-00207" summary="Add Double Hegel Demo">
+      <option name="closed" value="true" />
+      <created>1758236420532</created>
+      <option name="number" value="00207" />
+      <option name="presentableId" value="LOCAL-00207" />
+      <option name="project" value="LOCAL" />
+      <updated>1758236420532</updated>
+    </task>
+    <task id="LOCAL-00208" summary="Renaming for simplicity">
+      <option name="closed" value="true" />
+      <created>1758236475101</created>
+      <option name="number" value="00208" />
+      <option name="presentableId" value="LOCAL-00208" />
+      <option name="project" value="LOCAL" />
+      <updated>1758236475101</updated>
+    </task>
+    <task id="LOCAL-00209" summary="Manage exclusions">
+      <option name="closed" value="true" />
+      <created>1758236571487</created>
+      <option name="number" value="00209" />
+      <option name="presentableId" value="LOCAL-00209" />
+      <option name="project" value="LOCAL" />
+      <updated>1758236571487</updated>
+    </task>
+    <task id="LOCAL-00210" summary="IDE setting changes">
+      <option name="closed" value="true" />
+      <created>1758236589370</created>
+      <option name="number" value="00210" />
+      <option name="presentableId" value="LOCAL-00210" />
+      <option name="project" value="LOCAL" />
+      <updated>1758236589370</updated>
+    </task>
+    <task id="LOCAL-00211" summary="IDE setting changes">
+      <option name="closed" value="true" />
+      <created>1758236604938</created>
+      <option name="number" value="00211" />
+      <option name="presentableId" value="LOCAL-00211" />
+      <option name="project" value="LOCAL" />
+      <updated>1758236604938</updated>
+    </task>
+    <task id="LOCAL-00212" summary="Reorganized and added new example">
+      <option name="closed" value="true" />
+      <created>1758238799593</created>
+      <option name="number" value="00212" />
+      <option name="presentableId" value="LOCAL-00212" />
+      <option name="project" value="LOCAL" />
+      <updated>1758238799593</updated>
+    </task>
+    <task id="LOCAL-00213" summary="Example results for the double Hegel workflow">
+      <option name="closed" value="true" />
+      <created>1758247973162</created>
+      <option name="number" value="00213" />
+      <option name="presentableId" value="LOCAL-00213" />
+      <option name="project" value="LOCAL" />
+      <updated>1758247973162</updated>
+    </task>
+    <task id="LOCAL-00214" summary="Added illustrations">
+      <option name="closed" value="true" />
+      <created>1758248013325</created>
+      <option name="number" value="00214" />
+      <option name="presentableId" value="LOCAL-00214" />
+      <option name="project" value="LOCAL" />
+      <updated>1758248013325</updated>
+    </task>
+    <task id="LOCAL-00215" summary="Bump dependency">
+      <option name="closed" value="true" />
+      <created>1758248035021</created>
+      <option name="number" value="00215" />
+      <option name="presentableId" value="LOCAL-00215" />
+      <option name="project" value="LOCAL" />
+      <updated>1758248035021</updated>
+    </task>
+    <task id="LOCAL-00216" summary="Links and style change attempt.">
+      <option name="closed" value="true" />
+      <created>1758391860541</created>
+      <option name="number" value="00216" />
+      <option name="presentableId" value="LOCAL-00216" />
+      <option name="project" value="LOCAL" />
+      <updated>1758391860541</updated>
+    </task>
+    <task id="LOCAL-00217" summary="Roll back formatting attempt.">
+      <option name="closed" value="true" />
+      <created>1758392425301</created>
+      <option name="number" value="00217" />
+      <option name="presentableId" value="LOCAL-00217" />
+      <option name="project" value="LOCAL" />
+      <updated>1758392425301</updated>
+    </task>
+    <option name="localTasksCounter" value="218" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -911,16 +899,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Accounted for update_chunk() being async" />
-    <MESSAGE value="Enabled awareness of request queue when asking downstream questions." />
-    <MESSAGE value="Create a temporary connection to a region after sending it a reply for the first time in a run" />
-    <MESSAGE value="Fixed name editing and node deletion not removing connections or executions" />
-    <MESSAGE value="Fixed chain deletion removes bound executions" />
-    <MESSAGE value="Added paths" />
-    <MESSAGE value="Update dependencies" />
-    <MESSAGE value="Minor simplification" />
-    <MESSAGE value="Clean up linter errors" />
-    <MESSAGE value="Factor out ParamEditor" />
     <MESSAGE value="Factor out ChainColors" />
     <MESSAGE value="Fixed spacing inconsistencies" />
     <MESSAGE value="Minor code quality things" />
@@ -936,7 +914,17 @@
     <MESSAGE value="Remove a debugging string" />
     <MESSAGE value="Refactored demos" />
     <MESSAGE value="Updated demo descriptions" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated demo descriptions" />
+    <MESSAGE value="Add Double Hegel Demo" />
+    <MESSAGE value="Renaming for simplicity" />
+    <MESSAGE value="Manage exclusions" />
+    <MESSAGE value="IDE setting changes" />
+    <MESSAGE value="Reorganized and added new example" />
+    <MESSAGE value="Example results for the double Hegel workflow" />
+    <MESSAGE value="Added illustrations" />
+    <MESSAGE value="Bump dependency" />
+    <MESSAGE value="Links and style change attempt." />
+    <MESSAGE value="Roll back formatting attempt." />
+    <option name="LAST_COMMIT_MESSAGE" value="Roll back formatting attempt." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Regions$lit_demo.coverage" NAME="lit_demo Coverage Results" MODIFIED="1758159826895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
@@ -960,6 +948,7 @@
     <SUITE FILE_PATH="coverage/Regions$pytest_for_test_postmaster_TestPostmasterEmitter_test_delivery_success.coverage" NAME="pytest for test_postmaster.TestPostmasterEmitter.test_delivery_success Coverage Results" MODIFIED="1756687529872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Regions$orchestrator.coverage" NAME="orchestrator Coverage Results" MODIFIED="1755457792261" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Regions$dynamic_rag_example.coverage" NAME="dynamic_rag_example Coverage Results" MODIFIED="1758151753438" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/Regions$dmn.coverage" NAME="dmn Coverage Results" MODIFIED="1758258441380" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples/default_mode_network" />
     <SUITE FILE_PATH="coverage/Regions$regions_gui.coverage" NAME="regions_gui Coverage Results" MODIFIED="1756314403998" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Morphea$llamacpp_api.coverage" NAME="llamacpp_api Coverage Results" MODIFIED="1754788091495" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules" />
     <SUITE FILE_PATH="coverage/Morphea$test_rag__1_.coverage" NAME="test_rag (1) Coverage Results" MODIFIED="1755206198083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />

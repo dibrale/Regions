@@ -225,6 +225,7 @@ A number of sample scripts, configuration files and GUI savestates are provided 
 - Demo implementation with infrastructure classes: `lookup/lookup_infra_demo.py` (loads params, regions, executions)
 - Literary critique workflow demo: `lit_crit/lit_demo.py` (More complex configuration that also demonstrates a ListenerRegion instance)
 - Double Hegel workflow demo: `double_hegel/double_hegel_demo.py` (Demonstrates broadcast region usage)
+- Model of the Default Mode Network (DMN): `default_mode_network/dmn.py`
 
 Run the infrastructure demo:
 ```powershell

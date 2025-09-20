@@ -1,0 +1,991 @@
+{
+  "flowNodes": [
+    {
+      "id": "Region_1",
+      "type": "regionNode",
+      "position": {
+        "x": -1372.4935410381913,
+        "y": 267.5004940209258
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "SelfThinker",
+          "task": "Think about the implications to yourself based on what your sources and knowledge can tell you.",
+          "connections": {
+            "GoalThinker": "Integrate what you know about yourself with your personal goals.",
+            "ClarifyPlace": "Clarify the spatial and contextual aspects of a memory.",
+            "JudgeInfer": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
+            "RememberImagine": "Retrieve memories involving yourself or imagine future scenarios.",
+            "SummarizeMemory": "Summarize memories and reply with these summaries."
+          }
+        },
+        "nodeId": "Region_1",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 150,
+      "selected": true,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -1372.4935410381913,
+        "y": 267.5004940209258
+      }
+    },
+    {
+      "id": "Region_2",
+      "type": "regionNode",
+      "position": {
+        "x": -1129.655274407348,
+        "y": 382.63250827200864
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "GoalThinker",
+          "task": "Integrate what you know about yourself with your personal goals.",
+          "connections": {
+            "JudgeInfer": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
+            "RememberImagine": "Retrieve memories involving yourself or imagine future scenarios."
+          }
+        },
+        "nodeId": "Region_2",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "cleanup",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -1129.655274407348,
+        "y": 382.63250827200864
+      },
+      "dragging": false
+    },
+    {
+      "id": "Region_3",
+      "type": "regionNode",
+      "position": {
+        "x": -871.6473143168405,
+        "y": 36.154696369349324
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "JudgeInfer",
+          "task": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
+          "connections": {
+            "JudgeOthers": "Make judgements about the mental states of others.",
+            "OthersConcept": "Explore the the social and conceptual aspects of a request.",
+            "RememberImagine": "Retrieve memories involving yourself or imagine future scenarios."
+          }
+        },
+        "nodeId": "Region_3",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "cleanup",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 150,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -871.6473143168405,
+        "y": 36.154696369349324
+      },
+      "dragging": false
+    },
+    {
+      "id": "Region_4",
+      "type": "regionNode",
+      "position": {
+        "x": -581.2222153569195,
+        "y": 137.90656905176144
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "RememberImagine",
+          "task": "Retrieve memories involving yourself or imagine future scenarios.",
+          "connections": {
+            "ClarifyPlace": "Clarify the spatial and contextual aspects of a memory.",
+            "SummarizeMemory": "Summarize memories and reply with these summaries."
+          }
+        },
+        "nodeId": "Region_4",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "cleanup",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 134,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -581.2222153569195,
+        "y": 137.90656905176144
+      },
+      "dragging": false
+    },
+    {
+      "id": "Region_5",
+      "type": "regionNode",
+      "position": {
+        "x": -574.9148070773607,
+        "y": -83.10789190612027
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "JudgeOthers",
+          "task": "Make judgements about the mental states of others.",
+          "connections": {
+            "PeopleFacts": "Retrieve facts surrounding the social context of the request.",
+            "OthersConcept": "Explore the the social and conceptual aspects of a request.",
+            "SummarizeMemory": "Summarize memories and reply with these summaries."
+          }
+        },
+        "nodeId": "Region_5",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "cleanup",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -574.9148070773607,
+        "y": -83.10789190612027
+      },
+      "dragging": false
+    },
+    {
+      "id": "Region_6",
+      "type": "regionNode",
+      "position": {
+        "x": -281.97794889288684,
+        "y": 439.08133169305427
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "SummarizeMemory",
+          "task": "Summarize memories and reply with these summaries.",
+          "connections": {
+            "PHC": "Spatial and contextual processing, particularly in scene recognition."
+          }
+        },
+        "nodeId": "Region_6",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "cleanup",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -281.97794889288684,
+        "y": 439.08133169305427
+      },
+      "dragging": false
+    },
+    {
+      "id": "Region_7",
+      "type": "regionNode",
+      "position": {
+        "x": -293.1423941386719,
+        "y": 63.12925125199223
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "OthersConcept",
+          "task": "Explore the the social and conceptual aspects of a request.",
+          "connections": {
+            "PeopleFacts": "Retrieve facts surrounding the social context of the request.",
+            "ClarifyPlace": "Clarify the spatial and contextual aspects of a memory."
+          }
+        },
+        "nodeId": "Region_7",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "cleanup",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -293.1423941386719,
+        "y": 63.12925125199223
+      },
+      "dragging": false
+    },
+    {
+      "id": "Region_8",
+      "type": "regionNode",
+      "position": {
+        "x": -14.409299116489933,
+        "y": 272.588268092629
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "ClarifyPlace",
+          "task": "Clarify the spatial and contextual aspects of a memory.",
+          "connections": {
+            "UnderstandScene": "Spatial and contextual processing, particularly in scene recognition."
+          }
+        },
+        "nodeId": "Region_8",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "cleanup",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -14.409299116489933,
+        "y": 272.588268092629
+      },
+      "dragging": false
+    },
+    {
+      "id": "Region_9",
+      "type": "regionNode",
+      "position": {
+        "x": 273.4891131937153,
+        "y": 428.82097398503174
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "UnderstandScene",
+          "task": "Spatial and contextual processing, particularly in scene recognition.",
+          "connections": {
+            "GetMemories": "Retrieve episodic memories."
+          }
+        },
+        "nodeId": "Region_9",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "cleanup",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 273.4891131937153,
+        "y": 428.82097398503174
+      },
+      "dragging": false
+    },
+    {
+      "id": "RAGRegion_10",
+      "type": "regionNode",
+      "position": {
+        "x": 39.17218057962123,
+        "y": -81.9643498859669
+      },
+      "data": {
+        "typeName": "RAGRegion",
+        "params": {
+          "name": "PeopleFacts",
+          "task": "Retrieve facts surrounding the social context of the request.",
+          "reply_with_actors": true,
+          "threshold": "0.5",
+          "connections": {
+            "OthersConcept": "Explore the the social and conceptual aspects of a request.",
+            "JudgeOthers": "Make judgements about the mental states of others."
+          }
+        },
+        "nodeId": "RAGRegion_10",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 39.17218057962123,
+        "y": -81.9643498859669
+      },
+      "dragging": false
+    },
+    {
+      "id": "RAGRegion_11",
+      "type": "regionNode",
+      "position": {
+        "x": 552.4776296766031,
+        "y": 438.35340365188233
+      },
+      "data": {
+        "typeName": "RAGRegion",
+        "params": {
+          "name": "GetMemories",
+          "task": "Retrieve episodic memories.",
+          "reply_with_actors": false,
+          "threshold": "0.5",
+          "connections": {
+            "UnderstandScene": "Spatial and contextual processing, particularly in scene recognition."
+          }
+        },
+        "nodeId": "RAGRegion_11",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 102,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 552.4776296766031,
+        "y": 438.35340365188233
+      },
+      "dragging": false
+    },
+    {
+      "id": "ListenerRegion_12",
+      "type": "regionNode",
+      "position": {
+        "x": -1548.7277811552785,
+        "y": -71.43845351383447
+      },
+      "data": {
+        "typeName": "ListenerRegion",
+        "params": {
+          "name": "CC"
+        },
+        "nodeId": "ListenerRegion_12",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "cleanup",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 82,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -1548.7277811552785,
+        "y": -71.43845351383447
+      },
+      "dragging": false
+    },
+    {
+      "id": "BroadcastRegion_13",
+      "type": "regionNode",
+      "position": {
+        "x": -1549.136666005071,
+        "y": 33.360782331049904
+      },
+      "data": {
+        "typeName": "BroadcastRegion",
+        "params": {
+          "name": "InstructionCache",
+          "task": "Forward cached instruction.",
+          "connections": {
+            "SelfThinker": "Think about yourself, given what you remember."
+          }
+        },
+        "nodeId": "BroadcastRegion_13",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 102,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -1549.136666005071,
+        "y": 33.360782331049904
+      },
+      "dragging": false
+    }
+  ],
+  "flowEdges": [
+    {
+      "source": "Region_6",
+      "sourceHandle": "out",
+      "target": "Region_9",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_6_Region_9"
+    },
+    {
+      "source": "BroadcastRegion_13",
+      "sourceHandle": "out",
+      "target": "Region_1",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_BroadcastRegion_13_Region_1"
+    },
+    {
+      "source": "Region_1",
+      "sourceHandle": "out",
+      "target": "Region_2",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_1_Region_2"
+    },
+    {
+      "source": "Region_1",
+      "sourceHandle": "out",
+      "target": "Region_8",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_1_Region_8"
+    },
+    {
+      "source": "Region_1",
+      "sourceHandle": "out",
+      "target": "Region_3",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_1_Region_3"
+    },
+    {
+      "source": "Region_2",
+      "sourceHandle": "out",
+      "target": "Region_3",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_2_Region_3"
+    },
+    {
+      "source": "Region_3",
+      "sourceHandle": "out",
+      "target": "Region_5",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_3_Region_5"
+    },
+    {
+      "source": "Region_3",
+      "sourceHandle": "out",
+      "target": "Region_7",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_3_Region_7"
+    },
+    {
+      "source": "Region_4",
+      "sourceHandle": "out",
+      "target": "Region_8",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_4_Region_8"
+    },
+    {
+      "source": "Region_5",
+      "sourceHandle": "out",
+      "target": "RAGRegion_10",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_5_RAGRegion_10"
+    },
+    {
+      "source": "Region_5",
+      "sourceHandle": "out",
+      "target": "Region_7",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_5_Region_7"
+    },
+    {
+      "source": "Region_7",
+      "sourceHandle": "out",
+      "target": "RAGRegion_10",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_7_RAGRegion_10"
+    },
+    {
+      "source": "Region_7",
+      "sourceHandle": "out",
+      "target": "Region_8",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_7_Region_8"
+    },
+    {
+      "source": "Region_8",
+      "sourceHandle": "out",
+      "target": "Region_9",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_8_Region_9"
+    },
+    {
+      "source": "Region_9",
+      "sourceHandle": "out",
+      "target": "RAGRegion_11",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_9_RAGRegion_11"
+    },
+    {
+      "source": "RAGRegion_10",
+      "sourceHandle": "out",
+      "target": "Region_7",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_RAGRegion_10_Region_7"
+    },
+    {
+      "source": "RAGRegion_10",
+      "sourceHandle": "out",
+      "target": "Region_5",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_RAGRegion_10_Region_5"
+    },
+    {
+      "source": "RAGRegion_11",
+      "sourceHandle": "out",
+      "target": "Region_9",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_RAGRegion_11_Region_9"
+    },
+    {
+      "source": "Region_3",
+      "sourceHandle": "out",
+      "target": "Region_4",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_3_Region_4"
+    },
+    {
+      "source": "Region_1",
+      "sourceHandle": "out",
+      "target": "Region_4",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_1_Region_4"
+    },
+    {
+      "source": "Region_2",
+      "sourceHandle": "out",
+      "target": "Region_4",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_2_Region_4"
+    },
+    {
+      "source": "Region_1",
+      "sourceHandle": "out",
+      "target": "Region_6",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_1_Region_6"
+    },
+    {
+      "source": "Region_4",
+      "sourceHandle": "out",
+      "target": "Region_6",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_4_Region_6"
+    },
+    {
+      "source": "Region_5",
+      "sourceHandle": "out",
+      "target": "Region_6",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_Region_5_Region_6"
+    }
+  ],
+  "layerConfig": [
+    {
+      "init": [
+        "CC"
+      ]
+    },
+    {
+      "questions_forward": [
+        "SelfThinker",
+        "GoalThinker",
+        "JudgeInfer"
+      ]
+    },
+    {
+      "tpj": [
+        "JudgeOthers"
+      ],
+      "vmpfc": [
+        "RememberImagine"
+      ]
+    },
+    {
+      "pipl": [
+        "SummarizeMemory"
+      ],
+      "ltc": [
+        "OthersConcept"
+      ]
+    },
+    {
+      "rsc": [
+        "ClarifyPlace"
+      ],
+      "tempp": [
+        "PeopleFacts"
+      ]
+    },
+    {
+      "phc_hf": [
+        "UnderstandScene",
+        "GetMemories"
+      ]
+    },
+    {
+      "phc": [
+        "UnderstandScene"
+      ]
+    },
+    {
+      "hf": [
+        "GetMemories"
+      ],
+      "pipl": [
+        "SummarizeMemory"
+      ],
+      "rsc-ltc": [
+        "ClarifyPlace",
+        "OthersConcept"
+      ]
+    },
+    {
+      "tpj": [
+        "JudgeOthers"
+      ],
+      "vmpfc": [
+        "RememberImagine"
+      ]
+    },
+    {
+      "replies_back": [
+        "JudgeInfer",
+        "GoalThinker",
+        "SelfThinker"
+      ],
+      "trmpp": [
+        "PeopleFacts"
+      ]
+    },
+    {
+      "pcc_summary": [
+        "InstructionCache",
+        "SelfThinker"
+      ]
+    },
+    {
+      "cleanup": [
+        "CC",
+        "GoalThinker",
+        "JudgeInfer",
+        "JudgeOthers",
+        "RememberImagine",
+        "OthersConcept",
+        "SummarizeMemory",
+        "ClarifyPlace",
+        "UnderstandScene"
+      ]
+    }
+  ],
+  "executionConfig": [
+    [
+      [
+        "CC",
+        "start"
+      ]
+    ],
+    [
+      [
+        "SelfThinker",
+        "make_questions"
+      ],
+      [
+        "GoalThinker",
+        "make_questions"
+      ],
+      [
+        "JudgeInfer",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "JudgeOthers",
+        "make_questions"
+      ],
+      [
+        "RememberImagine",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "SummarizeMemory",
+        "make_questions"
+      ],
+      [
+        "OthersConcept",
+        "make_questions"
+      ]
+    ],
+    [
+      [
+        "ClarifyPlace",
+        "make_questions"
+      ],
+      [
+        "PeopleFacts",
+        "make_replies"
+      ],
+      [
+        "PeopleFacts",
+        "request_summaries"
+      ]
+    ],
+    [
+      [
+        "UnderstandScene",
+        "make_questions"
+      ],
+      [
+        "GetMemories",
+        "make_replies"
+      ],
+      [
+        "GetMemories",
+        "request_summaries"
+      ]
+    ],
+    [
+      [
+        "UnderstandScene",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "GetMemories",
+        "make_updates"
+      ],
+      [
+        "SummarizeMemory",
+        "summarize_replies"
+      ],
+      [
+        "SummarizeMemory",
+        "make_replies"
+      ],
+      [
+        "ClarifyPlace",
+        "make_replies"
+      ],
+      [
+        "OthersConcept",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "JudgeOthers",
+        "make_replies"
+      ],
+      [
+        "RememberImagine",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "TempP",
+        "make_updates"
+      ],
+      [
+        "PeopleFacts",
+        "make_updates"
+      ],
+      [
+        "JudgeInfer",
+        "make_replies"
+      ],
+      [
+        "GoalThinker",
+        "make_replies"
+      ],
+      [
+        "SelfThinker",
+        "make_replies"
+      ],
+      [
+        "SelfThinker",
+        "summarize_replies"
+      ]
+    ],
+    [
+      [
+        "InstructionCache",
+        "broadcast"
+      ],
+      [
+        "SelfThinker",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "CC",
+        "stop"
+      ],
+      [
+        "GoalThinker",
+        "clear_replies"
+      ],
+      [
+        "JudgeInfer",
+        "clear_replies"
+      ],
+      [
+        "JudgeOthers",
+        "clear_replies"
+      ],
+      [
+        "RememberImagine",
+        "clear_replies"
+      ],
+      [
+        "OthersConcept",
+        "clear_replies"
+      ],
+      [
+        "SummarizeMemory",
+        "clear_replies"
+      ],
+      [
+        "ClarifyPlace",
+        "clear_replies"
+      ],
+      [
+        "UnderstandScene",
+        "clear_replies"
+      ]
+    ]
+  ],
+  "executionOrder": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "chainColors": [
+    {
+      "init": 0
+    },
+    {
+      "questions_forward": 0
+    },
+    {
+      "tpj": 0,
+      "vmpfc": 1
+    },
+    {
+      "pipl": 1,
+      "ltc": 0
+    },
+    {
+      "rsc": 0,
+      "tempp": 1
+    },
+    {
+      "phc_hf": 0
+    },
+    {
+      "phc": 0
+    },
+    {
+      "hf": 1,
+      "pipl": 2,
+      "rsc-ltc": 0
+    },
+    {
+      "tpj": 0,
+      "vmpfc": 1
+    },
+    {
+      "replies_back": 0,
+      "trmpp": 1
+    },
+    {
+      "pcc_summary": 0
+    },
+    {
+      "cleanup": 0
+    }
+  ]
+}
