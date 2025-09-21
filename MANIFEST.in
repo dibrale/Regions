@@ -1,3 +1,4 @@
+include requirements.txt
 include examples/*.json
 include examples/*/*.json
 include examples/shared/bm_rag.db
