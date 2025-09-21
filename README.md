@@ -63,10 +63,12 @@ The plan is then effected by an Executor instance. An Executor requires a Region
 - Python 3.10 or newer (tested with modern type hints like list[str], | unions)
 - Windows, macOS, or Linux (examples below use Windows PowerShell)
 
-Install dependencies:
+Installation (v0.1.0):
+- Download the v0.1.0 release from https://github.com/dibrale/Regions/releases/tag/v0.1.0 or clone this repository.
+- Create a virtual environment and install the Python dependencies with:
 
 ```powershell
-# From the project root
+# From the project root (where requirements.txt lives)
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
