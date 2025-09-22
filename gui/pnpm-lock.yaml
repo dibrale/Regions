@@ -160,8 +160,8 @@ importers:
         version: 4.1.11
     devDependencies:
       '@eslint/js':
-        specifier: ^9.35.0
-        version: 9.35.0
+        specifier: ^9.36.0
+        version: 9.36.0
       '@types/react':
         specifier: ^19.1.13
         version: 19.1.13
