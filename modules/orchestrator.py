@@ -1,3 +1,6 @@
+"""
+Module containing the Orchestrator class for managing execution plans and configuration
+"""
 import json
 import logging
 import pathlib
@@ -7,14 +10,15 @@ from utils import set_list, trim_list, check_execution_entry
 
 class Orchestrator:
     """
-    Execution planning and configuration class for region-based communication. Each registered region is assigned to at
-    least one execution layer. Although regions sharing an execution layer are intended to run concurrently, subsets
-    of the layer can be configured to run serially. Execution layers themselves run serially relative to one another
-    in a preconfigured order.
+    Execution planning and configuration class for region-based communication. Each registered
+    region is assigned to at least one execution layer. Although regions sharing an execution layer
+    are intended to run concurrently, subsets of the layer can be configured to run serially.
+    Execution layers themselves run serially relative to one another in a preconfigured order.
 
-    The **layer configuration** determines which chains run in a given layer as well as serial execution sequence
-    position and membership. The **execution configuration** specifies what methods are called for each region, as well
-    as the relative order in which these methods are called once a region is run.
+    The **layer configuration** determines which chains run in a given layer as well as serial
+    execution sequence position and membership. The **execution configuration** specifies what
+    methods are called for each region, as well as the relative order in which these methods are
+    called once a region is run.
 
     Side effects:
 
@@ -31,12 +35,13 @@ class Orchestrator:
     - There is nothing preventing a region from being assigned to more than one execution layer, provided the above considerations are taken into account.
 
     Note:
-        Execution layers are concurrency groups. Within a layer, chains define serial execution sequences that run
-        concurrently with other chains in the same layer.
+        Execution layers are concurrency groups. Within a layer, chains define serial execution
+        sequences that run concurrently with other chains in the same layer.
 
-        Execution layers differ from perceptron layers in a neural network. Conventional layer membership is determined
-        by the position of a node in a network graph. Membership in an execution layer is determined by the relative
-        state of a node with respect to the execution sequence – a dimension which maps one-to-one to a segment of runtime.
+        Execution layers differ from perceptron layers in a neural network. Conventional layer
+        membership is determined by the position of a node in a network graph. Membership in an
+        execution layer is determined by the relative state of a node with respect to the
+        execution sequence – a dimension which maps one-to-one to a segment of runtime.
 
     Example 1:
         Layer configuration to execute "foo", then "bar" while "baz" runs in parallel
@@ -48,8 +53,8 @@ class Orchestrator:
                         )
 
     Example 2:
-        Region execution configurations for the above layer that causes "foo" and "bar" to make_questions while
-        "baz" runs make_answers, then ponder_deeply in parallel.
+        Region execution configurations for the above layer that causes "foo" and "bar" to
+        make_questions while "baz" runs make_answers, then ponder_deeply in parallel.
 
         >>> executions = [("foo", "make_questions"), ("bar", "make_questions"), ("baz", "make_answers"), ("baz", "ponder_deeply")]
         >>> executions = [("bar", "make_questions"), ("baz", "make_answers"), ("foo", "make_questions"), ("baz", "ponder_deeply")]
@@ -70,8 +75,8 @@ class Orchestrator:
         Args:
             layer_config: List of dictionaries where each dict maps chain names to region lists
                           for concurrent execution within a layer. Defaults to empty list.
-            execution_config: List of lists for each layer containing tuples specifying (region, method) execution
-                              sequences. Defaults to empty list.
+            execution_config: List of lists for each layer containing tuples specifying
+                            (region, method) execution sequences. Defaults to empty list.
             execution_order: List of layer indices defining custom execution sequence.
                              Defaults to sequential order if not provided.
 
@@ -90,7 +95,8 @@ class Orchestrator:
         Returns:
             String containing formatted layer, execution, and order configurations.
         """
-        return f"LayerConfig: {self.layer_config}\nExecutionConfig: {self.execution_config}\nExecutionOrder: {self.execution_order}"
+        return (f"LayerConfig: {self.layer_config}\nExecutionConfig: "
+                f"{self.execution_config}\nExecutionOrder: {self.execution_order}")
 
     def pad(self, length: int):
         """
@@ -243,7 +249,8 @@ class Orchestrator:
         logging.error(f"'{method}' for region '{region}' already in layer {layer}, not appending")
         return False
 
-    def replace_method(self, layer: int, region: str, method_to_replace: str, new_method: str) -> bool:
+    def replace_method(
+            self, layer: int, region: str, method_to_replace: str, new_method: str) -> bool:
         """
         Replace an existing method with a new one for a region in a layer.
 
@@ -263,11 +270,12 @@ class Orchestrator:
             Raises RuntimeError if replacement fails unexpectedly.
         """
         original_methods = self.methods_in_layer(layer, region)
-        old_tuple = (region, method_to_replace)  # This is getting replaced anyway, so no need to check
+        old_tuple = (region, method_to_replace)  # This is getting replaced; no need to check
         new_tuple = check_execution_entry((region, new_method))
 
         if not original_methods:
-            logging.error(f"Region '{region}' not found in execution configuration for layer {layer}")
+            logging.error(
+                f"Region '{region}' not found in execution configuration for layer {layer}")
             return False
 
         if method_to_replace == new_method:
@@ -275,7 +283,8 @@ class Orchestrator:
             return False
 
         if method_to_replace not in original_methods:
-            logging.error(f"'{method_to_replace}' not found for region '{region}' in layer {layer}")
+            logging.error(
+                f"'{method_to_replace}' not found for region '{region}' in layer {layer}")
             return False
 
         if new_method in original_methods:
@@ -286,7 +295,8 @@ class Orchestrator:
             if exec_tuple == old_tuple:
                 self.execution_config[layer][idx] = new_tuple
                 logging.info(
-                    f"Replaced '{method_to_replace}' with '{new_method}' for region '{region}' in layer {layer}")
+                    f"Replaced '{method_to_replace}' with '{new_method}' for region "
+                    f"'{region}' in layer {layer}")
                 return True
         raise RuntimeError("Method should have been replaced but was not")
 
@@ -395,7 +405,8 @@ class Orchestrator:
                 logging.info(f"Empty chain '{chain_deleted}' removed from layer {layer_index}")
                 layers_trimmed = trim_list(self.layer_config)
                 if layers_trimmed:
-                    logging.info(f"Removed {layers_trimmed} empty layers from the layer configuration")
+                    logging.info(
+                        f"Removed {layers_trimmed} empty layers from the layer configuration")
             return True
         logging.error(f"Region '{region}' not found in layer {layer_index}")
         return False
@@ -441,7 +452,8 @@ class Orchestrator:
 
         if not 'layer_config' in data and not 'execution_config' in data and not 'execution_order' in data:
             logging.error(
-                "None of layer_config, execution_config or execution_order keys found. Unable to load the data.")
+                "None of layer_config, execution_config or execution_order keys found. "
+                "Unable to load the data.")
             return False
         if 'layer_config' in data:
             self.layer_config = data['layer_config']
@@ -469,8 +481,8 @@ class Orchestrator:
         Returns a list of all unique regions defined in the layer configuration.
 
         Side Effects:
-            - If a region is present in the execution configuration, but not in the layer configuration, it will
-              be omitted from this output.
+            If a region is present in the execution configuration, but not in the layer
+            configuration, it will be omitted from this output.
         """
         all_regions = set()
         for layer in self.layer_config:
@@ -507,35 +519,42 @@ class Orchestrator:
         # Handle length discrepancies
         if layer_count > execution_count:
             logging.warning(
-                f"Trailing silent layers detected: {layer_count - execution_count} layers in layer_config have no execution_config entries")
+                f"Trailing silent layers detected: {layer_count - execution_count} "
+                "layers in layer_config have no execution_config entries")
         elif layer_count < execution_count:
             logging.warning(
-                f"Missing layers detected: {execution_count - layer_count} execution_config entries have no corresponding layer_config entries")
+                f"Missing layers detected: {execution_count - layer_count} "
+                "execution_config entries have no corresponding layer_config entries")
 
         # Check layers within common range
         common_range = min(layer_count, execution_count)
         for i in range(common_range):
-            layer_empty = not self.layer_config[i] or all(not chain for chain in self.layer_config[i].values())
+            layer_empty = (not self.layer_config[i] or
+                           all(not chain for chain in self.layer_config[i].values()))
             execution_empty = not self.execution_config[i]
 
             # Silent layer check (empty layer but non-empty execution)
             if layer_empty and not execution_empty:
-                logging.warning(f"Layer {i} is silent: empty layer configuration but non-empty execution configuration")
+                logging.warning(f"Layer {i} is silent: "
+                                "empty layer configuration but non-empty execution configuration")
 
             # Missing layer check (non-empty execution but empty layer)
             if not layer_empty and execution_empty:
-                logging.warning(f"Layer {i} is missing: execution configuration present but empty layer configuration")
+                logging.warning(f"Layer {i} is missing: "
+                                "execution configuration present but empty layer configuration")
 
         # Check execution_order
         if not self.execution_order:
             logging.warning(
-                "No execution_order provided. System will default to iterating through layers sequentially.")
+                "No execution_order provided. "
+                "System will default to iterating through layers sequentially.")
         else:
             # Validate execution_order indices
             for idx in self.execution_order:
                 if idx < 0 or idx >= layer_count:
                     logging.error(
-                        f"Execution order contains invalid layer index {idx} (must be between 0 and {layer_count - 1})")
+                        "Execution order contains invalid layer index "
+                        f"{idx} (must be between 0 and {layer_count - 1})")
                     valid = False
 
             # Check for missing layers in execution_order
@@ -567,14 +586,16 @@ class Orchestrator:
                 all_regions_in_layer.extend(chain)
 
             if len(all_regions_in_layer) != len(set(all_regions_in_layer)):
-                duplicate_regions = [r for r in all_regions_in_layer if all_regions_in_layer.count(r) > 1]
+                duplicate_regions = [
+                    r for r in all_regions_in_layer if all_regions_in_layer.count(r) > 1]
                 logging.error(f"Layer {layer_idx} contains duplicate regions: {duplicate_regions}")
                 valid = False
 
             # Check regions with no methods in this layer
             for region in all_regions_in_layer:
                 if not self.methods_in_layer(layer_idx, region):
-                    logging.warning(f"Region '{region}' in layer {layer_idx} has no execution methods")
+                    logging.warning(
+                        f"Region '{region}' in layer {layer_idx} has no execution methods")
 
         # Validate each entry for each layer in execution_config
         for layer_executions in self.execution_config:
@@ -585,33 +606,3 @@ class Orchestrator:
                     logging.warning(f"Invalid execution entry will be ignored: {entry}. {e}")
 
         return valid
-
-        # === Validation pseudocode ===
-        # ideally has same number of layers in layer_config and execution_config
-            # len(layer_config) > len(execution_config)
-                # warn about trailing silent layers (ie, not listed in execution config but present in layer config)
-            # len(layer_config) < len(execution_config)
-                # warn about missing layers (ie, listed in execution config but absent from layer config)
-            # for indices in range of shortest of execution_config and layer_config
-                # warn about silent layers (ie empty layer, but nonempty execution entry)
-                # warn about missing layers (ie, nonempty execution entry, but empty layer)
-                # warn about layer indices that are both missing and silent (ie. listed in neither)
-        # if no execution_order:
-            # warn that system will default to iterating through layers sequentially
-        # if execution_order is nonempty:
-            # all execution_order items must be >0 and < len(layer_config)
-                # fail the verify if this is not the case
-            # every layer index can be found in execution_order
-                # warn which layers are missing from execution order, and that they will be silent
-        # for each unique region:
-            # warn if any regions runs no methods
-        # for each layer in layer_config:
-            # each chain is associated with at least one region - warn for any empty chains
-            # no duplicate regions are allowed to be present in a given single layer
-                # fail the verify if this is not the case
-            # no duplicate chains within a layer
-                # fail the verify if this is not the case
-            # each region runs at least one method for same layer in execution_config - warn for silent regions
-        # Validate each entry for each layer in execution_config using check_execution_entry
-
-    # SUGGEST: Add options to clean silent elements and invalid entries from configuration
