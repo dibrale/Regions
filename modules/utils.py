@@ -200,19 +200,27 @@ def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
 
 def use_logging_standard() -> None:
     """Configure logging preferences in a standard way throughout the Regions package."""
-    coloredlogs.COLOREDLOGS_LEVEL_STYLES = 'debug=34;warning=220;error=124, bold;critical=background=red'
     coloredlogs.DEFAULT_LOG_FORMAT = '%(asctime)s %(levelname)s %(message)s'
     coloredlogs.DEFAULT_FIELD_STYLES = {
-        'asctime': {'color': 'grey'},
-        'levelname': {'bold': True, 'color': 'white'},
+        'asctime': {'color': 76},
+        'levelname': {'bold': True, 'color': 80},
     }
-
-    '''
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
-        force=True
-    )
-    '''
+    coloredlogs.DEFAULT_LEVEL_STYLES = {
+        'debug': {'color': 245},
+        'info': {'color': 250},
+        'warning': {'color': 220},
+        'error': {'color': 'red', 'bold': True},
+        'critical': {'color': 'red', 'inverse': True}
+    }
     coloredlogs.install(level='INFO')
+
+def test_logging_preferences():
+    """
+    Prints sample log messages to demonstrate the formatting and style of the current configuration.
+    :return:
+    """
+    logging.debug("Logging preferences configured")
+    logging.info("Logging preferences configured")
+    logging.warning("Logging preferences configured")
+    logging.error("Logging preferences configured")
+    logging.critical("Logging preferences configured")
