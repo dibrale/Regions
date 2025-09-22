@@ -1,19 +1,37 @@
+"""
+Utility functions for the Regions package
+"""
 import asyncio
 import logging
-from asyncio import Queue
-from typing import Any, List
 import re
+from asyncio import Queue
+from typing import List
+
+import coloredlogs
 
 
-# Check for None and return an empty string in its place. Otherwise, pass the input to output as string.
+
 def assure_string(txt) -> str:
+    """
+    Check for None and return an empty string in its place.
+    Otherwise, pass the input to output as string.
+    :param txt: (str) Text input
+    :return:
+    """
     if not txt:
         return ''
     return str(txt)
 
-# Parse a string for boolean output, returning None for inconsistent replies
-def bool_from_str(text_in: str, true_str='true', false_str='false', case_sensitive=False) -> bool | None:
-
+def bool_from_str(
+        text_in: str, true_str='true', false_str='false', case_sensitive=False)-> bool | None:
+    """
+    # Parse a string for boolean output, returning None for inconsistent replies
+    :param text_in:  (str) Text input to convert into boolean
+    :param true_str: (str) True string
+    :param false_str: (str) False string
+    :param case_sensitive: (bool) Enable case sensitivity of checks
+    :return:
+    """
     # Apply case sensitivity
     if not case_sensitive:
         text = text_in.lower()
@@ -29,18 +47,25 @@ def bool_from_str(text_in: str, true_str='true', false_str='false', case_sensiti
     is_false = text.count(false)
     if is_true > 0 >= is_false:
         return True
-    elif is_false > 0 >= is_true:
+    if is_false > 0 >= is_true:
         return False
-    else:
-        return None
+    return None
 
-#Get host and port from string
-def parse_host_port(s: str) -> tuple[str | Any, int] | tuple[str | Any, None] | None:
+def parse_host_port(s: str) -> tuple[str | int, None] | None:
+    """
+    Get host and port from string
+    :param s: (str) String to parse
+    :return: (tuple[str | int] | tuple[str | None] | None) Host and port tuple,
+        or None if not found.
+    """
     pattern_with_port = r'([a-zA-Z0-9.-]+):(\d+)'
     match = re.search(pattern_with_port, s)
     if match:
         host = match.group(1)
-        port = int(match.group(2))
+        try:
+            port = int(match.group(2))
+        except ValueError:
+            port = None
         return host, port
 
     pattern_without_port = r'([a-zA-Z0-9.-]+)'
@@ -51,13 +76,28 @@ def parse_host_port(s: str) -> tuple[str | Any, int] | tuple[str | Any, None] | 
 
     return None
 
-# Initialize a list
-def set_list(list_input: list) -> list:
-    if not list_input: return []
+def set_list(list_input: list | None) -> list:
+    """
+    Initialize a list if a Falsy input is given, otherwise return the input list.
+    :param list_input: (list | None) List or None
+    :return: (list) List or initialized list if input was None
+
+    Note:
+    Will work with non-list Falsy inputs, but such use is not recommended.
+    """
+    if not list_input:
+        return []
     return list_input
 
-# Trim empty list items from the end of a list. Returns number of items removed.
 def trim_list(list_input: list) -> int:
+    """
+    Method to trim empty list items from the end of a list. Returns number of items removed.
+    :param list_input: (list) List to trim
+    :return: (int) Number of items removed
+
+    Note:
+    List argument is trimmed directly, and is not returned with output
+    """
     num_popped = 0
     for i in range(len(list_input))[::-1]:
         if not list_input[i]:
@@ -67,9 +107,13 @@ def trim_list(list_input: list) -> int:
             break
     return num_popped
 
-# Check execution configuration entry. Returns input if valid.
-def check_execution_entry(entry: tuple):
-    assert type(entry) is tuple, f"Expected tuple, got {type(entry)}"
+def check_execution_entry(entry: tuple) -> tuple:
+    """
+    Check execution configuration entry. Returns input if valid. AssertionError otherwise.
+    :param entry: (tuple) Tuple with region name and method name
+    :return: (tuple) Validated tuple entry
+    """
+    assert isinstance(entry, tuple), f"Expected tuple, got {type(entry)}"
     assert len(entry) == 2, f"Expected tuple of length 2, got {len(entry)}"
     assert isinstance(entry[0], str), f"Expected string for region name, got {type(entry[0])}"
     assert isinstance(entry[1], str), f"Expected string for method name, got {type(entry[1])}"
@@ -123,11 +167,10 @@ async def until_empty(queue: Queue, interval: float = 0.1, timeout: float = 3) -
     start_time = asyncio.get_event_loop().time()
     while asyncio.get_event_loop().time() - start_time < timeout:
         if queue.empty():
-            logging.debug(f"Queue is now empty")
+            logging.debug("Queue is now empty")
             return True
-        else:
-            await asyncio.sleep(interval)
-    logging.warning(f"Queue  not empty after timeout")
+        await asyncio.sleep(interval)
+    logging.warning("Queue  not empty after timeout")
     return False
 
 def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
@@ -157,9 +200,19 @@ def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
 
 def use_logging_standard() -> None:
     """Configure logging preferences in a standard way throughout the Regions package."""
+    coloredlogs.COLOREDLOGS_LEVEL_STYLES = 'debug=34;warning=220;error=124, bold;critical=background=red'
+    coloredlogs.DEFAULT_LOG_FORMAT = '%(asctime)s %(levelname)s %(message)s'
+    coloredlogs.DEFAULT_FIELD_STYLES = {
+        'asctime': {'color': 'grey'},
+        'levelname': {'bold': True, 'color': 'white'},
+    }
+
+    '''
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S',
         force=True
     )
+    '''
+    coloredlogs.install(level='INFO')
