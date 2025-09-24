@@ -4,6 +4,7 @@ import re
 
 from regions.base_region import BaseRegion
 from modules.llmlink import LLMLink
+from modules.utils import make_prompt
 
 
 class Region(BaseRegion):
@@ -43,46 +44,34 @@ class Region(BaseRegion):
         """
         super().__init__(name, task, connections)
         self.llm = llm
+        self.focus_str = f"Your focus: {self.task}"
 
-    def _make_prompt(self, question: str, bom: str = '<|im_start|>', eom: str = '<|im_end|>', think: str = None) -> str:
+    def _replies_block(self) -> str:
         """
-        Construct a structured prompt for the LLM.
-
-        Args:
-            question (str): User query or request to process
-            bom (str, optional): Beginning of message delimiter. Defaults to '('.
-            eom (str, optional): End of message delimiter. Defaults to '<|im_end|>'.
-            think (str, optional): Optional thinking trace to include in prompt. Defaults to None.
-
-        Returns:
-            str: Formatted prompt string ready for LLM processing
-
-        Note:
-            - Builds schema containing region's task focus and accumulated knowledge
-            - Uses delimiters to structure system/user/assistant sections
-            - Includes thinking trace if provided
+        Writes incoming replies block by peeking at the incoming replies queue.
+        :return: (str): A prefixed JSON dump of incoming replies
         """
         if not self._incoming_replies.empty():
             raw_incoming_replies = [*self._incoming_replies.__dict__['_queue']]
-            schema = {'focus': self.task, 'knowledge': [reply for reply in raw_incoming_replies if reply]}
-            prefix = f"{bom}system\nReply to the user, given your focus and knowledge per the given schema:"
-            prompt = f"{prefix}\n{schema}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
         else:
-            prefix = f"{bom}system\nReply to the user."
-            prompt = f"{prefix}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
-        if think:
-            prompt += f"{think}\n"
-        return prompt
+            return ''
+        schema_str = json.dumps(raw_incoming_replies, indent=2)
+        block = f"Below is a summary of your knowledge from different sources:\n{schema_str}\n"
+        return block
 
     def _requests_block(self) -> str:
+        """
+        Writes incoming requests block by peeking at the incoming requests queue.
+        :return: (str): A prefixed JSON dump of incoming requests
+        """
         if not self._incoming_requests.empty():
             raw_incoming_requests = [*self._incoming_requests.__dict__['_queue']]
         else:
             return ''
-
-        schema = {'focus': self.task, 'query': [request for request in raw_incoming_requests if request]}
-        prefix = "Below is a list of current incoming requests, which may contain useful information:\n\n"
-        block = f"{prefix}\n{schema}\n\n"
+        schema_str = json.dumps(raw_incoming_requests, indent=2)
+        prefix = ("Below is a list of current incoming requests, "
+                  "which may contain useful information:")
+        block = f"{prefix}\n{schema_str}\n"
         return block
 
     async def _parse_thinking(self, raw_reply: str) -> str:
@@ -180,7 +169,10 @@ class Region(BaseRegion):
             request = self._incoming_requests.get_nowait()
             source, question = request.popitem()
 
-            prompt = self._make_prompt(question)
+            prompt = make_prompt(
+                question,
+                '\n'.join([self.focus_str, self._replies_block(), self._requests_block()])
+            )
 
             reply = await self._get_from_llm(prompt)
 
@@ -214,14 +206,18 @@ class Region(BaseRegion):
         self._run_inbox()
 
         user_prompt = (
-                self._requests_block() +
-                "Below is a list of sources and their respective focus. Keeping your own focus in mind, ask each of them " +
-                "one or more questions to update your knowledge.\n\n" + str(self.connections) +
-                '\n\nReply with your questions in valid JSON format according to the template:\n' +
-                '[{"source": source1, "question": question1}, {"source": source2, "question": question2}, ... ]\n\n'
+                "Below is a dictionary of sources and their respective focus. Keeping your own "
+                "focus in mind, ask each of them one or more questions to update your knowledge."
+                "\n\n" + json.dumps(self.connections, indent=2) +
+                '\n\nReply with your questions in valid JSON format according to the template:\n'
+                '[{"source": source1, "question": question1}, {"source": source2, '
+                '"question": question2}, ... ]'
         )
-        prompt = self._make_prompt(user_prompt)
 
+        prompt = make_prompt(
+            user_prompt,
+            '\n'.join([self.focus_str, self._replies_block(), self._requests_block()])
+        )
         reply = await self._get_from_llm(prompt)
 
         if not reply:

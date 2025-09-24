@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, AsyncMock, patch  # Import AsyncMock
 
 from llmlink import LLMLink
 from regions.region import Region
+from utils import make_prompt
 
 llm = LLMLink()
 
@@ -90,7 +91,7 @@ class TestRegion(unittest.TestCase):
 
     async def test_make_prompt(self):
         """Test prompt construction with default delimiters"""
-        prompt = self.region._make_prompt("user question")
+        prompt = make_prompt("user question")
         self.assertIn("user question", prompt)
 
     async def test_make_replies_success(self):
@@ -114,7 +115,11 @@ class TestRegion(unittest.TestCase):
         # self.mock_llm.text.return_value = "Sunny"
 
         # Generate replies
-        result = await self.region.make_replies()
+        with self.assertLogs(level='DEBUG') as cm:
+            try:
+                result = await self.region.make_replies()
+            finally:
+                print("\n=== CAPLOG ===\n" + '\n'.join(cm.output) + "\n=== END CAPLOG ===")
 
         self.assertTrue(result)
         self.assertTrue(self.region._incoming_requests.empty())
