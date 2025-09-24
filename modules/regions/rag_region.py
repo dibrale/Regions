@@ -74,6 +74,9 @@ class RAGRegion(BaseRegion):
             - Returns False if retrieval fails
             - Clears _incoming_requests after processing
         """
+        if not self.rag:
+            logging.error(f"{self.name}: RAG system is not initialized.")
+            return False
         faultless = True
         self._run_inbox()
 
@@ -127,6 +130,9 @@ class RAGRegion(BaseRegion):
             - Returns False if retrieval or update fails
             - Clears _incoming_replies after processing
         """
+        if not self.rag:
+            logging.error(f"{self.name}: RAG system is not initialized.")
+            return False
         faultless = True
         self._run_inbox()
         results: list[RetrievalResult] = []
