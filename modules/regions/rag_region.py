@@ -164,12 +164,12 @@ class RAGRegion(BaseRegion):
                         success = await self.rag.delete_chunk(chunk_hash)
                         faultless = faultless and success
             else:
-                logging.info(f"\n{self.name}: Processing failed - no results found.")
+                logging.info(f"{self.name}: Processing failed - no results found.")
                 faultless = False
             if updated:
-                logging.info(f"\n{self.name}: Database update from {source} succeeded.")
+                logging.info(f"{self.name}: Database update from {source} succeeded.")
             if hashes_to_delete:
-                logging.info(f"\n{self.name}: Consolidated {len(hashes_to_delete)+1} chunks.")
+                logging.info(f"{self.name}: Consolidated {len(hashes_to_delete)+1} chunks.")
 
         return faultless
 

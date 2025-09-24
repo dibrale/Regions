@@ -83,8 +83,6 @@ class DynamicRAGSystem:
         else:
             self.db_path = pathlib.PurePath(os.path.join(os.getcwd(), pathlib.PurePath(db_path)))
 
-        logging.info(f"Will use database at {self.db_path}")
-
 
         self.embedding_server_url = embedding_server_url
         self.embedding_model = embedding_model

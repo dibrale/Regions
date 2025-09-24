@@ -631,7 +631,7 @@ class RegionRegistry:
 
         # Start build
         if warnings:
-            logging.info(f"Proceeding despite {warnings}")
+            logging.info(f"Proceeding despite {warnings} warnings")
         logging.info(f"Attempting to build {len(self.regions)} regions...")
         built = 0
         skipped = 0
@@ -660,7 +660,6 @@ class RegionRegistry:
                 try:
                     if entry.make_region():
                         built += 1
-                        logging.info(f"Successfully built region '{entry.name}'")
                     else:
                         faultless = False
                         logging.error(f"Failed to build region '{entry.name}'")

@@ -52,7 +52,7 @@ class EmbeddingClient:
             raise RuntimeError("EmbeddingClient must be used as async context manager")
 
         url = f"{self.base_url}/v1/embeddings"
-        logging.info(f"Sending embedding request for text length {len(text)} to '{url}'")
+        logging.debug(f"Sending embedding request for text length {len(text)} to '{url}'")
         payload = {
             "model": self.model,
             "input": text
