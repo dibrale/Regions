@@ -10,14 +10,14 @@
       "data": {
         "typeName": "Region",
         "params": {
-          "name": "SelfThinker",
-          "task": "Think about the implications to yourself based on what your sources and knowledge can tell you.",
+          "name": "PCC",
+          "task": "Think about yourself, given what you remember.",
           "connections": {
-            "GoalThinker": "Integrate what you know about yourself with your personal goals.",
-            "ClarifyPlace": "Clarify the spatial and contextual aspects of a memory.",
-            "JudgeInfer": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
-            "RememberImagine": "Retrieve memories involving yourself or imagine future scenarios.",
-            "SummarizeMemory": "Summarize memories and reply with these summaries."
+            "amPFC": "Integrate what you know about yourself with your personal goals.",
+            "vmPFC": "Retrieve autobiographical memories or imagine future scenarios.",
+            "pIPL": "Summarize episodic memories.",
+            "RSC": "Clarify the spatial and contextual aspects of a memory.",
+            "dmPFC": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system."
           }
         },
         "nodeId": "Region_1",
@@ -30,8 +30,8 @@
         }
       },
       "width": 220,
-      "height": 150,
-      "selected": true,
+      "height": 118,
+      "selected": false,
       "dragging": false,
       "positionAbsolute": {
         "x": -1372.4935410381913,
@@ -48,20 +48,20 @@
       "data": {
         "typeName": "Region",
         "params": {
-          "name": "GoalThinker",
+          "name": "amPFC",
           "task": "Integrate what you know about yourself with your personal goals.",
           "connections": {
-            "JudgeInfer": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
-            "RememberImagine": "Retrieve memories involving yourself or imagine future scenarios."
+            "vmPFC": "Retrieve autobiographical memories or imagine future scenarios.",
+            "dmPFC": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system."
           }
         },
         "nodeId": "Region_2",
         "isDarkMode": true,
         "layerInfo": {
-          "isInCurrentLayer": true,
-          "chainName": "cleanup",
-          "chainColorClass": "bg-blue-600",
-          "chainTextClass": "text-white"
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
         }
       },
       "width": 220,
@@ -83,21 +83,21 @@
       "data": {
         "typeName": "Region",
         "params": {
-          "name": "JudgeInfer",
+          "name": "dmPFC",
           "task": "Infer the beliefs, intentions and perspectives of others. Judge the morality of a situation or belief system.",
           "connections": {
-            "JudgeOthers": "Make judgements about the mental states of others.",
-            "OthersConcept": "Explore the the social and conceptual aspects of a request.",
-            "RememberImagine": "Retrieve memories involving yourself or imagine future scenarios."
+            "TPJ": "Make judgements about the mental states of others.",
+            "LTC": "Explore the the social and conceptual aspects of a request.",
+            "vmPFC": "Retrieve autobiographical memories or imagine future scenarios."
           }
         },
         "nodeId": "Region_3",
         "isDarkMode": true,
         "layerInfo": {
-          "isInCurrentLayer": true,
-          "chainName": "cleanup",
-          "chainColorClass": "bg-blue-600",
-          "chainTextClass": "text-white"
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
         }
       },
       "width": 220,
@@ -119,20 +119,20 @@
       "data": {
         "typeName": "Region",
         "params": {
-          "name": "RememberImagine",
-          "task": "Retrieve memories involving yourself or imagine future scenarios.",
+          "name": "vmPFC",
+          "task": "Retrieve autobiographical memories or imagine future scenarios.",
           "connections": {
-            "ClarifyPlace": "Clarify the spatial and contextual aspects of a memory.",
-            "SummarizeMemory": "Summarize memories and reply with these summaries."
+            "pIPL": "Summarize episodic memories.",
+            "RSC": "Clarify the spatial and contextual aspects of a memory."
           }
         },
         "nodeId": "Region_4",
         "isDarkMode": true,
         "layerInfo": {
-          "isInCurrentLayer": true,
-          "chainName": "cleanup",
-          "chainColorClass": "bg-blue-600",
-          "chainTextClass": "text-white"
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
         }
       },
       "width": 220,
@@ -154,21 +154,21 @@
       "data": {
         "typeName": "Region",
         "params": {
-          "name": "JudgeOthers",
+          "name": "TPJ",
           "task": "Make judgements about the mental states of others.",
           "connections": {
-            "PeopleFacts": "Retrieve facts surrounding the social context of the request.",
-            "OthersConcept": "Explore the the social and conceptual aspects of a request.",
-            "SummarizeMemory": "Summarize memories and reply with these summaries."
+            "LTC": "Explore the the social and conceptual aspects of a request.",
+            "TempP": "Retrieve facts surrounding the social context of the request.",
+            "pIPL": "Summarize episodic memories."
           }
         },
         "nodeId": "Region_5",
         "isDarkMode": true,
         "layerInfo": {
-          "isInCurrentLayer": true,
-          "chainName": "cleanup",
-          "chainColorClass": "bg-blue-600",
-          "chainTextClass": "text-white"
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
         }
       },
       "width": 220,
@@ -190,8 +190,8 @@
       "data": {
         "typeName": "Region",
         "params": {
-          "name": "SummarizeMemory",
-          "task": "Summarize memories and reply with these summaries.",
+          "name": "pIPL",
+          "task": "Summarize episodic memories.",
           "connections": {
             "PHC": "Spatial and contextual processing, particularly in scene recognition."
           }
@@ -199,14 +199,14 @@
         "nodeId": "Region_6",
         "isDarkMode": true,
         "layerInfo": {
-          "isInCurrentLayer": true,
-          "chainName": "cleanup",
-          "chainColorClass": "bg-blue-600",
-          "chainTextClass": "text-white"
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
         }
       },
       "width": 220,
-      "height": 118,
+      "height": 102,
       "selected": false,
       "positionAbsolute": {
         "x": -281.97794889288684,
@@ -224,20 +224,20 @@
       "data": {
         "typeName": "Region",
         "params": {
-          "name": "OthersConcept",
+          "name": "LTC",
           "task": "Explore the the social and conceptual aspects of a request.",
           "connections": {
-            "PeopleFacts": "Retrieve facts surrounding the social context of the request.",
-            "ClarifyPlace": "Clarify the spatial and contextual aspects of a memory."
+            "TempP": "Retrieve facts surrounding the social context of the request.",
+            "RSC": "Clarify the spatial and contextual aspects of a memory."
           }
         },
         "nodeId": "Region_7",
         "isDarkMode": true,
         "layerInfo": {
-          "isInCurrentLayer": true,
-          "chainName": "cleanup",
-          "chainColorClass": "bg-blue-600",
-          "chainTextClass": "text-white"
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
         }
       },
       "width": 220,
@@ -259,19 +259,19 @@
       "data": {
         "typeName": "Region",
         "params": {
-          "name": "ClarifyPlace",
+          "name": "RSC",
           "task": "Clarify the spatial and contextual aspects of a memory.",
           "connections": {
-            "UnderstandScene": "Spatial and contextual processing, particularly in scene recognition."
+            "PHC": "Spatial and contextual processing, particularly in scene recognition."
           }
         },
         "nodeId": "Region_8",
         "isDarkMode": true,
         "layerInfo": {
-          "isInCurrentLayer": true,
-          "chainName": "cleanup",
-          "chainColorClass": "bg-blue-600",
-          "chainTextClass": "text-white"
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
         }
       },
       "width": 220,
@@ -293,19 +293,19 @@
       "data": {
         "typeName": "Region",
         "params": {
-          "name": "UnderstandScene",
+          "name": "PHC",
           "task": "Spatial and contextual processing, particularly in scene recognition.",
           "connections": {
-            "GetMemories": "Retrieve episodic memories."
+            "HF": "Retrieve episodic memories."
           }
         },
         "nodeId": "Region_9",
         "isDarkMode": true,
         "layerInfo": {
-          "isInCurrentLayer": true,
-          "chainName": "cleanup",
-          "chainColorClass": "bg-blue-600",
-          "chainTextClass": "text-white"
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
         }
       },
       "width": 220,
@@ -327,14 +327,11 @@
       "data": {
         "typeName": "RAGRegion",
         "params": {
-          "name": "PeopleFacts",
+          "name": "TempP",
           "task": "Retrieve facts surrounding the social context of the request.",
           "reply_with_actors": true,
-          "threshold": "0.5",
-          "connections": {
-            "OthersConcept": "Explore the the social and conceptual aspects of a request.",
-            "JudgeOthers": "Make judgements about the mental states of others."
-          }
+          "threshold": "0.65",
+          "connections": {}
         },
         "nodeId": "RAGRegion_10",
         "isDarkMode": true,
@@ -364,13 +361,11 @@
       "data": {
         "typeName": "RAGRegion",
         "params": {
-          "name": "GetMemories",
+          "name": "HF",
           "task": "Retrieve episodic memories.",
           "reply_with_actors": false,
-          "threshold": "0.5",
-          "connections": {
-            "UnderstandScene": "Spatial and contextual processing, particularly in scene recognition."
-          }
+          "threshold": "0.65",
+          "connections": {}
         },
         "nodeId": "RAGRegion_11",
         "isDarkMode": true,
@@ -406,7 +401,7 @@
         "isDarkMode": true,
         "layerInfo": {
           "isInCurrentLayer": true,
-          "chainName": "cleanup",
+          "chainName": "init",
           "chainColorClass": "bg-blue-600",
           "chainTextClass": "text-white"
         }
@@ -433,7 +428,7 @@
           "name": "InstructionCache",
           "task": "Forward cached instruction.",
           "connections": {
-            "SelfThinker": "Think about yourself, given what you remember."
+            "PCC": "Think about yourself, given what you remember."
           }
         },
         "nodeId": "BroadcastRegion_13",
@@ -577,30 +572,6 @@
       "id": "e_Region_9_RAGRegion_11"
     },
     {
-      "source": "RAGRegion_10",
-      "sourceHandle": "out",
-      "target": "Region_7",
-      "targetHandle": "in",
-      "type": "default",
-      "id": "e_RAGRegion_10_Region_7"
-    },
-    {
-      "source": "RAGRegion_10",
-      "sourceHandle": "out",
-      "target": "Region_5",
-      "targetHandle": "in",
-      "type": "default",
-      "id": "e_RAGRegion_10_Region_5"
-    },
-    {
-      "source": "RAGRegion_11",
-      "sourceHandle": "out",
-      "target": "Region_9",
-      "targetHandle": "in",
-      "type": "default",
-      "id": "e_RAGRegion_11_Region_9"
-    },
-    {
       "source": "Region_3",
       "sourceHandle": "out",
       "target": "Region_4",
@@ -657,93 +628,94 @@
     },
     {
       "questions_forward": [
-        "SelfThinker",
-        "GoalThinker",
-        "JudgeInfer"
+        "PCC",
+        "amPFC",
+        "dmPFC"
       ]
     },
     {
       "tpj": [
-        "JudgeOthers"
+        "TPJ"
       ],
       "vmpfc": [
-        "RememberImagine"
+        "vmPFC"
       ]
     },
     {
       "pipl": [
-        "SummarizeMemory"
+        "pIPL"
       ],
       "ltc": [
-        "OthersConcept"
+        "LTC"
       ]
     },
     {
       "rsc": [
-        "ClarifyPlace"
+        "RSC"
       ],
       "tempp": [
-        "PeopleFacts"
+        "TempP"
       ]
     },
     {
       "phc_hf": [
-        "UnderstandScene",
-        "GetMemories"
+        "PHC",
+        "HF"
       ]
     },
     {
       "phc": [
-        "UnderstandScene"
+        "PHC"
       ]
     },
     {
       "hf": [
-        "GetMemories"
+        "HF"
       ],
       "pipl": [
-        "SummarizeMemory"
+        "pIPL"
       ],
       "rsc-ltc": [
-        "ClarifyPlace",
-        "OthersConcept"
+        "RSC",
+        "LTC"
       ]
     },
     {
       "tpj": [
-        "JudgeOthers"
+        "TPJ"
       ],
       "vmpfc": [
-        "RememberImagine"
+        "vmPFC"
       ]
     },
     {
       "replies_back": [
-        "JudgeInfer",
-        "GoalThinker",
-        "SelfThinker"
+        "dmPFC",
+        "amPFC",
+        "PCC"
       ],
       "trmpp": [
-        "PeopleFacts"
+        "TempP"
       ]
     },
     {
       "pcc_summary": [
         "InstructionCache",
-        "SelfThinker"
+        "PCC"
       ]
     },
     {
       "cleanup": [
         "CC",
-        "GoalThinker",
-        "JudgeInfer",
-        "JudgeOthers",
-        "RememberImagine",
-        "OthersConcept",
-        "SummarizeMemory",
-        "ClarifyPlace",
-        "UnderstandScene"
+        "PCC",
+        "amPFC",
+        "dmPFC",
+        "TPJ",
+        "vmPFC",
+        "LTC",
+        "pIPL",
+        "RSC",
+        "PHC"
       ]
     }
   ],
@@ -756,101 +728,101 @@
     ],
     [
       [
-        "SelfThinker",
+        "PCC",
         "make_questions"
       ],
       [
-        "GoalThinker",
+        "amPFC",
         "make_questions"
       ],
       [
-        "JudgeInfer",
+        "dmPFC",
         "make_questions"
       ]
     ],
     [
       [
-        "JudgeOthers",
+        "TPJ",
         "make_questions"
       ],
       [
-        "RememberImagine",
+        "vmPFC",
         "make_questions"
       ]
     ],
     [
       [
-        "SummarizeMemory",
+        "pIPL",
         "make_questions"
       ],
       [
-        "OthersConcept",
+        "LTC",
         "make_questions"
       ]
     ],
     [
       [
-        "ClarifyPlace",
+        "RSC",
         "make_questions"
       ],
       [
-        "PeopleFacts",
+        "TempP",
         "make_replies"
       ],
       [
-        "PeopleFacts",
+        "TempP",
         "request_summaries"
       ]
     ],
     [
       [
-        "UnderstandScene",
+        "PHC",
         "make_questions"
       ],
       [
-        "GetMemories",
+        "HF",
         "make_replies"
       ],
       [
-        "GetMemories",
+        "HF",
         "request_summaries"
       ]
     ],
     [
       [
-        "UnderstandScene",
+        "PHC",
         "make_replies"
       ]
     ],
     [
       [
-        "GetMemories",
+        "HF",
         "make_updates"
       ],
       [
-        "SummarizeMemory",
+        "pIPL",
         "summarize_replies"
       ],
       [
-        "SummarizeMemory",
+        "pIPL",
         "make_replies"
       ],
       [
-        "ClarifyPlace",
+        "RSC",
         "make_replies"
       ],
       [
-        "OthersConcept",
+        "LTC",
         "make_replies"
       ]
     ],
     [
       [
-        "JudgeOthers",
+        "TPJ",
         "make_replies"
       ],
       [
-        "RememberImagine",
+        "vmPFC",
         "make_replies"
       ]
     ],
@@ -860,23 +832,19 @@
         "make_updates"
       ],
       [
-        "PeopleFacts",
-        "make_updates"
-      ],
-      [
-        "JudgeInfer",
+        "dmPFC",
         "make_replies"
       ],
       [
-        "GoalThinker",
+        "amPFC",
         "make_replies"
       ],
       [
-        "SelfThinker",
+        "PCC",
         "make_replies"
       ],
       [
-        "SelfThinker",
+        "PCC",
         "summarize_replies"
       ]
     ],
@@ -886,7 +854,7 @@
         "broadcast"
       ],
       [
-        "SelfThinker",
+        "PCC",
         "make_replies"
       ]
     ],
@@ -896,35 +864,39 @@
         "stop"
       ],
       [
-        "GoalThinker",
+        "PCC",
         "clear_replies"
       ],
       [
-        "JudgeInfer",
+        "amPFC",
         "clear_replies"
       ],
       [
-        "JudgeOthers",
+        "dmPFC",
         "clear_replies"
       ],
       [
-        "RememberImagine",
+        "TPJ",
         "clear_replies"
       ],
       [
-        "OthersConcept",
+        "vmPFC",
         "clear_replies"
       ],
       [
-        "SummarizeMemory",
+        "LTC",
         "clear_replies"
       ],
       [
-        "ClarifyPlace",
+        "pIPL",
         "clear_replies"
       ],
       [
-        "UnderstandScene",
+        "RSC",
+        "clear_replies"
+      ],
+      [
+        "PHC",
         "clear_replies"
       ]
     ]
