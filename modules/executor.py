@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass
 from typing import Any, Callable
 from functools import partial
@@ -164,6 +165,8 @@ async def execute_plan(
         - Aborts immediately upon first layer failure
         - Logs detailed error information at each failure point
     """
+    # Start timestamp
+    time_start = time.time()
     # Determine execution order
     execution_order = orchestrator.execution_order or range(len(orchestrator.layer_config))
     success = True
@@ -224,6 +227,9 @@ async def execute_plan(
             logging.info("Execution completed successfully")
         else:
             logging.error("Execution failed. See log for details.")
+        time_total = time.time() - time_start
+        time_string = time.strftime('%Hh%Mm%Ss', time.gmtime(time_total))
+        logging.info(f"Total execution time: {time_string}")
     return success
 
 
