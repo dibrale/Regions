@@ -224,3 +224,27 @@ def test_logging_preferences():
     logging.warning("Logging preferences configured")
     logging.error("Logging preferences configured")
     logging.critical("Logging preferences configured")
+
+
+def make_prompt(question: str, background: str = '', bom: str = '<|im_start|>', eom: str = '<|im_end|>') -> str:
+    """
+    Construct a structured prompt for the LLM.
+
+    Args:
+        question (str): User query or request to process
+        background (str, optional): Background information or context to provide
+        bom (str, optional): Beginning of message delimiter. Defaults to '('.
+        eom (str, optional): End of message delimiter. Defaults to '<|im_end|>'.
+
+    Returns:
+        str: Formatted prompt string ready for LLM processing
+
+    Note:
+        - Builds schema containing region's task focus and accumulated knowledge
+        - Uses delimiters to structure system/user/assistant sections
+        - Includes thinking trace if provided
+    """
+    prefix = f"{bom}system\nReply to the request. "
+    prompt = f"{prefix}{background}{eom}\n{bom}user\n{question}{eom}\n{bom}assistant\n"
+    return prompt
+
