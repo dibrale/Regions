@@ -67,15 +67,24 @@ def external_input(t, i):
     """
 
     background = ("There were smells of smoke and paint, and patrons waiting. And Madamme "
-                  "Proprietor. You recall this much. You need to learn more about the memory so "
-                  "you can reply coherently when it is time to do so.")
+                  "Proprietor. You recall this much. You need to learn more about the memory so"
+                  " you can make thoughtful inferences when it is time to do so.")
     question = "What else do you remember happening, and what does it all mean?"
-    general_context = ("You are a participant in a structured discussion where you are "
-                       "responsible for the given task. The same is true of your sources. You are "
-                       "only allowed to ask them about specifics related to their function.")
+    general_context = ("You are a participant in a creative discussion where you are "
+                       "responsible for the given task. The same is true of your sources. The "
+                       "other participants do not have immediate access to any events you are "
+                       "recalling, so you must include *concrete, specific details* of your "
+                       "knowledge when asking questions. You must *not* ask them general "
+                       "questions about their tasks. Critical: You must *not* include any invented "
+                       "examples in your questions.")
     rag_region_desc = (" is a RAG retrieval system that can look up information and may ask for "
                        "updates, but does not perform inference on its own. Your requests to it "
                        "will be interpreted as search queries.")
+    creativity_exception = ("This task is explicitly a creative exercise. System constraints "
+                            "regarding inference do *not* apply to the reply portion of your "
+                            "process. However, you should not invent new facts or memories."
+                            "If using hypotheticals to illustrate a point, you must clearly"
+                            "state so.")
 
     t.send("SelfThinker", question)
     t.send("InstructionCache", question)
@@ -86,23 +95,26 @@ def external_input(t, i):
         "SelfThinker",
         general_context + " Your context for 'self' is as an observer, or maybe a dreamer? "
                           "Otherwise, adopt whatever priorities and imperatives appear most "
-                          "natural.")
+                          "natural. " + creativity_exception)
     i.send(
         "JudgeInfer",
-        general_context + "You are not presently provided with an explicitly defined moral "
-                          "system to use, so employ general considerations to the best of your "
-                          "ability.")
+        general_context + "If you are not provided with an explicitly defined moral "
+                          "system to use, employ general considerations to the best of your "
+                          "ability. " + creativity_exception)
     i.send(
         "JudgeOthers",
         general_context + "'SummarizeMemory' will need a concrete description of a memory in "
                           "order to provide a summary and additional context. 'PeopleFacts' " +
-        rag_region_desc)
+        rag_region_desc + " " + creativity_exception)
+    i.send("GoalThinker", general_context)
     i.send(
         "RememberImagine",
         general_context + "The memories you operate with are supplied via a request, or retrieved "
                           "from 'SummarizeMemory' and 'ClarifyPlace'. Both will require a concrete "
                           "description of a memory to be useful. Keep in mind that you have "
-                          "considerable creative freedom in imagining scenarios.")
+                          "considerable creative freedom in imagining scenarios. While you must"
+                          "incorporate the information you receive, you are not bound by it. " +
+                            creativity_exception)
     i.send(
         "OthersConcept",
         general_context + " 'PeopleFacts'" + rag_region_desc +
@@ -114,7 +126,7 @@ def external_input(t, i):
                           "from 'UnderstandScene'. 'ClarifyPlace' will require a concrete "
                           "description of a memory to be useful.")
     i.send("SummarizeMemory", general_context)
-    i.send("UnderstandScene", general_context + "'GetMemories' " + rag_region_desc)
+    i.send("UnderstandScene", general_context + "'GetMemories'" + rag_region_desc)
 
 @Execute(r, o, p)
 async def main(ex):
