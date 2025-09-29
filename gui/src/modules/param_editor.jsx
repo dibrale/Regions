@@ -31,7 +31,7 @@ export function ParamEditor({
         }
     });
 
-    // Compute connections that are derived from edges (auto-populated)
+    // Compute connections that are derived from edges (autopopulated)
     const derivedConnections = {};
     edges
         .filter((e) => e.source === selectedNode.id)
