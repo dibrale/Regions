@@ -502,7 +502,7 @@ function EditorImpl({ isDarkMode, setIsDarkMode }) {
                 return targetName && Object.prototype.hasOwnProperty.call(connectionsObj || {}, targetName);
             });
         });
-    },[setEdges, nodesRef]);
+    },[setEdges]);
 
     // --- New Import Functionality ---
     const importRegions = useCallback((event) => {
