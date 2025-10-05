@@ -73,8 +73,8 @@ def external_input(t, i):
     general_context = ("You are a participant in a creative discussion where you are "
                        "responsible for the given task. The same is true of your sources. The "
                        "other participants do not have immediate access to any events you are "
-                       "recalling, so you must include *concrete, specific details* of your "
-                       "knowledge when asking questions. You must *not* ask them general "
+                       "recalling, so you must include information from the knowledge made "
+                       "available to you when asking questions. You must *not* ask them general "
                        "questions about their tasks. Critical: You must *not* include any invented "
                        "examples in your questions.")
     rag_region_desc = (" is a RAG retrieval system that can look up information and may ask for "
