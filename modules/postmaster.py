@@ -50,7 +50,8 @@ class Postmaster:
             rts_prepend: Whether to prepend undeliverable notice to message content.
                          If None (default), no prepend occurs.
             reroute_destination: Target region name for rerouted messages
-            cc: Name of a "CC" region (for debugging/logging purposes)
+            cc: Name of a "CC" region (for debugging/logging purposes). If None (default),
+                then messages are not forwarded to a listener
             print_address: Destination that will cause the message to be written to sys.stdout via print()
 
         Raises:
