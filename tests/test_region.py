@@ -153,7 +153,11 @@ class TestRegion(unittest.TestCase):
         """Test successful question generation for connected regions"""
 
         # Generate questions
-        result = await self.region.make_questions()
+        with self.assertLogs(level='DEBUG') as cm:
+            try:
+                result = await self.region.make_questions()
+            finally:
+                print("\n=== CAPLOG ===\n" + '\n'.join(cm.output) + "\n=== END CAPLOG ===")
 
         self.assertTrue(result)
 
