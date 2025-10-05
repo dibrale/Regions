@@ -1,3 +1,4 @@
+from regions.feed_forward_region import FeedForwardRegion
 from regions.listener_region import ListenerRegion
 from regions.rag_region import RAGRegion
 from regions.region import Region
@@ -9,6 +10,7 @@ region_dictionary = [
     {"name": "RAGRegion", "class": RAGRegion},
     {"name": "ListenerRegion", "class": ListenerRegion},
     {"name": "BroadcastRegion", "class": BroadcastRegion},
+    {"name": "FeedForwardRegion", "class": FeedForwardRegion},
     {"name": "MockRegion", "class": MockRegion},
     {"name": "MockRAGRegion", "class": MockRAGRegion},
     {"name": "MockListenerRegion", "class": MockListenerRegion}

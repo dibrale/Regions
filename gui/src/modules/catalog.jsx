@@ -15,6 +15,21 @@ export const REGION_CATALOG = {
             keep_last_reply_per_source: { doc: "Keep only the last reply per sender in _incoming_replies." },
         },
     },
+    FeedForwardRegion: {
+        label: "FeedForwardRegion",
+        defaults: (i) => ({
+            name: `Region_${i}`,
+            task: "Describe the purpose of this region",
+            connections: {},
+        }),
+        methods: {
+            make_questions: { doc: "Generate questions for connected regions to update knowledge." },
+            make_replies: { doc: "Generate replies to all pending requests in _incoming_requests, addressing each reply to all connected regions." },
+            summarize_replies: { doc: "Summarize received replies into a single message per sender." },
+            clear_replies: { doc: "Clear all stored replies." },
+            keep_last_reply_per_source: { doc: "Keep only the last reply per sender in _incoming_replies." },
+        },
+    },
     RAGRegion: {
         label: "RAGRegion",
         defaults: (i) => ({

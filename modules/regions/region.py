@@ -142,6 +142,20 @@ class Region(BaseRegion):
 
         return reply
 
+    def _make_replies_init(self) -> tuple:
+        """
+        Internal function to set initial variables for make_replies(). Raises
+        ValueError if incoming request queue is empty.
+        :return:
+        tuple: initial settings for 'faultless' (True) and 'success' (empty list) variables
+        """
+        logging.debug(f"{self.name}: Initiating reply generation...")
+        self._run_inbox()
+        if self._incoming_requests.empty():
+            raise ValueError
+        return True, []
+
+
     async def make_replies(self) -> bool:
         """
         Generate replies to all pending requests in _incoming_requests.
@@ -156,14 +170,12 @@ class Region(BaseRegion):
             - Returns False if any LLM processing fails
             - Clears _incoming_requests after processing
         """
-        logging.debug(f"{self.name}: Initiating reply generation...")
-        faultless = True
-        success = []
-        self._run_inbox()
-
-        if self._incoming_requests.empty():
+        try:
+            faultless, success = self._make_replies_init()
+        except ValueError:
             logging.info(f"{self.name}: No incoming requests to process.")
             return True
+
         initial_length = self._incoming_requests.qsize()
         while not self._incoming_requests.empty():
             request = self._incoming_requests.get_nowait()
@@ -277,7 +289,7 @@ class Region(BaseRegion):
             return True
         self._consolidate_replies()
         replies = {}
-        prompt = 'Summarize the following replies into a single coherent paragraph without losing information:\n\n'
+        prompt = 'Summarize the following into a single coherent paragraph without losing information:\n\n'
         if not self._incoming_replies.empty():
             while not self._incoming_replies.empty():
                 item = self._incoming_replies.get_nowait()
@@ -285,7 +297,7 @@ class Region(BaseRegion):
                 content = item[source]
                 prompt += content
                 try:
-                    reply = await self._get_from_llm(prompt)
+                    reply = await self._get_from_llm(make_prompt(prompt))
                 except Exception as e:
                     logging.warning(f"{self.name}: Processing failed. {e.args}")
                     reply = ""
