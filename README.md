@@ -81,7 +81,7 @@ Optional runtime services:
 
 ## Project Structure
 - `modules\`: core framework (orchestrator, executor, postmaster, registry, RAG, LLM link)
-- `modules\regions\`: Region implementations (base, region, rag_region, listener_region)
+- `modules\regions\`: Region implementations (base, region, rag, listener, broadcast, feed_forward)
 - `examples\`: runnable demo and params
 - `tests\`: unit tests for core modules
 
