@@ -52,7 +52,7 @@
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.64.0",
     "react-resizable-panels": "^3.0.6",
-    "react-router-dom": "^7.9.1",
+    "react-router-dom": "^7.9.4",
     "reactflow": "^11.11.4",
     "recharts": "^3.2.1",
     "sonner": "^2.0.3",
