@@ -26,13 +26,14 @@ While region nodes are autonomous and self-contained, they can share LLMLink and
 
 #### Region Types
 
-| **Class**           | **Initialization**                                                     | **Exposed Methods**                                       | **Role**                                                      |
-|---------------------|------------------------------------------------------------------------|-----------------------------------------------------------|---------------------------------------------------------------|
-| *BaseRegion*        | `name`, `task`, *connections*                                          | `clear_replies`, `keep_last_reply_per_source`             | Superclass for other region classes                           |
-| **Region**          | `name`, `task`, `llm`, *connections*                                   | `make_replies`, `make_questions`, `summarize_replies`     | Core LLM-using class generating questions, replies, summaries |
-| **RAGRegion**       | `name`, `task`, `rag`, *connections*, *reply_with_actors*, *threshold* | `make_replies`, `make_updates`, `request_summaries`       | Makes an SQLite database available to the workflow            |
-| **ListenerRegion**  | `name`, *out_process*, *delay*                                         | `start`, `stop`, `verify`, ~~keep_last_reply_per_source~~ | Traffic monitoring                                            |
-| **BroadcastRegion** | `name`, *task*, *connections*                                          | `broadcast`                                               | Broadcast, caching and synchronized message injection         |
+| **Class**             | **Initialization**                                                     | **Exposed Methods**                                       | **Role**                                                      |
+|-----------------------|------------------------------------------------------------------------|-----------------------------------------------------------|---------------------------------------------------------------|
+| *BaseRegion*          | `name`, `task`, *connections*                                          | `clear_replies`, `keep_last_reply_per_source`             | Superclass for other region classes                           |
+| **Region**            | `name`, `task`, `llm`, *connections*                                   | `make_replies`, `make_questions`, `summarize_replies`     | Core LLM-using class generating questions, replies, summaries |
+| **FeedForwardRegion** | `name`, `task`, `llm`, *connections*                                   | `make_replies`, `make_questions`, `summarize_replies`     | Feeds all output forward to all connections.                  |
+| **RAGRegion**         | `name`, `task`, `rag`, *connections*, *reply_with_actors*, *threshold* | `make_replies`, `make_updates`, `request_summaries`       | Makes an SQLite database available to the workflow            | 
+| **ListenerRegion**    | `name`, *out_process*, *delay*                                         | `start`, `stop`, `verify`, ~~keep_last_reply_per_source~~ | Traffic monitoring                                            |
+| **BroadcastRegion**   | `name`, *task*, *connections*                                          | `broadcast`                                               | Broadcast, caching and synchronized message injection         |
 
 The classes **MockRegion**, **MockListenerRegion** and **MockRAGRegion** are available for testing purposes as well (tests/mock_regions.py), but are stored separately from the others.
 
@@ -228,6 +229,7 @@ A number of sample scripts, configuration files and GUI savestates are provided 
 - Literary critique workflow demo: `lit_crit/lit_demo.py` (More complex configuration that also demonstrates a ListenerRegion instance)
 - Double Hegel workflow demo: `double_hegel/double_hegel_demo.py` (Demonstrates broadcast region usage)
 - Model of the Default Mode Network (DMN): `default_mode_network/dmn.py`
+- Output refinement demo: `refine/refine_demo.py`
 
 Run the infrastructure demo:
 ```powershell
