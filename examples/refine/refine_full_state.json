@@ -1,0 +1,283 @@
+{
+  "flowNodes": [
+    {
+      "id": "ListenerRegion_1",
+      "type": "regionNode",
+      "position": {
+        "x": -126.78426984894571,
+        "y": -97.54855356710789
+      },
+      "data": {
+        "typeName": "ListenerRegion",
+        "params": {
+          "name": "CC"
+        },
+        "nodeId": "ListenerRegion_1",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "init",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 82,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -126.78426984894571,
+        "y": -97.54855356710789
+      },
+      "dragging": false
+    },
+    {
+      "id": "BroadcastRegion_2",
+      "type": "regionNode",
+      "position": {
+        "x": -127.83644111580719,
+        "y": 55.27996806885443
+      },
+      "data": {
+        "typeName": "BroadcastRegion",
+        "params": {
+          "name": "BroadcastPrompt",
+          "task": "Forward all incoming messages to connected regions",
+          "connections": {
+            "DraftB": "Reply to the user request. Think carefully before responding.",
+            "CombineReplies": "Combine the replies into a single reply to the user request, removing redundancies and keeping the best elements of each.",
+            "DraftA": "Reply to the user request. Think carefully before responding."
+          }
+        },
+        "nodeId": "BroadcastRegion_2",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": true,
+          "chainName": "init",
+          "chainColorClass": "bg-blue-600",
+          "chainTextClass": "text-white"
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": true,
+      "positionAbsolute": {
+        "x": -127.83644111580719,
+        "y": 55.27996806885443
+      },
+      "dragging": false
+    },
+    {
+      "id": "FeedForwardRegion_3",
+      "type": "regionNode",
+      "position": {
+        "x": 143.65923168378993,
+        "y": 138.87490853322697
+      },
+      "data": {
+        "typeName": "FeedForwardRegion",
+        "params": {
+          "name": "DraftA",
+          "task": "Reply to the user request. Think carefully before responding.",
+          "connections": {
+            "CombineReplies": "Combine the replies into a single reply to the user request, removing redundancies and keeping the best elements of each."
+          }
+        },
+        "nodeId": "FeedForwardRegion_3",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 143.65923168378993,
+        "y": 138.87490853322697
+      },
+      "dragging": false
+    },
+    {
+      "id": "FeedForwardRegion_5",
+      "type": "regionNode",
+      "position": {
+        "x": 142.62012711237253,
+        "y": -27.95987530589497
+      },
+      "data": {
+        "typeName": "FeedForwardRegion",
+        "params": {
+          "name": "DraftB",
+          "task": "Reply to the user request. Think carefully before responding.",
+          "connections": {
+            "CombineReplies": "Combine the replies into a single reply to the user request, removing redundancies and keeping the best elements of each."
+          }
+        },
+        "nodeId": "FeedForwardRegion_5",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 118,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 142.62012711237253,
+        "y": -27.95987530589497
+      },
+      "dragging": false
+    },
+    {
+      "id": "Region_7",
+      "type": "regionNode",
+      "position": {
+        "x": 423.8911054435396,
+        "y": 39.99514119322316
+      },
+      "data": {
+        "typeName": "Region",
+        "params": {
+          "name": "CombineReplies",
+          "task": "Combine the replies into a single reply to the user request, removing redundancies and keeping the salient elements of each.",
+          "connections": {}
+        },
+        "nodeId": "Region_7",
+        "isDarkMode": true,
+        "layerInfo": {
+          "isInCurrentLayer": false,
+          "chainName": null,
+          "chainColorClass": "",
+          "chainTextClass": ""
+        }
+      },
+      "width": 220,
+      "height": 150,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 423.8911054435396,
+        "y": 39.99514119322316
+      },
+      "dragging": false
+    }
+  ],
+  "flowEdges": [
+    {
+      "source": "BroadcastRegion_2",
+      "sourceHandle": "out",
+      "target": "FeedForwardRegion_3",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_BroadcastRegion_2_FeedForwardRegion_3"
+    },
+    {
+      "source": "BroadcastRegion_2",
+      "sourceHandle": "out",
+      "target": "FeedForwardRegion_5",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_BroadcastRegion_2_FeedForwardRegion_5"
+    },
+    {
+      "source": "BroadcastRegion_2",
+      "sourceHandle": "out",
+      "target": "Region_7",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_BroadcastRegion_2_Region_7"
+    },
+    {
+      "source": "FeedForwardRegion_3",
+      "sourceHandle": "out",
+      "target": "Region_7",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_FeedForwardRegion_3_Region_7"
+    },
+    {
+      "source": "FeedForwardRegion_5",
+      "sourceHandle": "out",
+      "target": "Region_7",
+      "targetHandle": "in",
+      "type": "default",
+      "id": "e_FeedForwardRegion_5_Region_7"
+    }
+  ],
+  "layerConfig": [
+    {
+      "init": [
+        "CC",
+        "BroadcastPrompt"
+      ]
+    },
+    {
+      "A": [
+        "DraftA"
+      ],
+      "B": [
+        "DraftB"
+      ]
+    },
+    {
+      "end": [
+        "CombineReplies",
+        "CC"
+      ]
+    }
+  ],
+  "executionConfig": [
+    [
+      [
+        "CC",
+        "start"
+      ],
+      [
+        "BroadcastPrompt",
+        "broadcast"
+      ]
+    ],
+    [
+      [
+        "DraftA",
+        "make_replies"
+      ],
+      [
+        "DraftB",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "CombineReplies",
+        "make_replies"
+      ],
+      [
+        "CC",
+        "stop"
+      ]
+    ]
+  ],
+  "executionOrder": [
+    0,
+    1,
+    2
+  ],
+  "chainColors": [
+    {
+      "init": 0
+    },
+    {
+      "A": 0,
+      "B": 1
+    },
+    {
+      "end": 0
+    }
+  ]
+}

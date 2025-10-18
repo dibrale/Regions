@@ -1,0 +1,50 @@
+[
+  {
+    "name": "CC",
+    "type": "ListenerRegion",
+    "task": "",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "BroadcastPrompt",
+    "type": "BroadcastRegion",
+    "task": "Forward all incoming messages to connected regions",
+    "connections": {
+      "DraftA": "Reply to the user request. Think carefully before responding.",
+      "DraftB": "Reply to the user request. Think carefully before responding.",
+      "CombineReplies": "Combine the replies into a single reply to the user request, removing redundancies and keeping the salient elements of each."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "DraftA",
+    "type": "FeedForwardRegion",
+    "task": "Reply to the user request. Think carefully before responding.",
+    "connections": {
+      "CombineReplies": "Combine the replies into a single reply to the user request, removing redundancies and keeping the salient elements of each."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "DraftB",
+    "type": "FeedForwardRegion",
+    "task": "Reply to the user request. Think carefully before responding.",
+    "connections": {
+      "CombineReplies": "Combine the replies into a single reply to the user request, removing redundancies and keeping the salient elements of each."
+    },
+    "reply_with_actors": false,
+    "threshold": null
+  },
+  {
+    "name": "CombineReplies",
+    "type": "Region",
+    "task": "Combine the replies into a single reply to the user request, removing redundancies and keeping the salient elements of each.",
+    "connections": {},
+    "reply_with_actors": false,
+    "threshold": null
+  }
+]

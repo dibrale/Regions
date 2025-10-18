@@ -1,0 +1,61 @@
+{
+  "layer_config": [
+    {
+      "init": [
+        "CC",
+        "BroadcastPrompt"
+      ]
+    },
+    {
+      "A": [
+        "DraftA"
+      ],
+      "B": [
+        "DraftB"
+      ]
+    },
+    {
+      "end": [
+        "CombineReplies",
+        "CC"
+      ]
+    }
+  ],
+  "execution_config": [
+    [
+      [
+        "CC",
+        "start"
+      ],
+      [
+        "BroadcastPrompt",
+        "broadcast"
+      ]
+    ],
+    [
+      [
+        "DraftA",
+        "make_replies"
+      ],
+      [
+        "DraftB",
+        "make_replies"
+      ]
+    ],
+    [
+      [
+        "CombineReplies",
+        "make_replies"
+      ],
+      [
+        "CC",
+        "stop"
+      ]
+    ]
+  ],
+  "execution_order": [
+    0,
+    1,
+    2
+  ]
+}
