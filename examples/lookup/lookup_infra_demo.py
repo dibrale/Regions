@@ -1,3 +1,11 @@
+"""
+Script to demonstrate the usage of Regions and RAGRegions with an orchestrator, registry and postmaster.
+Functions similarly to the base demo script. Reads embedding and text model server configurations from 'demo_params.json'.
+These can be loaded via the GUI for inspection.
+
+Note: Hardcoded to http - change to https if SSL is truly desired for a demo
+"""
+
 import asyncio
 import json
 import logging
@@ -10,23 +18,18 @@ from orchestrator import Orchestrator
 from postmaster import Postmaster
 from region_registry import RegionRegistry
 from modules.dynamic_rag import DynamicRAGSystem
+from utils import use_logging_standard
 from verify import verify
 
-'''
-Script to demonstrate the usage of Regions and RAGRegions with an orchestrator, registry and postmaster. 
-Functions similarly to the base demo script. Reads embedding and text model server configurations from 'demo_params.json'.
-These can be loaded via the GUI for inspection.
-
-Note: Hardcoded to http - change to https if SSL is truly desired for a demo
-'''
-
-logging.basicConfig()
-logging.getLogger().setLevel(logging.INFO)
 
 async def store(rag: DynamicRAGSystem, data: list[dict]):
+    """
+    Method to load data into the RAG
+    :param rag:
+    :param data:
+    """
     stored_chunks = []
     for doc in data:
-        # await asyncio.sleep(0.5)  # Rate limiting delay - shouldn't be needed anymore
         chunk_hashes = await rag.store_document(
             content=doc["content"],
             actors=doc["actors"],
@@ -35,6 +38,11 @@ async def store(rag: DynamicRAGSystem, data: list[dict]):
     print(f"{rag.name}: Total chunks stored: {len(stored_chunks)}\n")
 
 async def main():
+    """
+    Run lookup demo with infrastructure classes
+    :returns:
+    """
+    use_logging_standard()
     # Load parameters and data
 
     print("Loading parameters from 'demo_params.json'")
