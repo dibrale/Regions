@@ -1,8 +1,6 @@
 include requirements.txt
-include examples/*.json
-include examples/*/*.json
-include examples/shared/bm_rag.db
-include examples/default_mode_network/dmn_rag.db
-include examples/lit_crit/i_know_poem.txt
 include tests/pytest.ini
 include tests/test_params.json
+recursive-exclude examples *
+recursive-exclude gui *
+recursive-exclude scratch *
