@@ -1,18 +1,3 @@
-import asyncio
-import os
-import pathlib
-import re
-
-import json
-import time
-from typing import List, Dict, Any, Optional, Union
-import logging
-
-from database_manager import DatabaseManager, RetrievalResult, ChunkMetadata, DocumentChunk
-from embedding_client import EmbeddingClient
-from exceptions import *
-from utils import _chunk_text, cosine_similarity
-
 """
 Dynamic RAG (Retrieval-Augmented Generation) Storage, Indexing, and Retrieval System.
 
@@ -27,6 +12,20 @@ This module implements a comprehensive framework for building a RAG system with:
 The system supports document chunking, embedding generation, storage, and retrieval
 with configurable parameters for chunk size, overlap, and similarity thresholds.
 """
+import asyncio
+import os
+import pathlib
+import re
+
+import json
+import time
+from typing import List, Dict, Any, Optional, Union
+import logging
+
+from database_manager import DatabaseManager, RetrievalResult, ChunkMetadata, DocumentChunk
+from embedding_client import EmbeddingClient
+from exceptions import *
+from utils import _chunk_text, cosine_similarity
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -75,6 +74,7 @@ class DynamicRAGSystem:
         Raises:
             ValueError: If chunk_size <= 0, overlap < 0, or max_results < 1
         """
+        self.db_manager = None
         entered_path = pathlib.PurePath(db_path)
         if entered_path.name == "":
             raise ValueError("Database path cannot be empty")
@@ -82,7 +82,6 @@ class DynamicRAGSystem:
             self.db_path = entered_path
         else:
             self.db_path = pathlib.PurePath(os.path.join(os.getcwd(), pathlib.PurePath(db_path)))
-
 
         self.embedding_server_url = embedding_server_url
         self.embedding_model = embedding_model
@@ -366,7 +365,6 @@ class DynamicRAGSystem:
             log_msg += f" ({method_name})"
         logging.info(log_msg)
         return results
-
 
     async def retrieve_by_actor(self,
                                 actors: List[str],
