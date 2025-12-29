@@ -1,3 +1,6 @@
+"""
+Module RegionEntry and RegionRegistry classes for configuring and managing region instances
+"""
 import json
 import pathlib
 from functools import partial
@@ -233,11 +236,12 @@ class RegionEntry:
                 """
         pure_path = pathlib.PurePath(path)
 
-        with open(str(pure_path)) as f:
+        with open(str(pure_path), encoding="utf-8") as f:
             raw_list = json.load(f)     # [{"name": ..., "type": ..., ...}, ...]
             logging.info(f"Loaded {len(raw_list)} entries from '{pure_path.name}'")
             name_roll = []
-            for entry in raw_list: name_roll.append(entry['name'])
+            for entry in raw_list:
+                name_roll.append(entry['name'])
             if len(name_roll) != len(set(name_roll)):
                 raise ValueError(f"Duplicate region names in list from '{pure_path.name}'")
         return [cls(**item) for item in raw_list]
@@ -468,7 +472,8 @@ class RegionRegistry:
                 self.names.remove(name)
                 removed = True
                 break
-        if not removed: logging.warning(f"No region '{name}' in registry")
+        if not removed:
+            logging.warning(f"No region '{name}' in registry")
         return removed
 
     def load(self, path: str) -> bool:
@@ -562,7 +567,7 @@ class RegionRegistry:
             else:
                 try:
                     class_from_str(region.type)
-                except TypeError or NameError as e:
+                except (TypeError, NameError) as e:
                     issues.append(f"'{region.name}': {e}")
             if not region.task and region.type != 'ListenerRegion':
                 issues.append(f"No task given for region '{region.name}'")
@@ -623,7 +628,7 @@ class RegionRegistry:
         else:
             issues, warnings = None, None
         if issues:
-            logging.error(f"Build cancelled due to verification issues. Address these before proceeding, or disable verification.")
+            logging.error("Build cancelled due to verification issues. Address these before proceeding, or disable verification.")
             return False
         if not self.regions:
             logging.error("No regions registered")
@@ -668,7 +673,7 @@ class RegionRegistry:
                     faultless = False
 
         # Wrap-up and final tally
-        print(f"Build operation done.")
+        print("Build operation done.")
         if overwrite:
             logging.info(f"Successfully built {built} out of {len(self.regions)} regions.")
         else:
@@ -682,4 +687,3 @@ class RegionRegistry:
             faultless = False
 
         return faultless
-
