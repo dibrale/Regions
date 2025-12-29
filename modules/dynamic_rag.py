@@ -112,7 +112,7 @@ class DynamicRAGSystem:
         else:
             logging.info(f"Saving configuration to {pure_path}")
         try:
-            with open(str(pure_path), 'w') as f:
+            with open(str(pure_path), 'w', encoding="utf-8") as f:
                 json.dump({
                     "db_path": self.db_manager.db_path,
                     "embedding_server_url": self.embedding_server_url,
@@ -132,7 +132,7 @@ class DynamicRAGSystem:
         pure_path = pathlib.PurePath(path)
         logging.info(f"{cls.__name__}: Loading RAG configuration from {pure_path.name}")
         try:
-            with open(str(pure_path)) as f:
+            with open(str(pure_path), encoding="utf-8") as f:
                 config = json.load(f)
                 if config.get('name') is not None:
                     logging.info(f"{cls.__name__}: Loaded '{config['name']}' RAG configuration")
@@ -149,6 +149,7 @@ class DynamicRAGSystem:
                 )
         except IOError as e:
             logging.error(f"{cls.__name__}: Failed to load RAG configuration: {str(e)}")
+            return None
 
     async def store_document(self,
                              content: str,
@@ -258,14 +259,13 @@ class DynamicRAGSystem:
                 raise ValueError(f"Unsupported data type: {type(data)}")
             except Exception as e:
                 logging.error(f"{self.db_path.name}: {e}")
-            finally:
-                return False
+            return False
 
         logging.info(f"{self.db_path.name}: Storing {length} documents...")
-        for index in range(0, len(doc_paths)):
+        for index, path in enumerate(doc_paths):
             pure_path = pathlib.PurePath(doc_paths[index])
             try:
-                with open(doc_paths[index]) as f:
+                with open(path, encoding="utf-8") as f:
                     lines = f.readlines()
                     content = ''.join(lines)
             except FileNotFoundError:
@@ -432,9 +432,8 @@ class DynamicRAGSystem:
         if not deleted:
             logging.warning(f"{self.db_path.name}: Chunk {chunk_hash} could not be deleted")
             return False
-        else:
-            logging.info(f"{self.db_path.name}: Deleted chunk {chunk_hash}")
-            return True
+        logging.info(f"{self.db_path.name}: Deleted chunk {chunk_hash}")
+        return True
 
     async def update_chunk(self, chunk_hash: str, new_content: str, actors: List[str]) -> bool:
         """Update chunk content through delete-then-store operation.
@@ -459,7 +458,7 @@ class DynamicRAGSystem:
             return False
 
         # Generate new embedding
-        logging.debug(f"Generating new embedding for updated chunk")
+        logging.debug("Generating new embedding for updated chunk")
         async with EmbeddingClient(self.embedding_server_url, self.embedding_model) as embedding_client:
             embedding = await embedding_client.get_embedding(new_content)
 
