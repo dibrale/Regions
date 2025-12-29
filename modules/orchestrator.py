@@ -422,7 +422,7 @@ class Orchestrator:
             Saves layer_config, execution_config, and execution_order as JSON.
             Overwrites existing files without confirmation.
         """
-        with open(output_path, "w") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump({
                 "layer_config": self.layer_config,
                 "execution_config": self.execution_config,
@@ -446,7 +446,7 @@ class Orchestrator:
         """
         posix_path = pathlib.PurePosixPath(path)
 
-        with open(str(posix_path), "r") as f:
+        with open(str(posix_path), "r", encoding="utf-8") as f:
             data = json.load(f)
             logging.info(f"Loaded data from '{posix_path.name}'")
 
