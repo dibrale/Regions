@@ -1,3 +1,7 @@
+"""
+Module containing the Executor class, Execute decorator, and helper functions
+"""
+import functools
 import time
 from dataclasses import dataclass
 from typing import Any, Callable
@@ -60,11 +64,19 @@ async def execute_layer(
     layer_config = orchestrator.layer_config[layer]
     chain_tasks = []
     failed_chain_names = []
+    chain_name = None
 
-    # Process each chain concurrently
+    # Define each chain
     for chain_name, regions in layer_config.items():
         # Create async task for this chain (executing regions serially)
         async def run_chain(regs=regions.copy()):  # Use copy to avoid late binding issues
+            """
+            Function to run a chain of methods within a given layer. Defined for each chain on
+            execute_layer() call.
+
+            :param regs: List of region names within the chain.
+            :return:
+            """
             methods_in_chain = []
             loop = asyncio.get_running_loop()
 
@@ -255,6 +267,7 @@ class Executor:
     registry: RegionRegistry = None
     orchestrator: Orchestrator = None
     postmaster: Postmaster = None
+    run_layer: functools.partial = None
 
     def __enter__(self):
         """Initialize execution context by binding partial execution functions."""
@@ -264,7 +277,6 @@ class Executor:
 
     def __exit__(self, *exc):
         """Clean up execution context (no-op in this implementation)."""
-        pass  # nothing special to clean up
 
 
 @dataclass
@@ -338,5 +350,4 @@ class Execute:
         # Determine if the function is async
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
-        else:
-            return sync_wrapper
+        return sync_wrapper
